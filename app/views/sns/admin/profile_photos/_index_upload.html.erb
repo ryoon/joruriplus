@@ -1,0 +1,150 @@
+<%
+upload_uri = crop_sns_profile_photo_selects_path
+%>
+
+<div class="setPhote">
+<h4>現在の写真</h4>
+
+<%=link_to "サムネイルを編集する", "#", :id=>"edtiThumnail" if @p_photo%><br />
+<div class="now" id="nowPhoto">
+<%=image_tag(Core.profile.profile_photo_path, :alt => Core.profile.name, :align => 'center', :border => 0, :width=>160)%>
+</div>
+<div class="select" id="photo_preview">
+</div>
+<div class="update" id="updateLink"></div>
+</div><!--setPhote-->
+
+<div class="space">
+<span class="arrow">←</span>
+</div>
+
+<div class="changePhote">
+<span>写真を変更する場合は、下記から写真を選択してください</span>
+<%if @p_photo%><span>「サムネイルを編集する」からプロフィール写真として表示されるサムネイルを編集することができます。</span><%end%>
+<div class="upLoad">
+    <iframe src="<%= url_for(:controller=>'profile_photo_selects', :action=>:index) %>"
+      frameborder="1" style="width: 500px; height: 250px; margin: 10px 20px;" id=""></iframe>
+      <div id="uploadUi">
+        <% form_for :item, :html => { :multipart => true, :name=>"form1" }, :url => {:action => :create} do |f| %>
+        <%= f.error_messages %>
+        <%= f.file_field :upload, {:size=>10, :max_length=>15} %>
+        <%= f.hidden_field :created_user_id, :value=>Core.profile.id %>
+        <%#= f.submit('画像をアップロードする') %>
+        <%=link_to '画像をアップロードする', "javascript:void(0);", :onclick=>"document.form1.submit();return false;", :class=>"button"%>
+        <%end%>
+        <p>プロフ写真は10枚まで登録することができます。</p>
+      </div>
+     <p id="uploadLimit">プロフ写真が上限（10枚）まで登録されているため、追加登録はできません。</p>
+</div>
+</div>
+
+<div id="thumnailDialog"  style="display : none; background-color:#DEDEF2;text-align:center;" >
+  <span>サムネイルを編集する</span><br />
+  <%=image_tag(@p_photo.resized_public_uri, :id=>"imageArea", :alt => Core.profile.name, :align => 'center', :border => 0) if @p_photo %>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  var photoCount;
+  var uploadUi = $('#uploadUi');
+  var uploadLimit = $('#uploadLimit');
+  var cameraLink = $('#cameraLink');
+  uploadUi.hide(); uploadLimit.hide(); cameraLink.hide();
+
+  $(window).load(function() {
+    $('iframe:first').contents().find('.photoSelect').bind("click", function(){
+        var imgId = this.id.replace(/bt/, "");
+        var img = $('iframe:first').contents().find("#bt"+imgId).html();
+        img = img.replace(/\height="100px"/,'width="160px"');
+        $("#photo_preview").html(img);
+        var selectUrl = '<a href="/_admin/sns/profile_photos/' + imgId +'/select" class="button">この写真を設定する</a>'
+        $("#updateLink").html(selectUrl);
+      });
+
+   $('iframe:first').load(function(){
+     photoCount = $('iframe:first').contents().find('#photos_count').val();
+     if( photoCount<10 ){ uploadUi.show(); uploadLimit.hide(); cameraLink.show(); }
+     else{ uploadUi.hide(); uploadLimit.show(); cameraLink.hide(); }
+   });
+
+   photoCount = $('iframe:first').contents().find('#photos_count').val();
+   if( photoCount<10 ){ uploadUi.show(); uploadLimit.hide(); cameraLink.show(); }
+   else{ uploadUi.hide(); uploadLimit.show(); cameraLink.hide(); }
+  });
+
+  $("#edtiThumnail").click(function(){
+    $('#imageArea').imgAreaSelect({ aspectRatio: '1:1', handles: true, fadeSpeed: 200, onSelectChange: preview });
+    $('#thumnailDialog').dialog('open');
+    $('div[class^=imgareaselect-]').show();
+    return false;
+  });
+
+var x1 = 0;
+var y1 = 0;
+var p_height = 240;
+var p_width = 240;
+
+function preview(img, selection) {
+    if (!selection.width || !selection.height)
+        return;
+
+    var scaleX = 100 / selection.width;
+    var scaleY = 100 / selection.height;
+
+    x1 = selection.x1;
+    y1 = selection.y1;
+    p_height = selection.width;
+    p_width = selection.height;
+}
+
+
+
+$('#thumnailDialog').dialog({
+    bgiframe: true,
+    autoOpen: false,
+    width: 520,
+    height: 520,
+    modal: true,
+    title: "",
+    closeText: "",
+    buttons: {
+        '完了': function() {
+          $('div[class^=imgareaselect-]').hide();
+          $('#imageArea').imgAreaSelect({ remove: true });
+          $.ajax({
+              type: 'GET',
+              url:    '<%= upload_uri%>?width=' + p_width + '&height=' + p_height + '&px=' + x1 + '&py=' + y1 ,
+              data: '',
+              contentType: 'application/json',
+              dataType: 'text',
+              success: function(msg){
+                if(msg.match(/^OK/)) {
+
+                  //$("#status").html("サムネイルを編集しました。");
+                  var imageSrc = msg.replace(/^OK /,'');
+                  var imag = "<img src='" + imageSrc + "' alt='<%=Core.profile.name%>' align='center' border='0' width='160px' />";
+                  $("#nowPhoto").html(imag);
+                }else{
+                  $("#status").html("サムネイルの編集に失敗しました。");
+                }
+              }
+          });
+          $(this).dialog('close');
+        },
+        'キャンセル': function() {
+            $('div[class^=imgareaselect-]').hide();
+            $('#imageArea').imgAreaSelect({ remove: true });
+            $(this).dialog('close');
+        },
+    }
+});
+
+
+});
+
+
+//]]>
+</script>

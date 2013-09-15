@@ -1,0 +1,47 @@
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</div>
+</td>
+
+<td id="snsContent" colspan="2">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+    <%= render :partial => "header" %>
+<%if @items.blank?%>
+表示する動画が存在しません。<br />
+<%else%>
+  <table class="list">
+    <tr>
+    <th></th>
+    <th></th>
+    <th>作成者</th>
+    <th>作成日</th>
+    </tr>
+  <%for item in @items%>
+  <tr>
+    <td><%=link_to "詳細", sns_project_video_path(@project_code,item)%></td>
+    <td>
+    <iframe src="<%=item.url%>" width="320" height="240"></iframe>
+   </td>
+   <td>
+     <%=safe{item.created_user.name}%>
+   </td>
+   <td>
+     <%=safe{item.created_at.strftime('%Y-%m-%d %H:%M')}%>
+   </td>
+   </tr>
+  <%end%>
+  </table>
+<%= paginate @items %>
+<%end%>
+</div>
+</div>
+</td>

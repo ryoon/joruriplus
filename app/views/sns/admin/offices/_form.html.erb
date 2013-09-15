@@ -1,0 +1,50 @@
+<%
+manager_config = display_items_config
+%>
+<%= javascript_include_tag :defaults %>
+<%= calendar_date_select_includes 'default', :locale => 'ja' %>
+<table class="show">
+  <%if manager_config[:office_name]=="enabled"%>
+  <tr>
+    <th>勤務先名</th>
+    <td><%=f.text_field :name%></td>
+  </tr>
+<%end%>
+<%if manager_config[:offitial_position]=="enabled"%>
+  <tr>
+    <th>役職</th>
+    <td><%=f.text_field :offitial_position%></td>
+  </tr>
+<%end%>
+<%if manager_config[:assigned_job]=="enabled"%>
+  <tr>
+    <th>担当</th>
+    <td><%=f.text_field :assigned_job%></td>
+  </tr>
+<%end%>
+<%if manager_config[:extension]=="enabled"%>
+  <tr>
+    <th>電話番号</th>
+    <td><%=f.telephone_field :extension, {:class => 'number'}%></td>
+  </tr>
+<%end%>
+  <!--<tr>
+    <th>勤務開始</th>
+    <td><%#= calendar_date_select_tag "item[start_at]", @item.start_at, {:popup => "force",:year_range=>70} %></td>
+  </tr>
+  <tr>
+    <th>勤務終了</th>
+    <td><%#= calendar_date_select_tag "item[end_at]", @item.end_at, {:popup => "force",:year_range=>70} %></td>
+  </tr>-->
+<%if manager_config[:office_remarks]=="enabled"%>
+  <tr>
+    <th>備考</th>
+    <td><%=f.text_area :remarks ,:cols=>5 , :rows=>5%></td>
+  </tr>
+<%end%>
+  <tr>
+    <td></td><td><%= f.submit('登録する', :class=>"button") %></td>
+  </tr>
+</table>
+
+

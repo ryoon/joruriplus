@@ -1,0 +1,141 @@
+<%= render :partial => "menu"%>
+
+<td id="snsContent" colspan="2" class="detail">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+    <%= render :partial => "title"%>
+    <%#=link_to "戻る", sns_user_photos_path(@created_user.account,{:album_id=>@item.album_id})%>
+
+    <table class="show">
+      <tr>
+        <th>タイトル</th>
+        <td><%= @item.display_file_name%></td>
+      </tr>
+      <tr>
+        <th>サムネイル<br /><%=link_to "編集", "#", :id=>"edtiThumnail",:class => "button"%></th>
+        <td><div id="nowPhoto"><%=image_tag(@item.prof_thumb_public_uri, :border => 0) %></div></td>
+      </tr>
+    </table>
+<div id="photoShow"></div>
+<div id="thumnailDialog"  style="display : none; background-color:#DEDEF2;" >
+  <%=image_tag(@item.resized_public_uri, :id=>"imageArea", :align => 'center', :border => 0) %>
+</div>
+  <div class="myFunction">
+    <%= link_to "編集する",edit_sns_sample_photo_path(@item),:class => "button"%>
+    <%=link_to "削除する",sns_sample_photo_path(@item),:method=>:delete,
+      :class => :delete, :title => "削除", :confirm=>"この写真を削除します。よろしいですか？" %>
+  </div>
+    <%=link_to "写真を表示", "#", :onclick=>"show_hide_image('default')",:id=>"defaultLink", :class=>"button"%>
+    <%=link_to "縮小", "#", :onclick=>"show_hide_image('resized')",:id=>"resizedLink", :class=>"button"%>
+    <%=link_to "ダウンロード", @item.download_uri, :class=>"button"%>
+  </div>
+</div>
+</td>
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  // ここでは、$はjQueryとして使えます。
+  $("#edtiThumnail").click(function(){
+    $('#imageArea').imgAreaSelect({ aspectRatio: '1:1', handles: true, fadeSpeed: 200, onSelectChange: preview });
+    $('#thumnailDialog').dialog('open');
+    $('div[class^=imgareaselect-]').show();
+    return false;
+  });
+
+var x1 = 0;
+var y1 = 0;
+var p_height = 240;
+var p_width = 240;
+
+function preview(img, selection) {
+    if (!selection.width || !selection.height)
+        return;
+
+    var scaleX = 100 / selection.width;
+    var scaleY = 100 / selection.height;
+
+    /*$('#preview img').css({
+        width: Math.round(scaleX * 300),
+        height: Math.round(scaleY * 300),
+        marginLeft: -Math.round(scaleX * selection.x1),
+        marginTop: -Math.round(scaleY * selection.y1)
+    });*/
+    x1 = selection.x1;
+    y1 = selection.y1;
+    p_height = selection.width;
+    p_width = selection.height;
+    /*$('#x1').val(selection.x1);
+    $('#y1').val(selection.y1);
+    $('#x2').val(selection.x2);
+    $('#y2').val(selection.y2);
+    $('#w').val(selection.width);
+    $('#h').val(selection.height);    */
+}
+
+
+
+$('#thumnailDialog').dialog({
+    bgiframe: true,
+    autoOpen: false,
+    width: 500,
+    height: 520,
+    modal: true,
+    title: "サムネイル編集",
+    closeText: "×",
+    buttons: {
+        '完了': function() {
+          $('div[class^=imgareaselect-]').hide();
+          $('#imageArea').imgAreaSelect({ remove: true });
+          $.ajax({
+              type: 'GET',
+              url:    '<%= crop_sns_sample_photo_path(@item)%>?width=' + p_width + '&height=' + p_height + '&px=' + x1 + '&py=' + y1 ,
+              data: '',
+              contentType: 'application/json',
+              dataType: 'text',
+              success: function(msg){
+                if(msg.match(/^OK/)) {
+                  //$("#status").html("サムネイルを編集しました。");
+                  var imageSrc = msg.replace(/^OK /,'');
+                  var imag = "<img src='" + imageSrc + "' alt='<%=Core.profile.name%>' align='center' border='0' width='160px' />";
+                  $("#nowPhoto").html(imag);
+                }else{
+                  $("#status").html("サムネイルの編集に失敗しました。");
+                }
+              }
+          });
+          $(this).dialog('close');
+        },
+      'キャンセル': function() {
+            $('div[class^=imgareaselect-]').hide();
+            $('#imageArea').imgAreaSelect({ remove: true });
+            $(this).dialog('close');
+        },
+    }
+});
+});
+var show_hide_image = function(value) {
+  switch (value) {
+  case 'default':
+    $('photoShow').innerHTML = '<%=image_tag @item.public_uri, :alt=>@item.original_file_name %>';
+    $('resizedLink').setStyle("display : inline;");
+    $('defaultLink').setStyle("display : none;");
+    break;
+  case 'resized':
+    $('resizedLink').setStyle("display : none;");
+    $('defaultLink').setStyle("display : inline;");
+    $('photoShow').innerHTML = '<%=image_tag @item.resized_public_uri, :alt=>@item.original_file_name %>';
+    break;
+  }
+}
+
+show_hide_image('resized');
+
+//]]>
+</script>

@@ -1,0 +1,39 @@
+
+<td id="snsMenu">
+<%if @created_user.account == Core.profile.account%>
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <%= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+</div>
+<%else%>
+  <%= render :partial => "sns/admin/base/user_menu"%>
+<%end%>
+</td>
+
+<td id="snsContent" colspan="2">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+    <h2 class="video">動画</h2>
+    <%=link_to "動画を追加", new_sns_user_video_path(Core.profile.account) if @u_role==true%>
+<%if @items.blank?%>
+表示する動画が存在しません。
+<%else%>
+  <table style="width: 100%;" class="show">
+  <%for item in @items%>
+  <tr><td>
+    <%= link_to(image_tag(item.thumb_path, :alt=>"JoruriVideo"),sns_user_video_path(@created_user.account, item) ) %>
+    <%= "（#{item.range_show}）"%>
+   </td></tr>
+  <%end%>
+  </table>
+<%= paginate @items %>
+<%end%>
+  </div>
+</div>
+</td>

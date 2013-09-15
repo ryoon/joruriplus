@@ -1,0 +1,42 @@
+<table class="show">
+  <tr>
+    <th>公開範囲</th>
+    <td><%= f.select :privacy, form_publish_select %></td>
+  </tr>
+  <tr>
+    <th>ファイル</th>
+    <td><%= f.file_field :upload, {:size=>10, :max_length=>15} %></td>
+  </tr>
+    <!--<tr>
+      <th>備考</th>
+      <td><%#=f.text_area :caption, {:cols=>60 ,:rows=>5}%></td>
+    </tr>-->
+</table>
+<%= f.hidden_field :created_user_id %>
+<%= f.hidden_field :album_id %>
+
+<%= f.submit('編集する', :class=>"button", :id=>"submitButton") %>
+
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+    $("#submitButton").live('click' ,function(){
+      var privacy = $('#item_privacy option:selected').text();
+      if(privacy=="全庁通知"){
+        if(confirm('投稿はすべてのユーザのニュースフィードに公開されます。よろしいですか？')){
+            return true;
+          }else{
+            return false;
+         }
+      }else{
+        return true;
+      }
+    });
+});
+
+
+//]]>
+</script>
+

@@ -1,0 +1,29 @@
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</div>
+</td>
+<td  id="snsContent">
+<div class="menu">
+  <div class="leftMenu">
+  <h2 class="project"><%=@project.title%></h2>
+  <h3 class="titleLine">メンバー</h3>
+    <%= form_for :item, :html => { :multipart => true , :method=>:put }, :url => {:action => :update} do |f| %>
+    <%= f.error_messages %>
+    <%= render :partial => "sns/admin/base/tools/form_participant", :locals => {:f => f }%>
+    <%= render :partial => "form_managers", :locals => {:f => f }%>
+    <%= render :partial => "sns/admin/base/tools/form_script", :locals => {:f => f }%>
+    <%= render :partial => "form", :locals => {:f => f }%>
+    <table class="show">
+      <tr>
+        <th></th>
+        <td><%= f.submit("編集する", :class=>"button") %></td>
+      </tr>
+    </table>
+    <% end %>
+  </div>
+</div>
+</td>
+<%= render :partial => "side_link"%>

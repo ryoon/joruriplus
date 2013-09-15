@@ -1,0 +1,21 @@
+<%unless @projects.blank?%>
+<h2 class="project">プロジェクトの検索結果</h2>
+<table class="index">
+<%for project in @projects%>
+<%logger.debug(project.id.to_s)%>
+  <tr><td>
+    <%= link_to(project.title ,sns_project_path(project.code), :target=>"_blank") %>
+    <%= %Q(（#{project.publish_show}）)%>
+  </td></tr>
+<%end%>
+</table>
+<%if @cl=="project"%>
+<%= paginate @projects %>
+<%else%>
+<div class="pagination">
+     <%=link_to "プロジェクトの検索結果を見る",sns_searches_path({:keyword=>@word,:cl=>"project"}) %>
+  </div>
+<%end%>
+
+
+<%end%>

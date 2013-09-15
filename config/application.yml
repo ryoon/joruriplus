@@ -1,0 +1,7 @@
+webmail:
+  sys_address: "徳島県アドレス帳"
+  login_footer: ''
+  mailbox_quota_max_size: 300
+  mailbox_quota_alert_size: 250
+  synchronize_mobile_setting: 1
+  show_only_ldap_user: 1

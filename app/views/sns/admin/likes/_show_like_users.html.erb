@@ -1,0 +1,135 @@
+
+<div id="showUsersDialog" style="display: none;background-color:#DEDEF2;">
+  <span id="userDialogMessage"></span><span id="publishedMessage"></span><%=link_to "×閉じる","#",:class=>"button",:id=>"closeUserDialog"%>
+  <iframe src="" frameborder="1" style="margin: 10px 0px; height: 450px; width: 100%;" id="userListFrame"></iframe>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+
+  $(".showLikeUserList").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/showLikeBtn/,"");
+    var number = $("#likeUserNumber" + id).text();
+    $("#userDialogMessage").show();
+    $("#userDialogMessage").text(number + "が「いいね」と言っています。");
+    $("#publishedMessage").hide();
+    var listUrl = "<%=sns_likes_path%>" + "/" + id + "?kind=<%=kind%>";
+    $('#userListFrame').attr("src",listUrl);
+    $('#showUsersDialog')
+    .dialog({
+      bgiframe: true,
+      autoOpen: false,
+      width: 500,
+      height: 500,
+      modal: true,
+      title: "",
+      closeText: "",
+    })
+    .dialog('open');
+  return false;
+ });
+
+  $(".showSlideShow").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/slideLink/,"");
+    $("#userDialogMessage").hide();
+    $("#publishedMessage").hide();
+    var listUrl = "<%=sns_posts_path%>" + "/" + id + "/show_photos";
+    $('#userListFrame').attr("src",listUrl);
+    $('#showUsersDialog')
+    .dialog({
+      bgiframe: true,
+      autoOpen: false,
+      width: 500,
+      height: 500,
+      modal: true,
+      title: "投稿されたフォト",
+      closeText: "",
+    })
+    .dialog('open');
+    return false;
+ });
+
+  $(".showCommentLikeUserList").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/showCommentLikeBtn/,"");
+    var parentId = $("#commentParentId" + id).text();
+    var number = $("#likeUserNumber" + id).text();
+    $("#userDialogMessage").show();
+    $("#userDialogMessage").text(number + "が「いいね」と言っています。");
+    $("#publishedMessage").hide();
+    var listUrl = "<%=sns_likes_path%>" + "/" + id + "/show_comment?p_id=" + parentId + "&kind=<%=kind%>";
+    $('#userListFrame').attr("src",listUrl);
+    $('#showUsersDialog')
+    .dialog({
+      bgiframe: true,
+      autoOpen: false,
+      width: 500,
+      height: 500,
+      modal: true,
+      title: "",
+      closeText: "",
+    })
+    .dialog('open');
+  return false;
+ });
+
+  $(".showPublishedUsers").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/showPublished/,"");
+    //var number = $("#showPublished" + id).text();
+    $("#userDialogMessage").hide();
+    $("#publishedMessage").show();
+    $("#publishedMessage").text("以下のユーザーに公開されています");
+    var listUrl = "<%=sns_posts_path%>" + "/" + id + "/published_user";
+    $('#userListFrame').attr("src",listUrl);
+    $('#showUsersDialog')
+    .dialog({
+      bgiframe: true,
+      autoOpen: false,
+      width: 500,
+      height: 500,
+      modal: true,
+      title: "",
+      closeText: "",
+    })
+    .dialog('open');
+    return false;
+ });
+
+  $(".showCommentPublishedUsers").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/showComentPublished/,"");
+    $("#userDialogMessage").hide();
+    $("#publishedMessage").show();
+    $("#publishedMessage").text("以下のユーザーに公開されています");
+    var listUrl = "<%=sns_posts_path%>" + "/" + id + "/published_user";
+    $('#userListFrame').attr("src",listUrl);
+    $('#showUsersDialog')
+    .dialog({
+      bgiframe: true,
+      autoOpen: false,
+      width: 500,
+      height: 500,
+      modal: true,
+      title: "",
+      closeText: "",
+    })
+    .dialog('open');
+    return false;
+ });
+
+  $("#closeUserDialog").live('click' ,function(){
+   $('#userDialogMessage').empty();
+   $('#showUsersDialog').dialog('close');
+   $('#userListFrame').attr("src","");
+   return false;
+  });
+
+});
+
+
+//]]>
+</script>

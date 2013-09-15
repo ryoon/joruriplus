@@ -1,0 +1,21 @@
+jQuery.noConflict();
+jQuery(document).ready(function($){
+<%unless @comments.blank?%>
+$("#form<%=@post.id%> #comment_body").val("コメントする");
+$("#form<%=@post.id%> #comment_body").css('color', '#999');
+$("#form<%=@post.id%> #comment_body").css('max-height', '60px');
+$("#form<%=@post.id%> #comment_body").css('min-height', '60px');
+var addList = "<%= escape_javascript(render :partial=>'ajax_create') %>";
+$("#comment<%=@post.id%>").html(addList);
+$('#form<%=@post.id%>').hide();
+$('#cbutton<%=@post.id%>').html("コメントする");
+<%if @post.comments.size >= comment_limit%>
+$("#commentWarning<%=@post.id%>").html("<%=comment_limit_message%>");
+$("#cbutton<%=@post.id%>").hide();
+$("#commentWarning<%=@post.id%>").show();
+<%else%>
+$("#commentWarning<%=@post.id%>").hide();
+$("#cbutton<%=@post.id%>").show();
+<%end%>
+<%end%>
+});

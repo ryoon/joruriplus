@@ -1,0 +1,75 @@
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <%= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+
+</div>
+</td>
+
+<td id="snsContent" colspan="2" class="friendProposals">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+    <h2 class="friendProposals">申請情報</h2>
+    <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+    <table class="show">
+      <tr>
+        <th>種別 </th>
+        <td><%=@item.kind_show%></td>
+      </tr>
+      <%if @item.fr_user_id == Core.profile.id%>
+      <tr>
+        <th>受信者	</th>
+        <td>
+          <%=image_tag(@item.to_user.profile_photo_path(true), :alt => @item.to_user.name, :align => 'center', :border => 0, :width=>48)%>
+          <%=@item.to_user.name%>（<%=@item.to_user.group_name({:s_name=>false})%>）
+        </td>
+      </tr>
+      <%elsif @item.to_user_id == Core.profile.id%>
+      <%if @item.state=="unread" || @item.state=="read"%>
+      <tr>
+      <th></th>
+      <!--受信者メニュー-->
+        <td>
+          <%if @item.kind != "schedule"
+          recog_path = ""
+          recog_path = ""
+          recog_path = recognize_sns_friend_proposal_path(@item)
+          refuse_path = refuse_sns_friend_proposal_path(@item)
+          %>
+          <%=link_to("承認",recog_path )%>　｜　
+          <%=link_to("拒否", refuse_path)%>
+          <%else%>
+          <%=link_to "スケジュールを確認する", sns_schedule_path(@item.project.code, @item.schedule) if @item.schedule && @item.project%>
+          <%end%>
+        </td>
+      </tr>
+      <%end%>
+      <tr>
+        <th>送信者</th>
+        <td>
+        <%=image_tag(@item.fr_user.profile_photo_path(true), :alt => @item.fr_user.name, :align => 'center', :border => 0, :width=>48)%>
+        <%=@item.fr_user.name%>（<%=@item.fr_user.group_name%>）
+        </td>
+      </tr>
+      <%end%>
+      <tr>
+      <th>メッセージ</th>
+      <td><%=raw post_show(@item.body)%></td>
+      </tr>
+      <tr>
+        <th>申請日時</th>
+        <td><%=safe{@item.created_at.strftime('%Y-%m-%d %H:%M')}%></td>
+      </tr>
+    </table>
+    <%=link_to "取り消す",sns_friend_proposal_path(@item), :class=>:delete,:method=>:delete,
+      :title => "取消", :confirm=>"この申請を取り消します。よろしいですか？" if @item.fr_user_id == Core.profile.id%>
+  </div>
+</div>
+</td>

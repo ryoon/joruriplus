@@ -1,0 +1,62 @@
+    <table class="show">
+      <%if @item.is_project != 1%>
+      <tr>
+        <th>公開範囲</th>
+        <td><span title="<%=@item.custom_group_members%>"><%= @item.range_show%></span></td>
+      </tr>
+      <%else%>
+      <tr>
+        <th>作成者</th>
+        <td><%=safe{@item.created_user.name}%></td>
+      <tr>
+      <tr>
+        <th>作成日</th>
+        <td><%=safe{@item.created_at.strftime("%Y-%m-%d %H:%M")}%></td>
+      <tr>
+      <%end%>
+      <tr>
+        <th>タイトル</th>
+        <td><%= @item.display_file_name%></td>
+      </tr>
+    </table>
+    <div id="photoShow"></div>
+    <div>プレビューのサイズ：<%=@item.resized_width%>×<%=@item.resized_height%><br /></div>
+   <div id="defaultLink">
+        <%=link_to "写真を拡大", "#", :onclick=>"show_hide_image('default')", :class=>"button"%>
+        <span>（<%=@item.width%>×<%=@item.height%>ピクセル、ファイルサイズ：<%=safe{@item.eng_unit}%>、MIMEタイプ：<%=@item.content_type%>）</span>
+        <br />
+    </div>
+    <%=link_to "写真を縮小", "#", :onclick=>"show_hide_image('resized')",:id=>"resizedLink", :class=>"button"%>
+    <%=link_to "ダウンロード", @item.download_uri, :class=>"button"%>
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  // ここでは、$はjQueryとして使えます。
+});
+var show_hide_image = function(value) {
+  switch (value) {
+  case 'default':
+    $('photoShow').innerHTML = '<%=image_tag @item.public_uri, :alt=>@item.original_file_name %>';
+    $('resizedLink').setStyle("display : inline;");
+    $('defaultLink').setStyle("display : none;");
+    break;
+  case 'resized':
+    $('resizedLink').setStyle("display : none;");
+    $('defaultLink').setStyle("display : inline;");
+    $('photoShow').innerHTML = '<%=image_tag @item.resized_public_uri, :alt=>@item.original_file_name %>';
+    break;
+  }
+}
+
+var my_load = function() {
+ show_hide_image('resized');
+}
+my_load();
+
+//]]>
+</script>
+  </div>
+
+
+

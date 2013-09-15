@@ -1,0 +1,23 @@
+<%
+image_str =image_tag(creator_photo(feed_user,item), :alt => item.created_user_name, :align => 'center', :border => 0, :width=>42)
+%>
+<tr class="top" id="feedTop<%=item.id%>">
+<td colspan="2">
+<div class="project"><span><%=activity_report(item.text)%></span></div>
+</td>
+</tr>
+<tr class="bottom" id="feedBottom<%=item.id%>">
+<td class="left">
+  <%=link_to(image_str , user_profile_page(feed_user))%>
+</td>
+<td class="right">
+<div class="commentInfo">
+  <div class="name" id="creatorName<%=item.id%>"><%=link_to(raw(item.creator_name(item.privacy)) , user_profile_page(feed_user))%></a></div>
+  <div class="date"><%=item.created_at.strftime("%m月%d日 %H:%M")%></div>
+  <span title="<%=item.custom_group_members%>" class="range <%=item.privacy_class%>" id="rangeShow<%=item.id%>"><%=item.range_show%></span>
+</div>
+<div class="tweet"><%=raw item.activity_body%></div>
+<%= render :partial => "sns/admin/likes/like_field", :locals => {:post => item, :kind=>"post"} if item.kind[0]!="like"%>
+<%= render :partial => "sns/admin/favorites/fav_field", :locals => {:post => item, :kind=>"post"} %>
+</td>
+</tr>

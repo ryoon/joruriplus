@@ -1,0 +1,9 @@
+jQuery.noConflict();
+jQuery(document).ready(function($){
+<%if @users%>
+var addList = '<%= escape_javascript(render :partial =>"add_user") %>';
+var listField = $("#userIds").html();
+$("#userIds").html(addList + listField );
+<%end%>
+
+});

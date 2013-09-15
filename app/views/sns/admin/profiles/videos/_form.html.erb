@@ -1,0 +1,54 @@
+<%
+range_list = Sns::Post.range_list
+c_groups = Sns::CustomGroup.find(:all, :conditions=>{:user_id=>Core.profile.id})
+unless c_groups.blank?
+  c_groups.each do |c|
+    range_list << [c.name, c.sequence]
+  end
+end
+%>
+  <%= f.hidden_field :created_user_id %><br />
+  <table class="show">
+    <tr>
+      <th>URL</th>
+      <td><%= f.text_field :url ,:size=>80%></td>
+    </tr>
+    <tr>
+      <th>サイズ</th>
+      <td>
+        <%= f.text_field :width ,:size=>5, :style=>"ime-mode: disabled", :onchange=>"numCheck(this);"%>×
+      <%= f.text_field :height ,:size=>5, :style=>"ime-mode: disabled", :onchange=>"numCheck(this);"%></td>
+    </tr>
+    <!--<tr>
+      <th>備考</th>
+      <td><%#=f.text_area :caption, {:cols=>60 ,:rows=>5}%></td>
+    </tr>-->
+    <tr>
+      <th>公開範囲</th>
+      <td><%=f.select :privacy , form_publish_select%></td>
+    </tr>
+  </table>
+   <%= f.submit('編集する', :class=>"button", :id=>"submitButton") %>
+
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+    $("#submitButton").live('click' ,function(){
+      var privacy = $('#item_privacy option:selected').text();
+      if(privacy=="全庁通知"){
+        if(confirm('投稿はすべてのユーザのニュースフィードに公開されます。よろしいですか？')){
+            return true;
+          }else{
+            return false;
+         }
+      }else{
+        return true;
+      }
+    });
+});
+
+
+//]]>
+</script>

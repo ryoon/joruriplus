@@ -1,0 +1,601 @@
+<%= javascript_include_tag "/_common/js/mail_form.js" %>
+<script type="text/javascript">
+//<![CDATA[
+
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  $(".selectGroup").live('click' ,function(){
+    var id = this.id;
+    var parentId = "";
+    if (id.match(/searchCheck/)){
+      id = id.replace(/searchCheck/,"");
+      parentId = "addressesSearch" + id;
+    }else{
+      id = id.replace(/groupCheck/,"");
+      parentId = "addresses" + id;
+    }
+    $("#" + parentId + " input:checkbox").attr("checked",true);
+  });
+  $(".deselectGroup").live('click' ,function(){
+    var id = this.id;
+    var parentId = "";
+    if (id.match(/notsearchCheck/)){
+      id = id.replace(/searchCheck/,"");
+      parentId = "addressesSearch" + id;
+    }else{
+      id = id.replace(/notgroupCheck/,"");
+      parentId = "addresses" + id;
+    }
+    $("#" + parentId + " input:checkbox").attr("checked",false);
+  });
+});
+
+var chkval = {}
+function checkAll(type, gid) {
+  var value = chkval[type + gid];
+  chkval[type + gid] = value = value ? 0 : 1;
+  var frm = document.users;
+  var len = frm.elements.length;
+  for ( var i = 0; i < len; i++) {
+    if(frm.elements[i].name.match(new RegExp('^' + type + '\\['))) {
+      if (frm.elements[i].className == "group" + gid) {
+        frm.elements[i].checked = value;
+      }
+    }
+  }
+  return false;
+}
+
+
+function getNodeValue(node, name) {
+  var elem = node.getElementsByTagName(name);
+  if (elem.length > 0 && elem[0].firstChild != null) { return elem[0].firstChild.nodeValue; }
+  return null;
+}
+
+var loading_id = null;
+var showing_id = null;
+var showingId = '<%=@show_id%>';
+if (showingId!=''){
+  showing_id = '<%=@show_id%>';
+}
+
+var loading_group_ids = [];
+
+function loadAddresses(gid) {
+  //returnToAddresses();
+  var uri, param = '';
+  if (arguments.length > 1) {
+    uri = '<%= sns_sys_addresses_path %>' + '.xml';
+    param = arguments[1];
+  }else {
+    uri = "<%= sns_sys_addresses_path %>/" + gid + "/child_users.xml";
+    param = "group_id=" + gid;
+  }
+  if (loading_id != null) { return false; }
+  if ($("addresses" + showing_id)) { $("addresses" + showing_id).hide(); }
+  if (showing_id != null && $('group' + showing_id)) { $('group' + showing_id).className = ""; }
+  showing_id = gid;
+  if ($('group' + gid)) $('group' + gid).addClassName('current');
+  if ($('addresses' + gid)) {
+    $('addresses' + gid).show();
+    if ($('toggleGroups' + gid)) toggleGroups(gid, false);
+    return false;
+  }
+  loading_id = gid;
+  var myAjax = new Ajax.Request(uri, {
+    method: 'get',
+    parameters: param,
+    onSuccess: function(request){
+      if (gid.match(/Search([0-9]+)/)) {
+        var gname = '検索結果（' + RegExp.$1 + '）';
+        addSearchResult(gid, gname, param);
+        showAddresses(request, gid, gname);
+      } else {
+        showAddresses(request);
+        if ($('toggleGroups' + gid)) toggleGroups(gid, false);
+      }
+    },
+    onFailure: function(request) {
+      loading_id = null;
+      alert('送信に失敗しました。');
+    }
+  });
+  return true;
+}
+function showAddresses(request){
+  var group, gid, gname;
+  var items = request.responseXML.getElementsByTagName("item");
+  if (arguments.length > 1) {
+    gid = arguments[1];
+    gname = arguments[2];
+  }
+  else {
+    group = request.responseXML.getElementsByTagName("group")[0];
+    gid = getNodeValue(group, 'id');
+    gname = getNodeValue(group, 'name');
+  }
+  var searchNo;
+  var checkId;
+  if (gid.match(/Search/)){
+    searchNo = gid.replace(/Search/,"");
+    checkId = "searchCheck" + searchNo;
+  }else{
+    checkId = "groupCheck" + gid;
+  }
+  var html = '';
+  html += '<p class="form">' + gname.escapeHTML();
+  //html += '<input class="checkGroup" id="'+ checkId +'" name="group[]" value="1" type="checkbox"></p>';
+  //html += '</p><a href="#" class="selectGroup" id="' + checkId + '" >全選択</a>　|　' ;
+  //html += '<a href="#" class="deselectGroup" id="not' + checkId + '" >全解除</a>' ;
+  html += '</p>並び替え：<select name="sortMember" onchange="sortAddresses(\''+ gid+'\',this.value)"><option value="sort_no" selected>役職(担当順)</option>';
+  html += '<option value="kana">フリガナ</option><option value="account">職員番号</option></select>';
+  //if(items.length > 0){
+
+    //$('packageSubmit').setStyle('display: none;');
+  //}else{
+    //$('packageSubmit').setStyle('display: inline;');
+  //}
+  if (gid.indexOf('Search') == 0) {
+    html += ' <a href="#" onclick="removeSearchResult(\'' + gid + '\');return false;" class="delete" title="検索結果削除">検索結果削除</a>';
+    var itemsElm = request.responseXML.getElementsByTagName("items")[0];
+    var count = getNodeValue(itemsElm, "count");
+    var total = getNodeValue(itemsElm, "total");
+    //if (total > count) {
+      //  html += '<div class="limitedMessage">' + total + ' 件中 ' + count + ' 件を表示しました。</div>';
+    //}
+  }
+  html += '<div class="memberList">';
+  var all_escape = function (str) {
+    if (str == null) return '';
+    return str.replace(/[\\'"]/g, "\\$&").escapeHTML().replace(/"/g, '&quot;');
+  };
+  for (var i = 0; i < items.length; i++) {
+    var item  = items[i];
+    var id    = getNodeValue(item, 'id');
+    var name  = getNodeValue(item, 'name');
+    var kana  = getNodeValue(item, 'kana');
+    var account  = getNodeValue(item, 'account');
+    var groupName = getNodeValue(item, 'group_name');
+    var imageUrl = getNodeValue(item, 'img');
+    var common = getNodeValue(item, 'friend_count');
+    var isFriend = getNodeValue(item, 'is_friend');
+    var isPending = getNodeValue(item, 'is_pending');
+    var memberLimit = getNodeValue(item, 'member_limit');
+    var sortNo = getNodeValue(item, 'sort_no');
+    var nameView = name;
+    if (groupName != null) nameView = nameView.escapeHTML() + "<br /><span>（" + groupName.escapeHTML() + "）</span>";
+    html += '<div class="member">';
+    html += '<div class="thumbnail">';
+    html += '<a href="\/_admin\/profile\/'+ account +'" target="_blank"><img alt="' + name + '" src="'+ imageUrl +'" align="center" border="0" width="48"></a>';
+    html += '</div>';
+    html += '<div class="name">';
+    if(isFriend=="false" && memberLimit == "false"){
+      if (isPending=="true"){
+        //html += '<span>申請中</span>';
+      }else{
+        html += '<input id="ids_" name="ids[]" value="'+ id +'" type="checkbox">';
+      }
+    }
+    html += '<a class="name" href="\/_admin\/profile\/'+ account +'" target="_blank">' + nameView + '</a><br />';
+    html += '</div>';
+    html += '<div class="memberFunction">';
+    if (isFriend=="false" && memberLimit == "false") {
+      if (isPending == "true") {
+        //html += '<span>申請中</span>';
+      }else{
+        html += '<a href="\/_admin\/sns\/friend_proposals\/new?to_user_id='+ id +' " target="_blank">友達申請をする</a><br>';
+      }
+
+    }
+    if (account != '<%=Core.profile.account%>'){
+      if (common=="なし"){
+        html += '<span class="commonMember">共通の友達' + common + '</span>';
+      }else{
+        html += '<span class="commonMember"><a href="#" class="showCommonFriends" id="' + groupName + 'showCommon'+ id +'">共通の友達' + common + '</a></span>';
+      }
+    }
+    html += '</div>';
+    html += '<div style="display: none;">'+ account +'</div>';
+    html += '<div style="display: none;">'+ kana +'</div>';
+    html += '<div style="display: none;">'+ sortNo +'</div>';
+    html += '</div>';
+  }
+  html += '</div>';
+
+  if (gid.indexOf('Search') == 0 ) {
+    html += ' <a href="#" onclick="removeSearchResult(\'' + gid + '\');return false;" class="delete" title="検索結果削除">検索結果削除</a>';
+    var itemsElm = request.responseXML.getElementsByTagName("items")[0];
+    var count = getNodeValue(itemsElm, "count");
+    var total = getNodeValue(itemsElm, "total");
+    if (total > count) {
+      html += '<div class="limitedMessage">' + total + ' 件中 ' + count + ' 件を表示しました。</div>';
+    }
+  }
+
+  var elm = document.createElement("div");
+  elm.id = 'addresses' + gid;
+  elm.innerHTML = html;
+  $('addresses').appendChild(elm);
+  loading_id = null;
+
+}
+
+function toggleGroups(group_id) {
+  if (loading_group_ids.indexOf(group_id) > -1) return;
+  var elmChildren = $('childGroups' + group_id);
+  var hideChildren = true;
+  if (arguments.length > 1) hideChildren = arguments[1];
+  if (elmChildren) {
+    var toggleElm = $('toggleGroups' + group_id);
+    if (toggleElm.firstChild.nodeValue == '+') {
+      elmChildren.show();
+      toggleElm.firstChild.nodeValue = '-';
+      toggleElm.className = "toggleGroups toggleGroupsOpen";
+    } else if (hideChildren) {
+      elmChildren.hide();
+      toggleElm.firstChild.nodeValue = '+';
+      toggleElm.className = "toggleGroups toggleGroupsClose";
+    }
+    return;
+  }
+  loading_group_ids.push(group_id);
+  var uri = "<%= sns_sys_addresses_path %>/" + group_id + "/child_groups.xml";
+  var myAjax = new Ajax.Request(uri, {
+    method: 'get',
+    onSuccess: function(request){
+      showGroups(request, group_id)
+    },
+    onFailure: function(request) {
+      var idx = loading_group_ids.indexOf(group_id);
+      if (idx > -1) loading_group_ids.splice(idx, 1);
+      alert('送信に失敗しました。');
+    }
+  });
+}
+function showGroups(request, parent_id) {
+  var groups = request.responseXML.getElementsByTagName("group");
+  var parentElm = $('group' + parent_id).parentNode;
+  var ul = document.createElement('ul');
+  ul.className = 'children';
+  ul.id = 'childGroups' + parent_id;
+  for (var i = 0; i < groups.length; i++) {
+    var group  = groups[i];
+    var id    = getNodeValue(group, 'id');
+    var name  = getNodeValue(group, 'name');
+    var hasChildren = getNodeValue(group, 'has_children');
+    ul.appendChild(makeGroupElement(id, name, hasChildren == '1', false));
+  }
+  parentElm.appendChild(ul);
+
+  var toggleElm = $('toggleGroups' + parent_id);
+  toggleElm.firstChild.nodeValue = '-';
+  toggleElm.className = "toggleGroups toggleGroupsOpen";
+
+  var idx = loading_group_ids.indexOf(parent_id);
+  if (idx > -1) {
+    loading_group_ids.splice(idx, 1);
+  }
+}
+function makeGroupElement(id, name, hasChildren, current) {
+  var li = document.createElement('li');
+  li.className = 'folder';
+  var html = '';
+  if (hasChildren) {
+    html += '<a href="#" id="toggleGroups' + id + '" class="toggleGroups toggleGroupsClose" onclick="toggleGroups(\'' + id + '\');return false;">+</a> ';
+  } else {
+    html += '<a href="#" class="toggleGroups" style="visibility:hidden;">+</a> ';
+  }
+  var classCurrent = current ? 'class="current"' : '';
+  html += '<a href="#top" id="group' + id + '" ' + classCurrent + ' onclick="return loadAddresses(\'' + id + '\');">' + name.escapeHTML() + '</a>'
+  li.innerHTML = html;
+  return li;
+}
+function searchAddresses() {
+  var word = $('s_word').value;
+  if (word == '') return false;
+  var param = {'commit':'on', 'word':word};
+  var id = 'Search1';
+  var searchChildren = $('childGroupsSearch');
+  var results = null;
+  if (searchChildren) {
+    results = searchChildren.getElementsByTagName('li');
+  }
+  if (results && results.length > 0) {
+    var num = results[results.length - 1].id.replace(/resultSearch([0-9]+)/, "$1");
+    num = parseInt(num, 10) + 1;
+    id = 'Search' + num;
+  }
+  return loadAddresses(id, param);
+}
+function addSearchResult(id, name, param) {
+  var resultElm = $('resultSearch');
+  if (!resultElm) {
+    resultElm = makeGroupElement('Search', '検索結果一覧', true, false);
+    resultElm.id = 'resultSearch';
+    resultElm.innerHTML += '<ul class="children" id="childGroupsSearch"></ul>';
+    var rootElm = $('folderRoot');
+    rootElm.insertBefore(resultElm, rootElm.firstChild);
+  }
+  var li = makeGroupElement(id, name, false, true);
+  li.id = 'result' + id;
+  $('childGroupsSearch').appendChild(li);
+  $('searchResultList').appendChild(makeConditionElement(id, name, param));
+  if ($('toggleGroupsSearch').firstChild.nodeValue == '+') toggleGroups('Search');
+}
+function makeConditionElement(id, name, param) {
+  var tr = document.createElement('tr');
+  tr.id = 'condition' + id;
+  var td = document.createElement('td');
+  td.innerHTML = '<a href="#top" onclick="return loadAddresses(\'' + id + '\')">' + name + '</a>';
+  tr.appendChild(td);
+  td = document.createElement('td');
+  var html = '';
+  if (param['word'] != '') html += '<div><span class="condition">検索ワード</span> ： ' + param['word'].escapeHTML() + '</div>';
+  //if (param['s_name_or_kana'] != '') html += '<div><span class="condition">名前</span> ： ' + param['s_name_or_kana'].escapeHTML() + '</div>';
+  //if (param['s_email'] != '') html += '<div><span class="condition">メールアドレス</span> ： ' + param['s_email'].escapeHTML() + '</div>';
+  td.innerHTML = html;
+  tr.appendChild(td);
+  return tr;
+}
+function removeSearchResult(id) {
+  var targetAddr = $('addresses' + id);
+  var targetResult = $('result' + id);
+  var targetCondition = $('condition' + id);
+  var parent = targetResult.parentNode;
+  targetAddr.parentNode.removeChild(targetAddr);
+  targetCondition.parentNode.removeChild(targetCondition);
+  parent.removeChild(targetResult);
+  var resultElm = $('resultSearch');
+  var results = parent.getElementsByTagName('li');
+  if (results.length == 0) {
+    resultElm.parentNode.removeChild(resultElm);
+  }
+}
+function getTbodyNode(gid) {
+  var addressesNode = $('addresses' + gid);
+  if (addressesNode == null) return null;
+  var nodes = addressesNode.getElementsByTagName('div');
+  if (nodes.length == 0) return null;
+  var retNode = [];
+   for (i = 0, j = 0; i < nodes.length; i++) {
+  if (nodes[i].className == "memberList") {
+      retNode[0] = nodes[i];
+      j++;
+    }
+  }
+  return retNode[0];
+}
+function nextSortOrder(titleText) {
+  var mark = "▲";
+  if (titleText.match(/▲/)) mark = "▼";
+  return mark;
+}
+function setNextSortOrder(gid, key) {
+  var keyNode = $(key + 'Caption' + gid);
+  var nameNode = $('nameCaption' + gid);
+  var kanaNode = $('kanaCaption' + gid);
+  var emailNode = $('emailCaption' + gid);
+  var order = "▲";
+  if (!nameNode || !kanaNode || !emailNode || !keyNode) return order;
+  order = nextSortOrder(keyNode.innerText);
+  nameNode.innerText = nameNode.innerText.replace("▲","").replace("▼","");
+  kanaNode.innerText = kanaNode.innerText.replace("▲","").replace("▼","");
+  emailNode.innerText = emailNode.innerText.replace("▲","").replace("▼","");
+  keyNode.innerText += order;
+  return order;
+}
+function sortAddresses(gid, key) {
+  var tbodyNode = getTbodyNode(gid);
+  if (tbodyNode == null) return false;
+  var trNodes = tbodyNode.getElementsByTagName('div');
+  if (trNodes.length == 0) return false;
+  var memberNodes = [];
+  for (i = 0; i < trNodes.length; i++) {
+  if (trNodes[i].className == "member") {
+      memberNodes.push(trNodes[i]);
+    }
+  }
+  //var order = setNextSortOrder(gid, key);
+  var clones = new Array();
+  for (i = 0; i < memberNodes.length; i++) {
+    var node = memberNodes[i];
+    var children = node.getElementsByTagName('div');
+    var hash = new Hash();
+    hash.node = node;
+    hash.account = children[3].innerText;
+    hash.kana = children[4].innerText;
+    hash.sort_no = children[5].innerText;
+    clones.push(hash);
+  }
+  tbodyNode.innerHtml = "";
+  //if (order == "▲") {
+    clones.sort(function(e1,e2){ return e1[key] > e2[key] ? 1 : -1; });
+  //} else {
+    //clones.sort(function(e1,e2){ return e1[key] < e2[key] ? 1 : -1; });
+  //}
+  tbodyNode.innerHtml = "";
+  for (var i=0; i<clones.length; i++) {
+    tbodyNode.appendChild(clones[i].node);
+  }
+}
+//]]>
+</script>
+<td id="snsMenu">
+<div id="snsMenuContainer">
+
+<div class="mailbox addressTree">
+  <ul class="root" id="folderRoot">
+    <%unless @users.blank?%>
+    <li id="resultSearch" class="folder">
+      <a href="#" id="toggleGroupsSearch" class="toggleGroups toggleGroupsOpen" onclick="toggleGroups('Search');return false;">-</a>
+      <a href="#top" id="groupSearch" onclick="return loadAddresses('Search');">検索結果一覧</a>
+      <ul class="children" id="childGroupsSearch">
+        <li id="resultSearch1" class="folder">
+          <a href="#" class="toggleGroups" style="visibility: hidden;">+</a>
+          <a href="#top" id="groupSearch1" class="current" onclick="return loadAddresses('Search1');">検索結果（1）</a>
+        </li>
+      </ul>
+    </li>
+    <%end%>
+    <% @groups.each do |g| %>
+      <li class="folder">
+        <% if g.enabled_children.count > 0 %>
+          <%= link_to '+', '#', :id => "toggleGroups#{g.id}", :class => "toggleGroups toggleGroupsClose", :onclick => "toggleGroups('#{g.id}');return false" %>
+        <% else %>
+          <%= link_to '+', '#', :class => "toggleGroups", :style => "visibility:hidden;" %>
+        <% end %>
+        <%= link_to g.name, "#top", :id => "group#{g.id}", :onclick => "return loadAddresses('#{g.id}');" %>
+      </li>
+    <% end %>
+  </ul>
+</div>
+
+</div>
+</td><td id="snsContent" colspan="2" class="friendProposals"><div id="addressContent">
+<div class="menu">
+  <div class="leftMenu">
+    <h2 class="friendProposals">ユーザー検索</h2>
+    <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+<%= form_tag sns_sys_addresses_path, :method => :get, :id => 'searchForm', :class => 'search',
+  :onsubmit => "searchAddresses();return false;" do %>
+<table>
+  <tr>
+    <th>単語検索</th>
+    <td><%= text_field_tag :s_word, params[:word], :style => "width: 200px" %></td>
+    <td class="formSubmitters">
+      <%= submit_tag '検索', :name => :commit, :class=>"button"%>
+      <%= submit_tag 'リセット', :name => :reset, :onclick => "$('searchForm').onsubmit = null;return true;" , :class=>"button"%>
+    </td>
+  </tr>
+</table>
+<% end %>
+
+<%= form_tag package_proposal_sns_friend_proposals_path, :method => :get, :id => 'proposalForm', :class => 'proposal' do %>
+<div id="addresses">
+  <div id="addressesSearch" style="display:none;">
+    <p class="form">検索結果一覧</p>
+    <table class="index">
+      <thead><tr>
+        <th style="width:150px;">検索結果</th>
+        <th>検索条件</th>
+      </tr></thead>
+      <tbody id="searchResultList">
+      <%unless @users.blank?%>
+        <tr id="conditionSearch1"><td><a href="#top" onclick="return loadAddresses('Search1')">検索結果（1）</a></td><td><div><span class="condition">検索ワード</span> ： 徳島</div></td></tr>
+      <%end%>
+      </tbody>
+    </table>
+  </div>
+</div>
+<%
+#submitStyle="display: none;"
+submitStyle=""
+unless @users.blank?
+submitStyle=""
+%>
+
+<div id="addressesSearch1">
+  <p class="form">検索結果（1）</p>
+  <a href="#" class="selectGroup" id="searchCheck1" >全選択</a>　|　
+  <a href="#" class="deselectGroup" id="notsearchCheck1" >全解除</a>
+  <a href="#" onclick="removeSearchResult('Search1');return false;" class="delete" title="検索結果削除">検索結果削除</a>
+
+  <div class="memberList">
+    <%member_limit = Core.profile.member_limit?%>
+  <%for item in @users%>
+    <div class="member">
+    <div class="thumbnail">
+    <%=link_to(image_tag(item.profile_photo_path(true), :alt => item.name, :align => 'center', :border => 0, :width=>48), item.profile_uri)%><br />
+    </div>
+    <div class="name">
+    <%= check_box_tag "ids[]", item.id, false unless Core.profile.is_friend?(item)%>
+    <%=link_to(item.name, item.profile_uri, :class=>"name") unless item.blank?%><br><span>（<%=item.group_name%>）</span><br />
+    </div>
+    <%
+      link_str =image_tag(item.profile_photo_path(true), :alt => item.name, :align => 'center', :border => 0, :width=>50)
+      link_str += item.name
+      link_str += %Q(（#{item.group_name({:s_name=>false})}）)
+      common_friend = Core.profile.common_friend(item,@my_friend)
+      friend_str = "共通の友達　"
+      if common_friend.blank? or common_friend == 0
+        friend_str += "なし"
+      else
+        friend_str = link_to("#{friend_str}#{common_friend.to_s}人", "#", :class=>"showCommonFriends", :id=>"addressesSearch1showCommon#{item.id}")
+      end
+    %>
+    <div class="memberFunction">
+    <%if member_limit==false%>
+      <%if item.is_pending?%>
+      <%else%>
+      <%=link_to("友達申請をする" , new_sns_friend_proposal_path({:to_user_id=>item.id}) ) unless Core.profile.is_friend?(item)%><br />
+      <%end%>
+    <%end%>
+    <span class="commonMember"><%=friend_str.html_safe if item.account != Core.profile.account%></span>
+    </div>
+    <div style="display: none;"><%=item.name%></div>
+    <div style="display: none;"><%=item.kana%></div>
+    <div style="display: none;"><%=item.sort_no%></div>
+    </div>
+  <%end%>
+  <%#= paginate @users %>
+  </div>
+
+  <a href="#" onclick="removeSearchResult('Search1');return false;" class="delete" title="検索結果削除">検索結果削除</a>
+</div>
+
+<%end%>
+<div id="sysAddress" style="display:none;">
+</div>
+
+<%= submit_tag '一括申請', :class=>"button", :id=>"packageSubmit", :style=>submitStyle%>
+
+<div id="showUsersDialog" style="display: none;background-color:#DEDEF2;">
+  <span id="publishedMessage"></span><%=link_to "×閉じる","#",:class=>"button",:id=>"closeUserDialog"%>
+  <iframe src="" frameborder="1" style="margin: 10px 0px; height: 450px; width: 100%;" id="userListFrame"></iframe>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+
+
+  $(".showCommonFriends").live('click' ,function(){
+    var orig_id = this.id;
+    var id = orig_id.replace(/.*showCommon/,"");
+    var commonStr = $("#"+ orig_id).text();
+    $("#publishedMessage").text(commonStr);
+    var listUrl = "<%=sns_sys_addresses_path%>" + "/" + id;
+    $('#userListFrame').attr("src",listUrl);
+    $('#showUsersDialog')
+    .dialog({
+      bgiframe: true,
+      autoOpen: false,
+      width: 500,
+      height: 500,
+      modal: true,
+      title: "",
+      closeText: "",
+    })
+    .dialog('open');
+  return false;
+ });
+
+  $("#closeUserDialog").live('click' ,function(){
+   $("#publishedMessage").empty();
+   $('#showUsersDialog').dialog('close');
+   $('#userListFrame').attr("src","");
+   return false;
+  });
+
+});
+
+
+//]]>
+</script>
+
+</div>
+<% end %>
+</div>
+</div>
+</td>

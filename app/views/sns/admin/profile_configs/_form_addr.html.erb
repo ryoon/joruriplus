@@ -1,0 +1,47 @@
+<table class="show">
+  <%if manager_config[:address_main]=="enabled"%>
+  <tr>
+    <th>住所</th>
+    <td><%=f.text_field :address , {:size=>60 }%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:phone_number]=="enabled"%>
+  <tr>
+    <th>自宅電話番号</th>
+    <td><%=f.telephone_field :phone_number, {:class => 'number'}%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:mobile_number]=="enabled"%>
+  <tr>
+    <th>携帯電話</th>
+    <td><%=f.telephone_field :mobile_number, {:class => 'number'}%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:mail_addr]=="enabled"%>
+  <tr>
+    <th>メールアドレス（県）</th>
+    <td><%=f.email_field :mail_addr, {:class => 'email'}%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:ind_addr]=="enabled"%>
+  <tr>
+    <th>メールアドレス（個人）</th>
+    <td><%=f.email_field :ind_addr, {:class => 'email'}%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:facebook_name]=="enabled"%>
+  <tr>
+    <th>facebookユーザネーム（ユニークURL）</th>
+    <td><%=f.url_field  :facebook_name, {:class => 'email'}%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:addr_01]=="enabled"%>
+  <tr>
+    <th>その他連絡手段（自由記入）</th>
+    <td><%=f.text_area :addr_01, :cols=>5, :rows=>5%></td>
+  </tr>
+  <%end%>
+  <tr>
+  <td></td><td><%= f.submit("登録する", :class=>"button") %></td>
+  </tr>
+</table>

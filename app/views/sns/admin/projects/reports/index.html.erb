@@ -1,0 +1,45 @@
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</div>
+</td>
+
+<td id="snsContent" class="activity">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+  <%= render :partial => "header"%>
+<%= render :partial => "sns/admin/favorites/fav_link",
+    :locals=>{:favorite_lnk  =>sns_reports_path(@project_code,{:fav=>"1"}), :no_favorite_lnk => sns_reports_path(@project_code,{:fav=>"0"})}%>
+<h3 class="titleLine">アクティビティ</h3>
+  <%if @project.is_join?%>
+  <div id="feedForms">
+   <%= render :partial => "feed_forms"%>
+  </div>
+  <%= render :partial => "feed_form_js"%>
+  <%end%>
+  <%= render :partial => "feed_index", :locals=>{:cat_index=>false}%>
+  <div id="backLog">
+    <%date_str=""
+      date_str = min_sequence(@feeds,@is_project) unless @feeds.blank?%>
+      <%= render :partial => "sns/admin/posts/request_link", :locals=>{:link_str=>"過去の投稿", :request_uri=>sns_posts_path({:date=>date_str,:cat=>nil,:subfeed=>"project",:project_id=>@project.id,:fav=>@fav})}%>
+  </div>
+  </div>
+</div>
+</td>
+<td id="snsLink">
+<div id="snsLinkContainer">
+<div class="menu">
+<%=link_to "プロジェクトの詳細を確認", sns_project_path(@project_code), :class=>"button"%>
+<%= render :partial => "/sns/admin/projects/schedule_field"%>
+<%= render :partial => "/sns/admin/projects/members_field"%>
+</div>
+</div>
+</td>

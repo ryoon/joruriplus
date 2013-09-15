@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<%= render :partial => 'layouts/admin/sns/head_tags' %>
+<body><a id="top" name="top"></a>
+<%
+if [:show, :move, :close].index(params[:action].to_sym)
+  style='min-width:770px;_width:expression(document.body.clientWidth < 775 ? "770px" : "auto")'
+else
+  container_size = mail_form_size(@mail_form_size)[:container]
+  style = "width:#{container_size}px;min-width:#{container_size}px;"
+end
+%>
+<div id="container" style="<%= style %>">
+
+<div id="main">
+
+<% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+
+<div id="content">
+<div id="contentContainer">
+
+<div id="contentHeader">
+  <div id="contentTitle">
+    <span class="title">DB</span>
+    <span class="email"><%=h safe{Core.user.email} %></span>
+  </div>
+</div>
+
+<div id="contentBody">
+<%= yield  %>
+</div>
+
+<div id="contentFooter"></div>
+
+<!-- /#contentContainer --></div>
+<!-- /#content --></div>
+<!-- /#main --></div>
+<!-- /#container --></div>
+
+</body>
+</html>

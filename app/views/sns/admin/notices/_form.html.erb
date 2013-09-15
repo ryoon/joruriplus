@@ -1,0 +1,40 @@
+<%
+select_list = Core.profile.notice_select
+%>
+<table class="show">
+  <tr>
+    <th>友達申請があった</th>
+    <td><%=f.select :proposal , select_list%></td>
+  </tr>
+  <tr>
+    <th>友達申請が承認された</th>
+    <td><%=f.select :recognized , select_list%></td>
+  </tr>
+  <tr>
+    <th>プロジェクトに招待された</th>
+    <td><%=f.select :invite , select_list%></td>
+  </tr>
+  <tr>
+    <th>プロジェクトへの招待を承認された</th>
+    <td><%=f.select :invite_recog , select_list%></td>
+  </tr>
+  <tr>
+    <th>プロジェクトに更新があった</th>
+    <td><%=f.select :project , select_list%></td>
+  </tr>
+  <tr>
+    <th>管理しているプロジェクトに退会申請があった</th>
+    <td><%=f.select :leave , select_list%></td>
+  </tr>
+  <tr>
+    <th>プロジェクトへの退会申請が承認された</th>
+    <td><%=f.select :leave_recog , select_list%></td>
+  </tr>
+  <tr>
+    <th>プロジェクトへの退会申請が却下された</th>
+    <td><%=f.select :leave_refuse , select_list%></td>
+  </tr>
+  <tr>
+    <td></td><td><%= f.submit('保存する', :class=>"button") %></td>
+  </tr>
+</table>

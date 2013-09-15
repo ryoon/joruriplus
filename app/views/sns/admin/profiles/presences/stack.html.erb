@@ -1,0 +1,30 @@
+<%
+@reminds = {:project => 0, :post=>0 , :comment=>0}
+stack_kind = [[:project, "プロジェクトの更新"],[:post, "友達の投稿"],[:comment, "自分の投稿へのコメント"]]
+%>
+<%if @stacks
+for stack in @stacks
+if stack.kind[0]=="project"
+@reminds[:project]+=1
+elsif stack.kind[0]=="comment"
+@reminds[:comment]+=1
+else
+@reminds[:post]+=1
+end
+end
+%>
+<%for kind in stack_kind%>
+<%next if kind[0]==:leave && @reminds[kind[0]]==0%>
+<div class="projectMember">
+<div class="left"><%=kind[1]%></div>
+<div class="right">
+<div class="name"><%=@reminds[kind[0]]%>件</div>
+<!--<div class="date"><%#=safe{news.created_at.strftime("%Y/%m/%d %H:%M")}%></div>-->
+<div class="project">
+<%=link_to "すべて見る", sns_friend_proposals_path({:kind=>kind[0].to_s})%>
+</div><!--project-->
+</div><!--right-->
+
+</div><!--projectMember-->
+<%end%>
+<%end%>

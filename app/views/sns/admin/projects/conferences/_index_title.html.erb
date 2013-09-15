@@ -1,0 +1,21 @@
+<%if @threads.blank?%>
+<%else%>
+<table class="list" id="recent">
+<tr>
+  <th class="number" width="40">No.</th>
+  <th class="title">タイトル</th>
+  <th class="comments" width="60">コメント数</th>
+  <th class="update" width="105">最終更新日</th>
+</tr>
+<%for item in @threads%>
+<tr id="threadTitle<%=item.id%>">
+  <td class="number">No.<%=item.conf_sequence.to_i%></td>
+  <td class="title"><%=link_to item.title, "#subject#{item.id}"%></td>
+  <td id="commentCount<%=item.id%>" class="comments"><%=item.comment_size_show%></td>
+  <td id="lastUpdated<%=item.id%>" class="update"><%=safe{item.last_updated_at.strftime("%Y-%m-%d %H:%M")}%></td>
+</tr>
+<%end%>
+</table>
+<%= paginate @threads %>
+<%end%>
+

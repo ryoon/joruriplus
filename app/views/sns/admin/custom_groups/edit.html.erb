@@ -1,0 +1,22 @@
+<td  id="snsMenu">
+<div id="snsMenuContainer">
+<div class="leftMenu">
+  <%= render :partial => "sns/admin/profile_configs/editing_menu", :locals => {:current => @edit_current }%>
+</div>
+</div>
+</td>
+<td  id="snsContent" colspan="2" class="<%=@edit_current%>">
+<div class="menu">
+  <div class="leftMenu configs">
+  <h2 class="preview">プレビュー</h2>
+  <h3 class="titleLine">カスタムグループ設定</h3>
+  <%= form_for :item, :url => {:action => :update}, :html => {:method => :put, :name=>"customForm", :onsubmit=>"return my_submit();"} do |f| %>
+  <%= f.error_messages %>
+  <%= render :partial => "form", :locals => {:f => f, :current=>@edit_current} %>
+    <%= render :partial => "form_participant", :locals => {:f => f , :form_class=>"編集する"}%>
+    <%= render :partial => "form_script", :locals => {:f => f }%>
+<% end %>
+  </div>
+</div>
+</td >
+

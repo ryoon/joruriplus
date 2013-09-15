@@ -1,0 +1,37 @@
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</div>
+</td>
+
+<td id="snsContent" class="activity">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+  <%= render :partial => "header"%>
+  <h3 class="titleLine">アクティビティ</h3>
+  <%= render :partial => "sns/admin/profiles/feed_js"%>
+  <%= render :partial => "sns/admin/likes/show_like_users", :locals=>{:kind=>"post"}%>
+  <table style="width: 100%;" class="show" id="updateField">
+    <%= render :partial => "sns/admin/posts/project_item", :locals=>{:item => @item, :feed_user=>@feed_user, :is_admin=>@project.is_admin?,:is_join=>@project.is_join?}%>
+  </table>
+  </div>
+</div>
+</td>
+<td id="snsLink">
+<div id="snsLinkContainer">
+<div class="menu">
+<%=link_to "プロジェクトの詳細を確認", sns_project_path(@project_code), :class=>"button"%>
+<%= render :partial => "/sns/admin/projects/schedule_field"%>
+<%= render :partial => "/sns/admin/projects/project_field"%>
+<%= render :partial => "/sns/admin/projects/members_field"%>
+</div>
+</div>
+</td>

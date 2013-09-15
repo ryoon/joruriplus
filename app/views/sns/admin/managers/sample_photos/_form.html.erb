@@ -1,0 +1,12 @@
+
+<table class="show">
+  <tr>
+    <th>ファイル</th>
+    <td><%= f.file_field :upload, {:size=>10, :max_length=>15} %></td>
+  </tr>
+    <tr>
+    <td></td><td><%= raw submit(:register) %></td>
+    </tr>
+</table>
+<%= f.hidden_field :album_id, :value=>@album.id %>
+<%= f.hidden_field :privacy, :value=>"public" %>

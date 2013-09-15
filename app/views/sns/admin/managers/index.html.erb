@@ -1,0 +1,19 @@
+<!--
+<td id="snsMenu">
+<div id="snsMenuContainer">
+検索語句：<b><%=params[:word]%></b>
+<div class="profileContainer">
+  <%#= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+
+</div>
+</td>
+-->
+<td id="snsContent" colspan="3">
+<div class="menu">
+  <div class="leftMenu">
+    <%=link_to "プロフィール情報一覧" , sns_profile_informations_path%><br />
+    <%=link_to "表示項目設定" , sns_display_items_path%>
+  </div>
+</div>
+</td>

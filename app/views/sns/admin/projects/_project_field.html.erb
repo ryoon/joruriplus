@@ -1,0 +1,37 @@
+<div class="projectNews">
+<div class="pieceHeader">
+<span>電子会議室新着記事</span>
+</div><!--pieceHeader-->
+<div class="pieceBody">
+<%@project_news = Sns::Thread.where(:project_id=>@project.id, :kind=>"thread").desc(:last_updated_at).limit(3)%>
+<%if @project_news.blank?%>
+直近のプロジェクトニュースはありません。
+<%else%>
+<%for news in @project_news%>
+<div class="projectMember">
+<div class="left">
+<%
+feed_user = news.created_user
+if feed_user
+image_str = image_tag(feed_user.profile_photo_path(true), :alt => feed_user.name, :align => 'center', :border => 0, :width=>24)
+%>
+<%=link_to(image_str, "/_admin/profile/#{feed_user.account}")%>
+<%end%>
+</div>
+<div class="right">
+<div class="name">
+  <%=link_to(news.creator_name , "/_admin/profile/#{feed_user.account}") if feed_user%>
+</div>
+<div class="date"><%=safe{news.last_updated_at.strftime("%Y/%m/%d %H:%M")}%></div>
+<div class="project">
+<%=raw news.display_body(200)%>
+</div><!--project-->
+</div><!--right-->
+</div><!--projectMember-->
+<%end%>
+<%end%>
+<div class="showAll"><%=link_to(">>すべての記事を見る", sns_conferences_path(@project_code))%></div>
+
+
+</div><!--pieceBody-->
+</div><!--projectNews-->

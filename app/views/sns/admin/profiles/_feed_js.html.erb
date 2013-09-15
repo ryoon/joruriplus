@@ -1,0 +1,250 @@
+
+<div id="feedScript">
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+
+
+  /*$(".commentFormBody").keypress(function(ev) {
+    if ((ev.which && ev.which === 13) || (ev.keyCode && ev.keyCode === 13)) {
+      return false;
+    } else {
+      return true;
+    }
+  });*/
+
+  //削除ボタン
+  $(".delete a").live('click' ,function(){
+    var buttonId = this.id;
+    var id = "";
+    var pid = "";
+    var confirmText = "" ;
+    var ajaxUrl = "";
+    var kind = "";
+    var item_id = "";
+    if (buttonId.match(/cdelete(.+)_(.+)$/)){
+      id = RegExp.$1;
+      pid = RegExp.$2;
+      kind = "comment";
+      confirmText = "このコメントを削除してよろしいですか？";
+      ajaxUrl = '\/_admin\/sns\/'+ pid + '\/comments\/' + id+ '\/delete';
+    }else if(buttonId.match(/delete/)){
+      kind = "post";
+      id = buttonId.replace(/delete/,"");
+      confirmText="この投稿を削除してよろしいですか？";
+      if($("#comment"+id+" .commentBody").length!=0){
+        confirmText = "コメントも含めて削除されます。\nよろしいですか。";
+      }
+      ajaxUrl = '<%=sns_posts_path%>\/' + id + '\/delete';
+    }else{
+      return false;
+    }
+    if(confirm(confirmText)){
+        $.ajax({
+            type: 'GET',
+            url:  ajaxUrl,
+            contentType: 'application/json',
+            dataType: 'text',
+            success: function(request) {
+              if (request!="NG"){
+                item_id = request;
+                if (kind=="comment"){
+                  $("#comment" + item_id).remove();
+                  var commentBodyCount = $("#comment" + pid + " div.commentBody");
+                  if(commentBodyCount.length >= <%=comment_limit%>){
+                    $("#commentWarning" + pid).html("<%=comment_limit_message%>");
+                    $("#cbutton"+pid).hide();
+                    $("#commentWarning" + pid).show();
+                  }else{
+                    $("#commentWarning" + pid).hide();
+                    $("#commentWarning" + pid).empty();
+                    $("#cbutton"+pid).show();
+                  }
+                }else{
+                  $("#feedTop" + item_id).remove();
+                  $("#feedBottom" + item_id).remove();
+                }
+              }
+            }
+        });
+        return false;
+      }else{
+        return false;
+     }
+  });
+
+  $(".publishAll").live('click' ,function(){
+     var id = this.id;
+    id = id.replace(/allButton/,"");
+    if(confirm("投稿は全てのユーザーの「ニュースフィード」に表示されます。よろしいですか？")){
+        $('body').css("cursor","wait");
+        $.ajax({
+        type: 'GET',
+        url:  '\/_admin\/sns\/posts\/'+ id + '\/publish.js?privacy=all'
+        })
+        return false;
+      }else{
+        return false;
+     }
+ });
+  $(".publishPublic").live('click' ,function(){
+     var id = this.id;
+    id = id.replace(/publicButton/,"");
+    if(confirm("投稿は全てのユーザーの「その他フィード」に表示されます。よろしいですか？")){
+        $('body').css("cursor","wait");
+        $.ajax({
+        type: 'GET',
+        url:  '\/_admin\/sns\/posts\/'+ id + '\/publish.js?privacy=public',
+        })
+        return false;
+      }else{
+        return false;
+     }
+ });
+
+  $(".publishSelect").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/selectButton/,"");
+    $('#selectDialog')
+    .load('<%=sns_posts_path%>/' + id + '/select_user')
+    .dialog({
+      bgiframe: true,
+      autoOpen: false,
+      width: 500,
+      height: 250,
+      modal: true,
+      title: "",
+      closeText: "",
+    })
+    .dialog('open');
+  return false;
+ });
+
+
+  //公開範囲の変更
+  $(".rangeButton").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/rbutton/,"");
+    $('#rangeList'+id).toggle();
+  });
+
+  $(".rangeClassall").live('click' ,function(){
+    if (confirm('投稿はすべてのユーザのニュースフィードに公開されます。よろしいですか？')) {
+      $('body').css("cursor","wait");
+      return true;
+    }else{
+      return false;
+    }
+  });
+
+  $(".rangeList li").live('click' ,function(){
+    $('body').css("cursor","wait");
+  });
+
+  // ここでは、$はjQueryとして使えます。
+  $(".commentLink").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/cbutton/,"");
+    $('#form'+id).toggle();
+    var messageText = $('#cbutton'+id).text();
+    if (messageText=="コメントする"){
+      $('#cbutton'+id).html("閉じる");
+    }else{
+      $('#cbutton'+id).html("コメントする");
+    }
+  });
+
+  $(".showFoldComment").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/foldMessage/,"");
+    $('#foldComment'+id).toggle();
+    var messageText = $('#foldMessage'+id).text();
+    if (messageText=="コメントをすべて見る"){
+      $('#foldMessage'+id).html("閉じる");
+      $('#newCommentMark'+id).css("visibility", "hidden");;
+    }else{
+      $('#foldMessage'+id).html("コメントをすべて見る");
+      $('#newCommentMark'+id).css("visibility", "visible");;
+    }
+  });
+
+  $(".itemFoldForm").click(function(){
+    var cat = this.id;
+    cat = cat.replace(/itemsFormLink/,"");
+    $('#feedForms').toggle();
+    var formText = $('#formMark').text();
+    var linkText;
+    if (cat=="note"){
+      linkText = "ノートを書く";
+    }else if (cat=="photo"){
+      linkText = "フォトを投稿する";
+    }else if (cat=="video"){
+      linkText = "動画を投稿する";
+    }else if (cat=="file"){
+      linkText = "ファイルを投稿する";
+    }else if (cat=="enquete"){
+      linkText = "投票を作成する";
+    }else{
+      linkText = "ノートを書く";
+    }
+    if (formText=="▲"){
+      $('#itemsFormLink'+cat).html(linkText);
+      $('#formMark').html("▼");
+    }else{
+      $('#itemsFormLink'+cat).html("閉じる");
+      $('#formMark').html("▲");
+    }
+  });
+
+    $(".commentFormBody").live('focus' ,function(){
+        if($(this).val() == "コメントする")
+            $(this).css('color', '#000').val('');
+    }).blur(function() {
+        if(jQuery.trim($(this).val()) == "") {
+            $(this).css('color', '#999').val("コメントする");
+        }
+    });
+
+
+    $(".commentSubmitBotton").live('click' ,function(){
+        var id = this.id;
+        id = id.replace(/csubmit/,"");
+        var formid ="#form"+ id;
+        if($(formid + " #comment_body").val() == ""){
+          alert("コメントが入力されていません。");
+          return false;
+        }else if($(formid + " #comment_body").val() == "コメントする"){
+          alert("コメントが入力されていません。");
+          return false;
+        }else{
+          var commentText = $(formid + " #comment_body").val();
+          if (commentText.replace(/[\n\r]/g,"").length>1000){
+            alert("コメントは1000文字以内で投稿してください。");
+            return false;
+          }
+          var parentPrivacy = $('#parent_privacy_' + id).val();
+          if (parentPrivacy=="all"){
+            if(window.confirm('投稿はすべてのユーザの「ニュースフィード」に表示されます。よろしいですか？')){
+              return true;
+            }else{
+              return false;
+            }
+          }
+          if (parentPrivacy=="public"){
+            if(window.confirm('投稿はすべてのユーザの「その他フィード」に表示されます。よろしいですか？')){
+              return true;
+            }else{
+              return false;
+            }
+          }
+
+          return true;
+        }
+    });
+});
+
+
+//]]>
+</script>
+</div>

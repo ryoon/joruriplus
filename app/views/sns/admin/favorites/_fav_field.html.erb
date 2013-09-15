@@ -1,0 +1,11 @@
+<div class="favForm">
+<%favorite = post.favorite%>
+<div id="favBtn<%=post.id%>" class="<%=favorite.blank? ? 'doFavorite' : 'canselFavorite'%>">
+
+<%if favorite%>
+<%=link_to "お気に入り", delete_sns_favorite_path(favorite,{:p_id=>post.id,:kind=>kind}),:remote => true, :title=>"キャンセル" %></span>
+<%else%>
+<%=link_to "お気に入り", sns_favorites_path({:p_id=>post.id,:kind=>kind}),:remote => true %></span>
+<%end%>
+</div>
+</div>

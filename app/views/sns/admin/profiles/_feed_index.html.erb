@@ -1,0 +1,15 @@
+  <%= render :partial => "sns/admin/posts/prepend_field"%>
+  <table style="width: 100%;" class="show" id="updateField">
+  <tr class="fieldBase"><td class="left"></td><td class="right"></td></tr>
+  <%for item in @feeds%>
+  <%feed_user = item.created_user%>
+
+    <%if item.is_activity?%>
+      <%= render :partial => "sns/admin/posts/activity_item", :locals=>{:item => item, :feed_user=>feed_user}%>
+    <%else%>
+      <%= render :partial => "sns/admin/posts/post_item", :locals=>{:item => item, :feed_user=>feed_user}%>
+    <%end%>
+  <%end unless @feeds.blank?%>
+  </table>
+<%= render :partial => "sns/admin/profiles/feed_js"%>
+<%= render :partial => "sns/admin/likes/show_like_users", :locals=>{:kind=>"post"}%>

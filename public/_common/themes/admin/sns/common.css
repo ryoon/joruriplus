@@ -1,0 +1,415 @@
+/* =========================================================
+   Common Classes.
+========================================================= */
+/* Body
+------------------------------------------------*/
+body {
+  behavior: url("/_common/themes/admin/sns/csshover.htc");
+}
+
+/* Notice.
+----------------------------------------------- */
+.notice {
+ margin: 0px 10px 10px 10px;
+ padding: 5px 10px;
+ border: 1px solid #8da;
+ background-color: #f0fff4;
+ color: #073;
+}
+/* Maintenance Message.
+----------------------------------------------- */
+#maintenanceMessage {
+ margin: 0px 10px 10px 10px;
+ padding: 10px 12px;
+ border: 1px solid #fa6;
+ background-color: #ffffdd;
+ color: #000;
+}
+#maintenanceMessage a {
+  color: #e00;
+  font-weight: bold;
+}
+#maintenanceMessage .message {
+  margin: 12px 0 0 0px;
+}
+/* Error.
+----------------------------------------------- */
+.railsException {
+  padding: 20px 20px;
+  color: #b00;
+}
+#errorExplanation {
+  width: 600px;
+  margin: 5px 5px 15px 5px;
+  border: 2px solid #f00;
+  background-color: #FFF;
+}
+#errorExplanation h2 {
+  margin: 0px !important;
+  padding: 5px 10px !important;
+  background-color: #c00 !important;
+  color: #fff !important;
+}
+#errorExplanation p {
+  padding: 5px 10px;
+  color: #333;
+  font-weight: bold;
+}
+#errorExplanation ul {
+  padding: 0px 0px 10px 0px;
+  list-style-type: square;
+}
+#errorExplanation ul li {
+  margin-left: 30px;
+  padding-left: 0px;
+  font-size: 12px;
+}
+.fieldWithErrors {
+  margin: 1px;
+  padding: 1px;
+  border: 1px solid #f00;
+  display: inline-block;
+  /*display: inline;*/
+}
+.field_with_errors {
+  display: inline-block;
+}
+
+/* liquid
+-------------------------------------------------------*/
+#container {
+  min-width: 980px;
+  width: 100%;
+  margin: 0px auto;
+}
+#container {
+  width: expression(document.body.clientWidth < 985? "980px" : "auto");
+}
+
+/* Table
+--------------------------------------------------------- */
+p.form {
+  margin-bottom: 6px;
+  color: #08e;
+  font-size: 120%;
+  font-weight: bold;
+}
+table.index {
+  width: 100%;
+  margin-bottom: 5px;
+  border: 1px solid #8bd;
+}
+table.index th {
+  padding: 6px;
+  border: 1px solid #BAAAA9;
+  background-color: #5451BC;
+  color: #FFF;
+  font-weight: lighter;
+  text-align: left;
+}
+table.index td {
+  padding: 5px 6px;
+  border: 1px solid #BAAAA9;
+  background-color: #fff;
+}
+table.index tr.cycle td {
+  background-color: #f4fbff;
+}
+table.show {
+  width: 100%;
+  margin-bottom: 5px;
+}
+table.show th {
+  width: 160px;
+  padding: 5px 8px;
+  background-color: #5451BC;
+}
+table.show td {
+  padding: 5px 8px;
+  background-color: #fff;
+}
+table.show a {
+  display: inline-block;
+/*  text-decoration: none;*/
+}
+table.show img,
+#snsLink img {
+  padding: 2px;
+  border: 1px solid #DDD;
+}
+
+/* Form
+--------------------------------------------------------- */
+.submitters {
+  margin-top: 20px;
+  text-align: center;
+}
+.upperMenu .submitters {
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+.submitters input {
+  width: 120px;
+  margin: 0px 10px;
+}
+table.show input.id {
+  width: 240px;
+  ime-mode: disabled;
+}
+table.show input.name {
+  width: 240px;
+}
+table.show input.nameEn {
+  width: 240px;
+  ime-mode: disabled;
+}
+table.show input.title {
+  width: 600px;
+}
+table.show input.number {
+  width: 100px;
+  ime-mode: disabled;
+}
+table.show input.email {
+  width: 400px;
+  ime-mode: disabled;
+}
+table.show input.kana {
+  width: 240px;
+}
+table.show input.officialPosition {
+  width: 400px;
+}
+table.show input.tel {
+  width: 160px;
+  ime-mode: disabled;
+}
+table.show input.fax {
+  width: 160px;
+  ime-mode: disabled;
+}
+table.show input.zipCode {
+  width: 160px;
+  ime-mode: disabled;
+}
+table.show input.url {
+  width: 400px;
+  ime-mode: disabled;
+}
+table.show input.date {
+  width: 80px;
+  font-family: "MS PGothic";
+}
+table.show input.dateTime {
+  width: 120px;
+  font-family: "MS PGothic";
+}
+table.show td.mceEditor {
+  padding: 0px;
+}
+table.show td textarea.body {
+  width: 99%;
+  height: 300px;
+}
+table.show td textarea.mceEditor {
+  width: 100%;
+  height: 500px;
+}
+table.show td textarea.head {
+  width: 99%;
+  height: 100px;
+}
+table.show td textarea.address {
+  width: 400px;
+  height: 50px;
+}
+
+/* Pagination.
+----------------------------------------------- */
+.pagination {
+  clear: both;
+  margin: 20px 0px 0px 0px;
+  text-align: center;
+}
+.pagination a,
+.pagination span.current,
+.pagination em,
+.pagination span.disabled {
+  display: inline-block;
+  padding: 0px 8px;
+  background-color: #DEDEF2;
+  font-size: 100%;
+  font-family: "MS PGothic";
+  text-decoration: none;
+  line-height: 1.8;
+  vertical-align: top;
+}
+.pagination span.current,
+.pagination em {
+  background-color: #5451BC;
+  color: #fff;
+  font-weight: bold;
+  font-style: normal;
+}
+.pagination span.disabled {
+  color: #888;
+}
+.pagination a {
+  color: #02d;
+}
+.pagination a:hover {
+  background-color: #9cf;
+  color: #5451BC;
+}
+.pagination span.prev,
+.pagination span.next {
+}
+.pagination span.separator {
+  visibility: hidden;
+  font-size: 1px;
+}
+
+/* Button
+------------------------------------------------*/
+#contentBody .actionMenu {
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+#contentBody .lowerActionMenu {
+  margin-top: 10px;
+}
+#contentBody .actionMenu a {
+  display:inline-block;
+  padding: 0px 20px;
+  line-height: 20px;
+  border: 1px solid #aaa;
+  background-color: #fff;
+  background-image: url(./images/bt/bg-link_check.jpg);
+  background-repeat: repeat-x;
+  text-align: center;
+  text-decoration: none;
+  color: #000;
+}
+#contentBody .actionMenu a:hover {
+  background-image: none;
+  color: #05c;
+}
+
+/* Footer
+-------------------------------------------------*/
+#footer {
+  clear: both;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+#footerContainer {
+  margin: 0px 0px 0px 0px;
+  padding: 0px 0px 0px 0px;
+}
+#footerBody {
+  margin: 0px 0px 0px 0px;
+  padding-top: 3px;
+  background: #5451BC;
+}
+#footer .copyright {
+  width:100%;
+  height: 28px;
+  color:#FFFFFF;
+  text-align:center;
+  position: relative;
+}
+
+#footer .copyright a.siteinfo {
+  position: absolute;
+  top: 12px;
+  right: 20px;
+  color: #5A65CC;
+}
+
+
+/* profile
+------------------------------------------------------*/
+.photos h2 span {
+  display: inline-block;
+  font-size: 80%;
+  color: #5451BC;
+}
+.photos .now .picture {
+  margin-bottom: 20px;
+}
+.photos .title {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+.photos .select .subtitle {
+  margin-bottom: 5px;
+}
+.photos .select .upload .subtitle {
+  margin-bottom: 40px;
+}
+.photos .select .upload #errorExplanation {
+  width: auto;
+  background-color: #FFF;
+}
+.photos .select .upload #errorExplanation h2 {
+  background-image: none;
+}
+.photos .select .upload input#item_submit {
+  display: block;
+  width: 275px;
+  height: 22px;
+  line-height: 0;
+  border: 0 none;
+  padding-top: 22px;
+  background-image: url("./images/bt/btn_photo_02.gif");
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  cursor: pointer;
+  text-indent: -9999px;
+}
+.photos #photo_preview .picture {
+  margin-bottom: 5px;
+}
+#photo_preview a {
+/*  display: block;
+  height: 0;
+  padding-top: 23px;
+  background-image: url("./images/bt/btn_photo_03.gif");
+  background-repeat: no-repeat;
+  overflow: hidden;*/
+}
+#snsContent .configs textarea {
+  margin-bottom: 10px;
+  border: solid 1px #808080;
+}
+/* help
+-------------------------------------------------*/
+.help{
+  vertical-align: middle;
+}
+.help a{
+  clear: both;
+  display: inline-block;
+  width: 15px;
+  height: 0;
+  padding-top: 15px;
+  background-image: url(/_common/themes/admin/sns/images/bt/ic-help.gif);
+  background-repeat: no-repeat;
+  margin-left: 5px;
+  overflow: hidden;
+}
+*html .help {
+  vertical-align: 2px;
+}
+*:first-child+html .help {
+  vertical-align: 2px;
+}
+html>/**/body .help {
+  vertical-align/*\**/: -1.5px\9;
+}
+body:nth-of-type(1) .help {
+  vertical-align: -2px;
+}
+

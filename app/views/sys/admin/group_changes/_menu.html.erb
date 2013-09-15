@@ -1,0 +1,13 @@
+<div class="actionMenu">
+<%= action_menu :new, ['新規作成', new_sys_group_change_path] %>
+<%#= action_menu :new, ['新規ユーザ', new_sys_group_user_path] %>
+<%= action_menu :index %>
+<%= action_menu :show %>
+<%= action_menu :edit    if safe{@item.editable?} %>
+<%= action_menu :destroy if safe{@item.deletable?} %>
+<%if params[:action]=="index"%>
+<%=link_to "Gwデータ同期", import_sys_group_changes_path,:onclick=>"return showConfirmWindow('Gwからのデータ取り込みを実行します。');"%>
+<%=link_to "LDAP同期", sys_ldap_synchros_path%>
+<%=link_to "実行", reflect_sys_group_changes_path,:onclick=>"return showConfirmWindow('所属の振り替えを実行しますか？（この作業はもとには戻せません）');" %>
+<%end%>
+</div>

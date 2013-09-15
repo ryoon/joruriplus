@@ -1,0 +1,36 @@
+<%
+from_class = ''
+
+%>
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <%= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+
+</div>
+</td>
+
+<td id="snsContent" colspan="2">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+   <h2 class="newsFeed">ニュースフィード</h2>
+
+  <table style="width: 100%;" class="show" id="updateField">
+      <%if @item.is_activity?%>
+        <%= render :partial => "sns/admin/posts/activity_item", :locals=>{:item => @item, :feed_user=>@feed_user}%>
+      <%else%>
+        <%= render :partial => "sns/admin/posts/post_item", :locals=>{:item => @item, :feed_user=>@feed_user}%>
+      <%end%>
+  </table>
+    </div>
+  </div>
+</div>
+<%= render :partial => "sns/admin/profiles/feed_js"%>
+<%= render :partial => "sns/admin/likes/show_like_users", :locals=>{:kind=>"post"}%>

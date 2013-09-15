@@ -1,0 +1,12 @@
+jQuery.noConflict();
+jQuery(document).ready(function($){
+<%unless @feeds.blank?%>
+$("#prependField").empty();
+var addList = "<%= escape_javascript(render :partial=>'ajax_index') %>";
+$("#prependField").prepend(addList);
+$("#prependNumber").html('<%=link_to "#{@feeds.size}件の更新があります。", "#", :id=>"refreshButton"%>');
+$("#preDate").html('<%=max_sequence(@feeds,@is_project)%>');
+var preId = "<%= escape_javascript(render :partial=>'pre_ids') %>";
+$("#preIDs").html(preId);
+<%end%>
+});

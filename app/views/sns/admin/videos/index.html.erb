@@ -1,0 +1,40 @@
+<%
+from_class = ''
+
+%>
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <%= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+
+</div>
+</td>
+
+<td id="snsContent" colspan="2">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+
+  <h2 class="newsFeed">ニュースフィード</h2>
+  
+
+  <%= render :partial => "video_index"%>
+  <div id="backLog">
+    <%date_str=""
+      date_str = @feeds[@feeds.length - 1].sequence unless @feeds.blank?%>
+      <%= render :partial => "sns/admin/posts/request_link", :locals=>{:cat=>"note",:link_str=>"過去の投稿", :request_uri=>sns_posts_path({:date=>date_str})}%>
+  </div>
+  </div>
+</div>
+</td>
+
+
+
+
+

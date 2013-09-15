@@ -1,0 +1,4 @@
+<%unless @item.blank?%>
+var playerShow = '<div id="player<%=@item.id%>"><%= escape_javascript(render :partial => "player") %></div>';
+$('video<%=@item.id%>').innerHTML = playerShow ;
+<%end%>

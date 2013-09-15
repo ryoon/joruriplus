@@ -1,0 +1,28 @@
+<%
+range_list = Sns::Post.range_list
+c_groups = Sns::CustomGroup.find(:all, :conditions=>{:user_id=>Core.profile.id})
+unless c_groups.blank?
+  c_groups.each do |c|
+    range_list << [c.name, c.sequence]
+  end
+end
+%>
+<table class="show">
+  <tr>
+    <th>公開範囲</th>
+    <td><%= f.select :privacy, range_list %></td>
+  </tr>
+  <tr>
+    <th>ファイル</th>
+    <td><%= f.file_field :upload, {:size=>10, :max_length=>15} %></td>
+  </tr>
+    <tr>
+      <th>備考</th>
+      <td><%=f.text_area :caption, {:cols=>60 ,:rows=>5}%></td>
+    </tr>
+    <tr>
+    <td></td><td><%= raw submit(:register) %></td>
+    </tr>
+</table>
+<%= f.hidden_field :created_user_id %>
+<%= f.hidden_field :album_id %>

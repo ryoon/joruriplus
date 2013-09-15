@@ -1,0 +1,76 @@
+<span id="prependNumber"></span>
+<span id="dateStr" style="display: none;"><%=max_sequence(@feeds,@is_project) unless @feeds.blank?%></span>
+<span id="preDate" style="display: none;"></span>
+<span id="preIDs" style="display: none;"></span>
+<div id="prependField" style="display: none;">
+</div>
+
+<div id="feedScript">
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+
+
+  $("#refreshButton").live('click' ,function(){
+    var addList = $("#prependField").html();
+    var preIds = $("#preIDs").text();
+    var preIdsArr = preIds.split(',');
+    var topFeed = $("#updateField tr.top");
+    var btmFeed = $("#updateField tr.bottom");
+    var id = "";
+    for (var i = 0; i < topFeed.length; i++){
+      id = topFeed[i].id.replace("feedTop","");
+
+      if($.inArray(id, preIdsArr)!= -1){
+        topFeed[i].remove();
+      }
+      id = ""
+    }
+    var btmId = "";
+    for (var n = 0; n < btmFeed.length; n++){
+      btmId = btmFeed[n].id.replace("feedBottom","");
+      if($.inArray(btmId, preIdsArr)!= -1){
+        btmFeed[n].remove();
+      }
+      btmId = "";
+    }
+
+    $("#preIDs").empty();
+    var nextDate = $("#preDate").html();
+    $("#updateField tbody:first").prepend(addList);
+    $("#updateField tr.fieldBase").remove();
+    var fieldBase = '<tr class="fieldBase"><td class="left"></td><td class="right"></td></tr>';
+    $("#updateField tbody:first").prepend(fieldBase);
+    $("#prependField").empty();
+    $("#dateStr").html(nextDate);
+    $("#preDate").empty();
+    $("#prependNumber").empty();
+    for (var x = 0; x < preIds.length; x++){
+      $("#form" + preIdsArr[x] + " #comment_body").autosize();
+    }
+    return false;
+  });
+
+  function refresh(){
+    var dateParams = $("#dateStr").text();
+
+    $.ajax({
+        type: 'GET',
+        url:  '<%=refresh_sns_posts_path%>.js?date=' + dateParams + '&cat=<%=@cat%>&user_id=<%=params[:id]%>&subfeed=<%=params[:subfeed]%>&project_id=<%=params[:project_id]%>&fav=<%=params[:fav]%>'/*,
+        //contentType: 'application/json',
+        //dataType: 'javascript',
+        success: function(request) {
+          $('#friendField').html(request);
+        }*/
+    });
+  }
+
+  refresh(); setInterval(refresh, 180000); // 3min
+
+});
+
+
+//]]>
+</script>
+</div>

@@ -1,0 +1,8 @@
+<%
+unless @feeds.blank?
+  for item in @feeds%>
+  <%feed_user = item.created_user%>
+<%@date_str = item.sequence%>
+<%= render :partial => "note_item", :locals=>{:item => item, :feed_user=>feed_user}%>
+<%end%>
+<%end%>

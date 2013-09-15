@@ -1,0 +1,80 @@
+<%statement = statement + 1%>
+<div id="comment<%=comment.id%>">
+<table class="statement<%=statement%>">
+<tbody>
+<tr>
+<td class="thumbnail">
+<%comment_user = comment.created_user%>
+<%unless comment_user.blank?%>
+<%
+link_str =image_tag(creator_photo(comment_user,comment),  :alt => comment_user.name, :align => 'center', :border => 0, :width=>48)
+%>
+<%=link_to(link_str , "/_admin/profile/#{comment_user.account}") %><br />
+<%end%>
+
+</td>
+<td class="data">
+
+<div class="name">
+   <%if comment_user%>
+    <%=link_to(comment.creator_name , "/_admin/profile/#{comment_user.account}") %>
+  <%end%>
+</div>
+<div class="talk">
+  <%= post_show(comment.body) %><br />
+       <%
+        video_content = []
+        video_item = nil
+        comment.contents.each do |c|
+        link_str = ""
+        link_uri = ""
+        if c[0]=="photo"
+          file = Sns::Photo.find(:first, :conditions=>{:_id=>c[1]})
+          next if file.blank?
+          link_str = file.display_file_name
+          link_uri = file.download_uri
+        elsif c[0]=="file"
+          file = Sns::File.find(:first, :conditions=>{:_id=>c[1]})
+          next if file.blank?
+          link_str = file.display_file_name
+          link_uri = file.public_uri
+        elsif c[0]=="video"
+          video_content = c
+          next
+        end
+        link_class = file_icon_class(file.original_file_name)
+        %>
+          <%=link_to link_str, link_uri, :class=>link_class, :target=>"_blank"%><br />
+       <%end if comment.contents%>
+    <%
+    video_item = Sns::Video.where(:_id=>video_content[1]).first unless video_content.blank?
+    unless video_item.blank?%>
+      <iframe src="<%=video_item.url%>" width="320" height="240"></iframe>
+    <%end%>
+</div>
+<div class="delete">
+  <span><%=link_to "削除する",destroy_res_sns_conference_path(@project_code, comment,{:p_id=>item.id}),:method=>:delete, :title => "削除",
+      :confirm=>"このコメントを削除します。よろしいですか？",:class => :delete  if comment.is_editable?%></span>
+  <span>
+    <%=link_to "編集する",edit_res_sns_conference_path(@project_code, comment,{:p_id=>item.id}), :title => "編集",:class => "button"  if comment.is_editable?%>
+  </span>
+</div>
+<div class="date"><span><%=comment.updated_at.strftime("%Y-%m-%d %H:%M")%></span>
+<%=link_to "コメントする","javascript:void(0);", :onclick=>"return false;",:id=>"cbutton#{comment.id}",:class=>"commentLink button" %>
+</td>
+</tr>
+<tr class="comment">
+<td colspan="2">
+<%= form_for :comment, :url => {:action => :reply, :parent=>@project_code, :p_id=>item.id},
+  :html => { :class=>"commentForm", :remote=>true, :multipart => true , :method => :post, :id=>"form#{comment.id}",:name=>"frname#{comment.id}", :style=>"display: none;"} do |f| %>
+<%= f.error_messages %>
+<%= render :partial => "sns/admin/projects/conferences/reply_form", :locals => {:f => f, :parent_id=>comment.id, :fold=>false, :kind=>"comment"} %>
+<%= f.submit('投稿する', :class=>"button commentSubmitBotton", :id=>"csubmit#{comment.id}", :onclick=>"submitComment('#{comment.id}')") %>
+</td>
+</tr>
+</tbody>
+</table>
+<%child_comments = comment.childs%>
+<%= render :partial => "sns/admin/projects/conferences/index_comment", :locals => {:item=>item, :comments=>child_comments, :statement=>statement} if child_comments%>
+</div>
+<% end %>

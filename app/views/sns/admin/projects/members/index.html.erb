@@ -1,0 +1,109 @@
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</div>
+</td>
+
+<td id="snsContent">
+<%is_admin = @project.is_admin?
+is_member_editable = false
+is_manager_editable = false
+is_member_editable = true if is_admin || @project.is_join?
+is_manager_editable = true if is_admin
+%>
+
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+  <h2 class="project"><%=@project.title%></h2>
+
+<% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+<div class="memberList">
+<%if @managers.blank?%>
+<%else%>
+<h3 class="titleLine"><span>管理者</span>
+<span class="join"><%=link_to "管理者を招待する", proposal_sns_members_path(@project_code,{:kind=>"manager"}),:class=>"buttonNew" if is_manager_editable%></span>
+  </h3>
+  <%for item in @managers
+    member = item.user%>
+    <div class="member">
+    <div class="thumbnail">
+    <%=link_to(image_tag(member.profile_photo_path(true), :alt => member.name, :align => 'center', :border => 0, :width=>48), member.profile_uri) unless member.blank?%>
+    </div>
+    <div class="name">
+    <%=link_to(member.name, member.profile_uri, :class=>"name") unless member.blank?%><br><span>（<%=member.group_name%>）</span><br />
+    </div>
+   <%=link_to "強制退会",sns_member_path(@project_code, item.user_id,{:kind=>@kind}),:method=>:delete,:remote => true, :title => "強制退会",
+    :confirm=>"このメンバーを強制退会させます。よろしいですか？",:class => :delete if is_admin && @project.is_member_leave?(item, is_admin)%>
+    </div>
+  <%end%>
+<%end%>
+
+</div>
+
+
+  <h3 class="titleLine"><span>メンバー</span>
+  <span class="join"><%=link_to "メンバーを招待する", proposal_sns_members_path(@project_code),:class=>"buttonNew" if is_member_editable%></span>
+  </h3>
+
+<div class="memberList">
+<%if @members.blank?%>
+メンバーが存在しません。
+<%else%>
+  <%for item in @members
+    member = item.user%>
+    <div class="member">
+    <div class="thumbnail">
+    <%=link_to(image_tag(member.profile_photo_path(true), :alt => member.name, :align => 'center', :border => 0, :width=>48), member.profile_uri) unless member.blank?%>
+    </div>
+    <div class="name">
+    <%=link_to(member.name, member.profile_uri, :class=>"name") unless member.blank?%><br><span>（<%=member.group_name%>）</span><br />
+    </div>
+   <%=link_to "強制退会",sns_member_path(@project_code, item.user_id,{:kind=>@kind}),:method=>:delete,:remote => true, :title => "強制退会",
+    :confirm=>"このメンバーを強制退会させます。よろしいですか？",:class => :delete if is_admin && @project.is_member_leave?(item, is_admin)%>
+    </div>
+  <%end%>
+<%end%>
+
+</div>
+
+
+<%unless @pending.blank?%>
+<h3 class="titleLine"><span>招待中のユーザー</span></h3>
+<div class="memberList">
+  <%for member in @pending%>
+    <div class="member">
+    <div class="thumbnail">
+    <%=link_to(image_tag(member.profile_photo_path(true), :alt => member.name, :align => 'center', :border => 0, :width=>48), member.profile_uri) unless member.blank?%>
+    </div>
+    <div class="name">
+    <%=link_to(member.name, member.profile_uri, :class=>"name") unless member.blank?%><br><span>（<%=member.group_name%>）</span><br />
+    </div>
+    </div>
+  <%end%>
+  </div>
+<%end%>
+  <div class="myFunction">
+    <%if @project.ldap!=1%>
+    <%if @my_membership && is_admin ==false%>
+      <%if @already_submit==false%>
+        <%=link_to "プロジェクト退会申請を出す", motion_sns_proposals_path(@project_code,{:kind=>"leave", :do=>"submit"}),:class=>"button" %>
+      <%else%>
+        <%=link_to "プロジェクト退会申請を取り消す", motion_sns_proposals_path(@project_code,{:kind=>"leave", :do=>"cansel"}),:class=>"button"  if @already_submit==true%>
+      <%end%>
+    <%end%>
+    <%end%>
+  </div>
+
+</div>
+</div>
+
+
+</td>
+<%= render :partial => "side_link"%>

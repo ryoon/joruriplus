@@ -1,0 +1,13 @@
+<%if manager_config[:job_skill]=="enabled"%>
+<span>活用してほしい能力</span>
+<%=f.text_area :job_skill, {:cols=>60 ,:rows=>5}%>
+<%end%>
+<%if manager_config[:license]=="enabled"%>
+<span>免許・資格</span>
+<%=f.text_area :license, {:cols=>60 ,:rows=>5}%>
+<%end%>
+<%if manager_config[:circle]=="enabled"%>
+<span>サークル活動</span>
+<%=f.text_area :circle, {:cols=>60 ,:rows=>5}%>
+<%end%>
+<%= f.submit("登録する", :class=>"button") %>

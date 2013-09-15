@@ -1,0 +1,64 @@
+
+<td id="snsMenu">
+<%if @created_user.account == Core.profile.account%>
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <%= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+</div>
+<%else%>
+  <%= render :partial => "sns/admin/base/user_menu"%>
+<%end%>
+</td>
+
+<td id="snsContent" colspan="2">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+<%if params[:album_id].blank? || params[:album_id].to_i == 0%>
+<%=link_to "アルバム追加", new_sns_album_path if @u_role%><br />
+<table class="show">
+<%for album in @albums%>
+  <tr>
+    <td>
+  <%=link_to album.name, sns_user_photos_path(@created_user.account,{:album_id=>album.id}) unless album.blank?%>
+  <%= "（#{album.range_show}）"%>
+  <%photo = Sns::Photo.find(:first, :conditions=>{:album_id=>album.id})  unless album.blank?%>
+  <%=image_tag(photo.thumb_public_uri, :align => 'center', :border => 0) unless photo.blank?%>
+    </td>
+  </tr>
+<%end%>
+<%= paginate @albums %>
+</table>
+<%else%>
+<%=link_to "写真を追加", new_sns_user_photo_path(@created_user.account,{:album_id=>params[:album_id]}) if @u_role%><br />
+<%=@albums.name%><%= link_to "編集",edit_sns_album_path(@albums),:class => :edit if @u_role%><br />
+<%= "（#{@albums.range_show}）"%><br />
+<%if @items.blank?%>
+表示する写真が存在しません。<br />
+<%else%>
+  <table style="width: 100%;" class="show">
+  <%for item in @items%>
+  <tr><td>
+    <%feed_user = item.created_user %>
+    <%= link_to(image_tag(item.thumb_public_uri, :alt => @created_user.name, :align => 'center', :border => 0),
+      sns_user_photo_path(@created_user.account,item)) %><br />
+      <%= "（#{item.range_show}）"%>
+    <%if feed_user.user_id == Core.profile.user_id%>
+     <div class="delete">
+     </div>
+     <%end unless feed_user.blank?%>
+   </td></tr>
+  <%end%>
+  </table>
+  <%= paginate @items %>
+<%end%>
+<%=link_to "戻る", sns_user_photos_path(@created_user.account)%><br />
+<%end%>
+  </div>
+</div>
+</td>

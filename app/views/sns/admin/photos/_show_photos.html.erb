@@ -1,0 +1,21 @@
+<div class="photo">
+<%
+photo_items = []
+group_link = ""
+group_class = ""
+other_group_link = ""
+photo_items = Sns::Photo.any_in("_id"=>item.photo_ids)
+photo_items.each_with_index{ |c, i|
+link_str = ""
+link_str = image_tag(c.resized_public_uri, c.display_options({:width=>400,:height=>600}))
+if feed_user.blank?
+link_uri = ""
+else
+link_uri = "#{sns_user_photo_path(feed_user.account,c,{:album_id=>c.album_id})}"
+end
+group_link = c.public_uri if i==0
+%>
+<%=link_to link_str, link_uri, :target=>"_blank"%>
+<%} if photo_items%>
+
+</div>

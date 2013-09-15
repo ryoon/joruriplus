@@ -1,0 +1,31 @@
+<td id="snsMenu" class="<%='showPhoto' if @created_user.account != Core.profile.account%>">
+<%if @created_user.account == Core.profile.account%>
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <%= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+</div>
+<%else%>
+  <%= render :partial => "sns/admin/base/user_menu"%>
+<%end%>
+</td>
+
+<td id="snsContent" colspan="2" class="detail">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+    <%= render :partial => "sns/admin/photos/show", :locals => {:is_project=>0} %>
+  <div class="myFunction">
+    <%if @item.is_editable?%>
+    <%=link_to "削除する",sns_user_photo_path(@created_user.account,@item),:method=>:delete,
+      :class => :delete, :title => "削除", :confirm=>"この写真を削除します。よろしいですか？"  if @u_role%>
+     <%end%>
+
+  </div>
+
+</div>
+</td>

@@ -1,0 +1,89 @@
+<%
+date_str=""
+date_str = max_sequence(@feeds) unless @feeds.blank?
+file_upload_style="display: none;"
+photo_upload_style="display: none;"
+video_upload_style="display: none;"
+upload_style="display: none;"
+enquete_style="display: none;"
+file_upload_style="" if @cat == "file"
+photo_upload_style="" if @cat == "photo"
+upload_style="" if @cat == "photo" || @cat == "file"
+video_upload_style="" if @cat == "video"
+enquete_style="" if @cat=="enquete"
+%>
+<div id="selectDialog"  style="display : none; background-color:#EBE7E7;" >
+  <span>Loading...</span>
+</div>
+<div id="javascript_tab">
+<% form_for :tweet, :html => { :multipart => true  , :remote=>true, :name=>"tweetForm", :id=>"postTweet"},
+  :url => {:controller=>"sns/admin/posts", :action => :create} do |f| %>
+<%= f.error_messages %>
+<%=hidden_field_tag :cat, @cat%>
+<%= hidden_field_tag :in_action, params[:action] %>
+<%= hidden_field_tag :profile_id, @item.blank? ? Core.profile.account : @item.account%>
+<%= hidden_field_tag :date, date_str, :id=>"dateTweet"%>
+<%= f.hidden_field :created_user_id, :value=>Core.profile._id %>
+<table class="show">
+  <tr>
+    <td><%= f.text_area :body, :value=>"何か書く", :style=>"color: #999; height: 60px;" %></td>
+  </tr>
+  <tr>
+    <td>
+      <div class="contribution">
+      <span id="leftCount">496</span>
+      <%=publish_select_show%><%=help_link%>
+      <%= f.submit('投稿する', :class=>"button", :onclick=>"return my_submit()") %>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td>
+        <div id="swfupButtons" style="<%=upload_style%>">
+          <div id="swfBox1" style="<%=photo_upload_style%>">
+            <span>フォト</span><br />
+            <span id="spanButtonPlaceHolder1"></span>
+            <input id="btnCancel1" type="button" value="キャンセル" onclick="swfu1.cancelQueue();" disabled="disabled" />
+            <span>XGAサイズ（1024×768）以上の画像は縮小されます</span>
+          </div>
+          <div id="swfBox2" style="<%=file_upload_style%>">
+            <span>ファイル</span><br />
+            <span id="spanButtonPlaceHolder2"></span>
+            <input id="btnCancel2" type="button" value="キャンセル" onclick="swfu2.cancelQueue();" disabled="disabled" />
+          </div>
+        </div>
+        <div id="uploadedFiles" style="display: none;" class="uploadedFilesShow"></div>
+        <div id="divStatus"></div>
+        <div id="fsUploadProgress"></div>
+        <div id="fsUploadProgress2"></div>
+        <div id="photoID"></div>
+        <div id="fileID"></div>
+      <div id="video_form" style="<%=video_upload_style%>">
+      <div id="videoNotice"></div>
+      <span>動画<br />
+        <span>埋め込みURL：</spam><%= f.text_field :url ,:size=>80%><br />
+        <div>JoruriVideoで動画投稿が終わっていない場合は、先に<%=link_to "こちら", "/_admin/sso?to=video", :target=>"_blank"%>で投稿後、「埋め込みURL」を貼り付けてください。</div><br />
+      </div>
+      <div id="enquete_form" style="<%=enquete_style%>">
+        <span>投票<a href="#" onclick="return form_change('tweet');" class="close">×</a></span><br />
+        <span>回答選択肢（最大：10個、文字数制限：20文字）</span><br />
+        <table style="margin-bottom:2px;">
+        <%10.times{|n|%>
+          <tr>
+          <td><%="#{n+1}:"%></td>
+          <td><%= text_field_tag 'enq_opts[]', '', :size=>80%></td>
+          </tr>
+        <%}%>
+        </table>
+      </div>
+      </td>
+  </tr>
+  <tr id="userSelect" style="display:none;">
+    <td>
+      <%= render :partial => "sns/admin/posts/form_participant", :locals => {:f => f }%>
+      <%= render :partial => "sns/admin/posts/form_script", :locals => {:f => f }%>
+    </td>
+  </tr>
+</table>
+<%end%>
+</div>

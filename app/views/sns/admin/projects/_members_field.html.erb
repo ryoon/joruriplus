@@ -1,0 +1,30 @@
+<div class="resentMember">
+  <div class="pieceHeader">オンラインのメンバー</div>
+  <div class="pieceBody">
+<div  id="friendField">
+読み込み中…
+</div>
+<script type="text/javascript">
+//<![CDATA[
+
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  function refresh(){
+    $.ajax({
+        type: 'GET',
+        url:  '<%=project_sns_presences_path({:p_id=>@project.id})%>',
+        contentType: 'application/json',
+        dataType: 'text',
+        success: function(request) {
+          $('#friendField').html(request);
+        }
+    });
+  }
+
+  refresh(); setInterval(refresh, 180000); // 1min
+  });
+//]]>
+</script>
+<div class="showAll"><%=link_to(">>すべてのメンバーを見る", sns_members_path(@project_code))%></div>
+  </div>
+</div>

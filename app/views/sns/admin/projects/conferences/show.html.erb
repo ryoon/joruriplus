@@ -1,0 +1,633 @@
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</div>
+</td>
+
+<td id="snsContent" class="project">
+<script type="text/javascript" src="/_common/js/swfupload/swfupload.js"></script>
+<script type="text/javascript" src="/_common/js/swfupload/plugins/swfupload.queue.js"></script>
+<script type="text/javascript" src="/_common/js/swfupload/plugins/fileprogress.js"></script>
+<script type="text/javascript" src="/_common/js/swfupload/plugins/handlers.js"></script>
+<script type="text/javascript" src="/_common/js/dump.js"></script>
+<%= javascript_include_tag("/_common/js/tiny_mce/tiny_mce_src.js") %>
+<%= javascript_include_tag("/_common/js/tiny_mce/init_html_sns.js") %>
+<h2 class="project"><%=@project.title%></h2>
+<h3 class="titleLine">電子会議室</h3>
+<%
+is_join = @project.is_join?
+is_admin = @project.is_admin?
+%>
+<%= render :partial => "sns/admin/likes/show_like_users", :locals=>{:kind=>"thread"}%>
+<%= render :partial => "sns/admin/projects/conferences/show_doc", :locals=>{:item=>@item,:is_join=>is_join,:is_admin=>is_admin}%>
+<span id="commentCount<%=@item.id%>" style="display:none;"><%=@item.comment_size_show%></span>
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  // ここでは、$はjQueryとして使えます。
+
+ $(document).ready(function(){
+    $('.commentFormBody').autosize();
+    });
+
+
+//削除ボタン
+  $(".delete .delete").live('click' ,function(){
+    var buttonId = this.id;
+    var id = "";
+    var post = "";
+    var pid = "";
+    var confirmText = "" ;
+    var ajaxUrl = "";
+    var kind = "";
+    var item_id = "";
+    if (buttonId.match(/cdelete(.+)_(.+)$/)){
+      id = RegExp.$1;
+      pid = RegExp.$2;
+      kind = "comment";
+      confirmText = "このコメントを削除してよろしいですか？";
+      ajaxUrl = '\/_admin\/sns\/'+ 'projects\/<%=@project_code%>\/conferences\/' + id+ '\/delete_res?p_id=' + pid;
+    }else if(buttonId.match(/delete/)){
+      kind = "post";
+      id = buttonId.replace(/delete/,"");
+      confirmText="この投稿を削除してよろしいですか？";
+      if($("#comment"+id+" .statement2").length!=0){
+        confirmText = "コメントも含めて削除されます。\nよろしいですか。";
+      }
+      ajaxUrl = '<%=sns_conferences_path(@project_code)%>\/' + id + '\/delete';
+    }else{
+      return false;
+    }
+    if(confirm(confirmText)){
+        $.ajax({
+            type: 'GET',
+            url:  ajaxUrl,
+            contentType: 'application/json',
+            dataType: 'text',
+            success: function(request) {
+              if (request!="NG"){
+                item_id = request;
+                if (kind=="comment"){
+                  $("#comment" + item_id).remove();
+                  var comentCount = parseInt($("#commentCount" + pid).text());
+                  if(comentCount >= <%=comment_limit%>){
+                    $("#commentWarning" + pid).html("<%=comment_limit_message%>");
+                    $("#bottomCbutton" + pid).hide();
+                    $("#commentWarning" + pid).show();
+                  }else{
+                    $("#commentWarning" + pid).hide();
+                    $("#commentWarning" + pid).empty();
+                    $("#bottomCbutton" + pid).show();
+                  }
+                }else{
+                  $("#subject" + item_id).remove();
+                }
+              }
+            }
+        });
+        return false;
+      }else{
+        return false;
+     }
+  });
+
+
+  $(".commentLink").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/cbutton/,"");
+    $('#form'+id).toggle();
+    var messageText = $('#cbutton'+id).text();
+    var frameUrl = '<%=sns_conferences_path(@project_code)%>\/attach?parent_id=' + id;
+    if (messageText=="コメントする"){
+      $('#cbutton'+id).html("閉じる");
+      $('#bottomCbutton'+id).html("閉じる");
+      $('#fileFrame'+id).attr("src",frameUrl);
+      $('#photoFrame'+id).attr("src",frameUrl + '&kind=photo');
+      return false;
+      //$('#function'+id).hide();
+    }else{
+      $('#cbutton'+id).html("コメントする");
+      $('#bottomCbutton'+id).html("コメントする");
+      $('#fileFrame'+id).attr("src","");
+      $('#photoFrame'+id).attr("src","");
+      return false;
+      //$('#function'+id).show();
+    }
+  });
+
+  $(".commentFormShow").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/bottomCbutton/,"");
+    $('#form'+id).toggle();
+    var messageText = $('#bottomCbutton'+id).text();
+    var frameUrl = '<%=sns_conferences_path(@project_code)%>\/attach?parent_id=' + id;
+    if (messageText=="コメントする"){
+      $('#cbutton'+id).html("閉じる");
+      $('#bottomCbutton'+id).html("閉じる");
+      $('#fileFrame'+id).attr("src",frameUrl);
+      $('#photoFrame'+id).attr("src",frameUrl + '&kind=photo');
+      //$('#function'+id).hide();
+    }else{
+      $('#cbutton'+id).html("コメントする");
+      $('#bottomCbutton'+id).html("コメントする");
+      $('#fileFrame'+id).attr("src","");
+      $('#photoFrame'+id).attr("src","");
+      return false;
+      //$('#function'+id).show();
+    }
+  });
+
+    $(".commentFormBody").live('focus' ,function(){
+        if($(this).val() == "コメントする")
+            $(this).css('color', '#000').val('');
+    }).blur(function() {
+        if(jQuery.trim($(this).val()) == "") {
+            $(this).css('color', '#999').val("コメントする");
+        }
+    });
+
+    $(".commentSubmitBotton").live('click' ,function(){
+        var id = this.id;
+        id = id.replace(/csubmit/,"");
+        var formid ="#form"+ id;
+        if($(formid + " #comment_body").val() == ""){
+          return false;
+        }else if($(formid + " #comment_body").val() == "コメントする"){
+          return false;
+        }else{
+          return true;
+        }
+    });
+
+
+
+});
+
+
+function submitComment(id){
+  document.body.style.cursor = 'wait';
+  var alertArr = [];
+  var validate = true;
+  //var commnentBodyArea = $('comment_body_' + id);
+  //var frame = commnentBodyArea.nextSibling.getElementsByTagName('iframe')[0];
+  //var bodyText =  frame.contentDocument.body.innerHTML;
+  var p_parentNode = $('photoID' + id);
+  var photoIdFields = p_parentNode.getElementsByTagName('input');
+  if(photoIdFields.length > <%=photo_limit%> ){
+    validate = false;
+    alertArr.push("フォトは最大<%=photo_limit%>件までしか登録できません。");
+  }
+  var f_parentNode = $('fileID' + id);
+  var photoIdFields = f_parentNode.getElementsByTagName('input');
+  if(photoIdFields.length > 5 ){
+    validate = false;
+    alertArr.push("ファイルは最大5件までしか登録できません。");
+  }
+  var bodyText =  $('comment_body_' + id).value;
+  if(isBlanckCheck(bodyText)==true){
+      validate = false;
+      alertArr.push("コメントが入力されていません。");
+  }
+  var fileCheck = fileSizeSum('uploadedFiles'+id);
+  if (fileCheck == false){
+    validate = false;
+    alertArr.push("ファイル容量制限をオーバーしています。");
+  }
+  if (validate){
+     $('comment_body_' + id).value = bodyText ;
+    return true;
+  }else{
+    var alertMessage= "";
+    for(var n =0; n < alertArr.length; n++){
+      alertMessage +=  alertArr[n];
+      if(n != alertArr.length - 1){
+        alertMessage += "\n"
+      }
+    }
+    document.body.style.cursor = 'auto';
+    alert(alertMessage);
+    return false;
+  }
+}
+
+var swfu1 = null;
+var swfu2 = null;
+var form_kind = "conference";
+var fileSizeLimit = '<%=@project.post_file_limit_show%>';
+var limit = parseInt(fileSizeLimit);
+
+function my_submit(){
+  var targetField = [];
+  var targetMessage = [];
+  //var frame = $('item_body').nextSibling.getElementsByTagName('iframe')[0];
+  //var bodyText =  frame.contentDocument.body.innerHTML;
+  var bodyText =  $('item_body').value;
+  if (bodyText == '<p><br></p>' || bodyText == '<p><br data-mce-bogus="1"></p>'){
+    bodyText='';
+  }
+  targetField.push(bodyText);
+  targetMessage.push("本文が入力されていません。");
+
+  var validate = true;
+  var alertArr = [];
+  for (var i = 0; i < targetField.length; i++) {
+    if(isBlanckCheck(targetField[i])==true){
+      validate = false;
+      alertArr.push(targetMessage[i]);
+    }
+  }
+  /*
+  var video_url = $('video_url').value;
+  var width = $("video_width").value;
+  var height = $("video_height").value;
+  if(video_url != ""){
+    if (width == ""){
+      validate=false;
+      alertArr.push("動画のサイズを入力してください。");
+    }
+    if(height == ""){
+      validate=false;
+      alertArr.push("動画のサイズを入力してください。");
+    }
+  }*/
+
+  var fileCheck = fileSizeSum('uploadedFiles');
+  if (fileCheck == false){
+    validate = false;
+    alertArr.push("ファイル容量制限をオーバーしています。一投稿あたり" + fileSizeLimit + "MB以内としてください。");
+  }
+  if (validate){
+    return true;
+  }else{
+    var alertMessage= "";
+    for(var n =0; n < alertArr.length; n++){
+      alertMessage +=  alertArr[n];
+      if(n != alertArr.length - 1){
+        alertMessage += "\n"
+      }
+    }
+    alert(alertMessage);
+    return false;
+  }
+}
+
+
+function isBlanckCheck(str){
+  if (!str.match(/\S/g)) {
+    return true;
+  }else if(str=="コメントする"){
+    return true;
+  }else if (str.match(/\A[\n\r]+\z/)) {
+    return true;
+  }else if (str.match(/\A\s+(<br>|<br\>)+\z/)) {
+    return true;
+  }else if (str=='<br>'){
+    return true;
+  }else if (str=='<br data-mce-bogus="1">'){
+    return true;
+  }else if (str.match(/\A\s+(<br>|<br data-mce-bogus=\"1\">)+\z/)){
+     return true;
+  }else {
+    return false;
+  }
+}
+
+var fileSizeLimit = '<%=@project.post_file_limit_show%>';
+var limit = parseInt(fileSizeLimit);
+
+function fileSizeSum(fieldId){
+  var parent = $(fieldId);
+  if (parent.innerHTML==""){
+    return true;
+  }
+  var fileSize = 0;
+  var getSize = 0;
+  var option;
+  var targetField = parent.getElementsByTagName('a');
+  for (var i=0; i < targetField.length; i++) {
+   option = targetField[i].innerHTML;
+    if(option.match(/\(([0-9]+([\.]{1}[0-9]+)?)KBytes\)/)){
+      getSize = parseFloat(RegExp.$1);
+      fileSize +=  getSize * 1024;
+    }else if(option.match(/\(([0-9]+([\.]{1}[0-9]+)?)MBytes\)/)){
+      getSize = parseFloat(RegExp.$1);
+      fileSize +=  getSize * 1024 * 1024;
+    }else if(option.match(/\(([0-9]+([\.]{1}[0-9]+)?)Bytes\)/)){
+      getSize = parseFloat(RegExp.$1);
+      fileSize +=  getSize;
+    }
+  }
+
+  if (fileSize >= limit * 1024 * 1024){
+    return false;
+  }else{
+    return true;
+  }
+
+}
+
+function numCheck(field){
+  if(field.value==""){
+    return true;
+  }
+  if(field.value.match(/[0-9]+/)){
+    return true;
+  }else{
+    alert("数値以外が入力されています！");
+    return true;
+  }
+}
+
+
+var comment_form_change = function(value,id) {
+  if (value=='photo'){
+    $('photoCommentForm' + id).setStyle('display: inline;');
+    $('fileCommentForm' + id).setStyle('display: none;');
+    $('videoCommentForm' + id).setStyle('display: none;');
+  }else if (value=='video'){
+    $('videoCommentForm' + id).setStyle('display: inline;');
+    $('photoCommentForm' + id).setStyle('display: none;');
+    $('fileCommentForm' + id).setStyle('display: none;');
+  }else if (value=='file'){
+    is_file_open = true;
+    $('fileCommentForm' + id).setStyle('display: inline;');
+    $('photoCommentForm' + id).setStyle('display: none;');
+    $('videoCommentForm' + id).setStyle('display: none;');
+  }
+  return false;
+}
+
+
+var comment_form_close = function(value,id) {
+  if (value=='photo'){
+    $('photoCommentForm' + id).setStyle('display: none;');
+  }else if (value=='video'){
+    $('videoCommentForm' + id).setStyle('display: none;');
+  }else if (value=='file'){
+    $('fileCommentForm' + id).setStyle('display: none;');
+  }
+  return false;
+}
+
+var my_load = function() {
+ //form_change(0);
+}
+my_load();window.onload = function(){
+  //initSwfupload(swfu1,swfu2);
+  initTinyMCE();
+}
+
+// file uploader
+function initSwfupload(swfu1) {
+  swfu1 = new SWFUpload({
+    upload_url : "<%= sns_uploads_path %>",
+    post_params: {
+      authenticity_token : "<%= form_authenticity_token %>",
+      core_profile_id : "<%= Core.profile.id%>",
+      album_kind : "feed",
+      form_kind : "conference",
+      total_size_limit : "10 MB",
+      project_id : "<%=@project.id%>",
+      group_id : "<%=Core.user_group.id%>",
+    },
+    flash_url : "/_common/js/swfupload/swfupload.swf",
+    file_post_name : "upload",
+    file_size_limit : "10 MB",
+    file_types : "*.*",
+    file_types_description : "All Files",
+    file_upload_limit : 0,
+    file_queue_limit : 0,
+    custom_settings : {
+      progressTarget : "fsUploadProgress",
+      cancelButtonId : "btnCancel"
+    },
+    debug: false,
+    prevent_swf_caching : false,
+    button_image_url: "/_common/themes/admin/sns/images/bt/bt_f_newfile.png",
+    button_width: "99",
+    button_height: "24",
+    button_placeholder_id: "spanButtonPlaceHolder",//"uploadHtml",
+    //file_dialog_complete_handler : function(numFilesSelected, numFilesQueued) { this.startUpload(); },
+    //upload_error_handler : function(file, errorCode, message){ alert('読み込みに失敗しました。'); },
+    //upload_success_handler : function(file, data, response) { tinyMCE.activeEditor.setContent(data); }
+    file_queued_handler : fileQueued,
+    file_queue_error_handler : fileQueueError,
+    file_dialog_complete_handler : fileDialogComplete,
+    upload_start_handler : uploadStart,
+    upload_progress_handler : uploadProgress,
+    upload_error_handler : uploadError,
+    //upload_success_handler : uploadSuccess,
+    upload_success_handler : function(file, data) {
+      var progress = new FileProgress(file, this.customSettings.progressTarget);
+      progress.setComplete();
+      progress.setStatus("Complete.");
+      progress.toggleCancel(false);
+      if (data.match(/^Error/i) != null) {
+        alert(data);
+      } else {
+        var id = '', name = '', size = '', image_is = '', filename = '';
+        if (data.match(/^OK:(.+):(.+):(.+?):(.?):(.+?)$/)) {
+          id = RegExp.$1;
+          name = RegExp.$2;
+          size = RegExp.$3;
+          image_is = RegExp.$4;
+          filename = RegExp.$5;
+        }
+        addUploadedFile(id, name, size, image_is, filename);
+      }
+    },
+    upload_complete_handler : uploadComplete,
+    queue_complete_handler : queueComplete  // Queue plugin event
+  });
+}
+
+// load uploaded files
+function loadUploadedFiles() {
+  var uri = "<%= sns_uploads_path(:format => 'xml') %>";
+  var myAjax = new Ajax.Request(uri, {
+    method: 'get',
+    onSuccess: showUploadedFiles,
+    onFailure: function(request) { alert('送信に失敗しました。'); }
+  });
+}
+function showUploadedFiles(request) {
+  var html  = "";
+  var items = request.responseXML.getElementsByTagName("item");
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    var id   = getNodeValue(item, 'id');
+    var name = getNodeValue(item, 'name');
+    var size = getNodeValue(item, 'eng_unit');
+    var image_is = getNodeValue(item, 'image_is');
+    addUploadedFile(id, name, size, image_is);
+  }
+}
+function getNodeValue(node, name) {
+  var elem = node.getElementsByTagName(name);
+  if (elem && elem[0] && elem[0].firstChild) {
+    return elem[0].firstChild.nodeValue;
+  }
+  return "";
+}
+function addUploadedFile(id, name, size, image_is, filename) {
+  var field = $('uploadedFiles');
+  if (field.visible() == false) { field.show(); }
+  var sepa = ""; //(field.innerHTML == "") ? '' : '<span class="uploadedFileSeparator"></span>';
+  var icon = "iconFile icon" + name.replace(/.*\./, '').capitalize();
+  var sequence = filename.replace(/\..+/, '');
+  var html = '<span id="uploadedFile' + id + '" class="uploadedFile">' + sepa;
+  var uri = '';
+  var linkUri = '';
+  if (image_is == '1'){
+    uri =  '/_admin/_photos/' + filename;
+    linkUri = '/_admin/_photos/' + filename + '?mode=download';
+  }else{
+    uri =  '/_admin/_files/' + filename;
+    linkUri = uri;
+  }
+  var opt = '';
+  if (image_is == '1') {
+    opt = 'target="_blank"';
+  } else {
+    opt = 'onclick="return downloadUploadedFile(this.href);"';
+  }
+  html += '<span id="uploadedShow'+ id +'"><a href="' + linkUri +'" class="uploadedFileName '+ icon + '" ' + opt + ' >' + name.escapeHTML() + "(" + size + ")" + '</a></span>';
+  /*html += '<a href="#" onclick="return insertUploadedFile(\'' + id + '\', \'' + image_is + '\', \'' + '0' + '\', \'' + linkUri+ '\')" title="添付">添付</a>';
+  if(image_is=='1'){
+    html += '<a href="#" onclick="return insertUploadedFile(\'' + id + '\', \'' + image_is + '\', \'' + '1' + '\', \'' + uri+ '\')" title="貼付">貼付</a>';
+  }*/
+  html += '<a href="#" onclick="return deleteUploadedFile(\'' + id + '\', \'' + image_is + '\')" title="削除" class="deleteUploadedFile">x</a>';
+  html += '</span> ';
+  field.innerHTML += html;
+  if (image_is == '1') {
+    var photoField = $('photoID');
+    photo_html = '<input type="hidden" id="ids_" name="photoids[]" value="' + id + '">'
+    photoField.innerHTML += photo_html;
+  }else{
+    var fileField = $('fileID');
+    file_html = '<input type="hidden" id="ids_" name="fileids[]" value="' + id + '">'
+    fileField.innerHTML += file_html;
+  }
+}
+
+
+function downloadUploadedFile(uri) {
+  var beforeUnloadFunc = window.onbeforeunload;
+  window.onbeforeunload = function() {
+    window.onbeforeunload = beforeUnloadFunc;
+  };
+  window.location.href = uri;
+  return false;
+}
+
+function insertUploadedFile(id,image_is,paste,uri) {
+  var elm = $('uploadedShow' + id);
+  var insertHtml = '';
+  if (paste=='1'){
+    insertHtml = '<img src=\'' + uri + '\' />'
+  }else{
+    insertHtml = elm.innerHTML;
+  }
+  mceInsertContent(insertHtml);
+  return false;
+}
+
+function mceInsertContent(value) {
+  parent.tinyMCE.execInstanceCommand('thread_body','mceInsertContent',true, value);
+}
+
+function deleteUploadedFile(id,image_is) {
+  var elm = $('uploadedFile' + id);
+  var uri = "<%= sns_uploads_path %>/" + id + '.xml?kind=' + form_kind + '&image_is=' + image_is ;
+  var myAjax = new Ajax.Request(uri, {
+    method: 'post',
+    parameters: "_method=delete&authenticity_token=<%= form_authenticity_token %>",
+    onComplete: deletedUploadedFile,
+    onFailure: function(request) { alert('送信に失敗しました。'); }
+  });
+  removeIdField(id,image_is);
+  return false;
+}
+
+
+function deletedUploadedFile(request) {
+  var id  = request.responseText.replace(/^OK /, '');
+  var elm = $('uploadedFile' + id);
+  if (elm) { elm.remove(); }
+  var field = $('uploadedFiles');
+  field.innerHTML = field.innerHTML.replace(/> +</, '> <');
+  if (field.innerHTML.match(/^ *$/) != null) {
+    field.innerHTML = "";
+    field.hide();
+  }
+}
+
+function removeIdField(id,image_is){
+  if (image_is=='1'){
+    var parent = document.getElementById("photoID");
+  }else{
+    var parent = document.getElementById("fileID");
+  }
+  var targetField = parent.getElementsByTagName('input');
+  for (var i=0; i < targetField.length; i++) {
+   option = targetField [i];
+   if(option.value==id){
+     option.remove();
+   }
+  }
+}
+function insertUploadedFileInline(id,image_is,paste,uri,parentId) {
+  var elm = $('uploadedShow' + id);
+  var insertHtml = '';
+  if (paste=='1'){
+    insertHtml = '<img src=\'' + uri + '\' />'
+  }else{
+    insertHtml = elm.innerHTML;
+  }
+  mceInsertContentInline(insertHtml,parentId);
+  return false;
+}
+
+function mceInsertContentInline(value,parentId) {
+  var replyBodyId =  'comment_body_' + parentId;
+  parent.tinyMCE.execInstanceCommand(replyBodyId,'mceInsertContent',true, value);
+}
+
+function deleteUploadedFileInline(id,image_is,parentId) {
+  var elm = document.getElementById('uploadedFile' + id);
+  var uri = "<%= sns_uploads_path %>/" + id + '.xml?kind=' + form_kind + '&image_is=' + image_is ;
+  var myAjax = new Ajax.Request(uri, {
+    method: 'post',
+    parameters: "_method=delete&authenticity_token=<%= form_authenticity_token %>",
+    onComplete: deletedUploadedFile,
+    onFailure: function(request) { alert('送信に失敗しました。'); }
+  });
+  removeIdFieldInline(id,image_is,parentId);
+  return false;
+}
+
+
+function removeIdFieldInline(id,image_is,parentId){
+  if (image_is=='1'){
+    var parent = document.getElementById("photoID" + parentId);
+  }else{
+    var parent = document.getElementById("fileID" + parentId);
+  }
+  var targetField = parent.getElementsByTagName('input');
+  for (var i=0; i < targetField.length; i++) {
+   option = targetField [i];
+   if(option.value==id){
+     option.remove();
+   }
+  }
+}
+
+
+//]]>
+</script>
+</td>
+<%= render :partial => "sns/admin/projects/conferences/side_link"%>

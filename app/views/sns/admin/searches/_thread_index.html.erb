@@ -1,0 +1,18 @@
+<%unless @threads.blank?%>
+<h2 class="project">電子会議室の検索結果</h2>
+<table class="index">
+<%for thread in @threads%>
+
+  <tr><td>
+    <%= link_to(thread.title ,sns_search_path(thread.id,{:cl=>"thread"}), :target=>"_blank")%>
+  </td></tr>
+<%end%>
+</table>
+  <%if @cl=="thread"%>
+    <%= paginate @threads %>
+  <%else%>
+  <div class="pagination">
+     <%=link_to "電子会議室の検索結果を見る",sns_searches_path({:keyword=>@word,:cl=>"thread"})%>
+  </div>
+  <%end%>
+<%end%>

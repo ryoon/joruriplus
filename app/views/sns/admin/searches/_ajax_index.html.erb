@@ -1,0 +1,14 @@
+<%for item in @feeds%>
+<%feed_user = item.created_user%>
+<%@date_str = item.sequence%>
+<%if item.is_activity?%>
+<%= render :partial => "sns/admin/posts/activity_item", :locals=>{:item => item, :feed_user=>feed_user}%>
+<%else%>
+<%= render :partial => "sns/admin/posts/post_item", :locals=>{:item => item, :feed_user=>feed_user,:category=>"feed"}%>
+<%end%>
+<%end unless @feeds.blank?%>
+<%for item in @activities%>
+<%feed_user = item.created_user%>
+<%@date_str = item.sequence%>
+<%= render :partial => "sns/admin/posts/project_item", :locals=>{:item => item, :feed_user=>feed_user, :is_admin => false, :is_join=>true}%>
+<%end unless @activities.blank?%>

@@ -1,0 +1,9 @@
+jQuery.noConflict();
+jQuery(document).ready(function($){
+<%unless @item.blank?%>
+var addList = '<%= escape_javascript(render :partial=>"ajax_comment_create", :locals=>{:item=>@item, :post=>@post, :kind=>@kind}) %>';
+$("#like<%=@item.id%>").html(addList);
+$("#likeBtn<%=@item.id%>").html('<%= escape_javascript(link_to "いいねを取り消す", delete_comment_sns_like_path(@item,{:p_id=>@post.id,:kind=>@kind}),:remote => true) %>');
+$("#likeBtn<%=@item.id%>").attr("class","censelLike");
+<%end%>
+});

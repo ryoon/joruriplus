@@ -1,0 +1,49 @@
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</div>
+</td>
+
+<td id="snsContent" colspan="2">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+    <%= render :partial => "header" %>
+<%if @items.blank?%>
+表示するファイルが存在しません。
+<%else%>
+  <table class="list">
+    <tr>
+    <th>ファイル名</th>
+    <th>ファイルサイズ</th>
+    <th>作成者</th>
+    <th>作成日</th>
+    </tr>
+  <%for item in @items%>
+  <tr>
+    <td>
+      <%= link_to("#{item.original_file_name}",sns_project_file_path(@project_code,item),:class => file_icon_class(item.file_name) ) %>
+   </td>
+   <td>
+       <%=safe{item.eng_unit}%>
+    </td>
+   <td>
+       <%=safe{item.created_user.name}%>
+   </td>
+   <td>
+     <%=safe{item.created_at.strftime('%Y-%m-%d %H:%M')}%>
+   </td>
+   </tr>
+  <%end%>
+  </table>
+<%= paginate @items %>
+<%end%>
+  </div>
+</div>
+</td>

@@ -1,0 +1,160 @@
+<%
+is_join = @project.is_join?
+is_admin = @project.is_admin?
+if @threads.blank?%>
+表示する議題がありません。
+<%else%>
+<%for item in @threads%>
+<%= render :partial => "sns/admin/projects/conferences/show_doc", :locals=>{:item=>item,:is_join=>is_join,:is_admin=>is_admin}%>
+<%end%>
+
+
+<%= paginate @threads %>
+<%end%>
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  // ここでは、$はjQueryとして使えます。
+ $(document).ready(function(){
+    $('#thread_body').autosize();
+    $('.commentFormBody').autosize();
+    });
+//削除ボタン
+  $(".delete .delete").live('click' ,function(){
+    var buttonId = this.id;
+    var id = "";
+    var post = "";
+    var pid = "";
+    var confirmText = "" ;
+    var ajaxUrl = "";
+    var kind = "";
+    var item_id = "";
+    if (buttonId.match(/cdelete(.+)_(.+)$/)){
+      id = RegExp.$1;
+      pid = RegExp.$2;
+      kind = "comment";
+      confirmText = "このコメントを削除してよろしいですか？";
+      ajaxUrl = '\/_admin\/sns\/'+ 'projects\/<%=@project_code%>\/conferences\/' + id+ '\/delete_res?p_id=' + pid;
+    }else if(buttonId.match(/delete/)){
+      kind = "post";
+      id = buttonId.replace(/delete/,"");
+      confirmText="この投稿を削除してよろしいですか？";
+
+      if($("#comment"+id+" .statement2").length!=0){
+        confirmText = "コメントも含めて削除されます。\nよろしいですか。";
+      }
+      ajaxUrl = '<%=sns_conferences_path(@project_code)%>\/' + id + '\/delete';
+    }else{
+      return false;
+    }
+    if(confirm(confirmText)){
+        $.ajax({
+            type: 'GET',
+            url:  ajaxUrl,
+            contentType: 'application/json',
+            dataType: 'text',
+            success: function(request) {
+              if (request!="NG"){
+                item_id = request;
+                if (kind=="comment"){
+                  $("#commentChild" + id).remove();
+                  $("#comment" + id).remove();
+                  var comentCount = parseInt($("#commentCount" + pid).text());
+                  if(comentCount >= <%=comment_limit%>){
+                    $("#commentWarning" + pid).html("<%=comment_limit_message%>");
+                    $("#bottomCbutton" + pid).hide();
+                    $("#commentWarning" + pid).show();
+                  }else{
+                    $("#commentWarning" + pid).hide();
+                    $("#commentWarning" + pid).empty();
+                    $("#bottomCbutton" + pid).show();
+                  }
+                }else{
+                  $("#threadTitle"+ item_id).remove();
+                  $("#subject" + item_id).remove();
+                }
+              }
+            }
+        });
+        return false;
+      }else{
+        return false;
+     }
+  });
+
+  $(".commentLink").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/cbutton/,"");
+    $('#form'+id).toggle();
+    var messageText = $('#cbutton'+id).text();
+    var frameUrl = '<%=sns_conferences_path(@project_code)%>\/attach?parent_id=' + id;
+    if (messageText=="コメントする"){
+      $('#cbutton'+id).html("閉じる");
+      $('#bottomCbutton'+id).html("閉じる");
+      $('#fileFrame'+id).attr("src",frameUrl);
+      $('#photoFrame'+id).attr("src",frameUrl + '&kind=photo');
+      //$('#function'+id).hide();
+    }else{
+      $('#cbutton'+id).html("コメントする");
+      $('#bottomCbutton'+id).html("コメントする");
+      $('#fileFrame'+id).attr("src","");
+      $('#photoFrame'+id).attr("src","");
+      return false;
+      //$('#function'+id).show();
+    }
+  });
+
+  $(".commentFormShow").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/bottomCbutton/,"");
+    $('#form'+id).toggle();
+    var messageText = $('#bottomCbutton'+id).text();
+    var frameUrl = '<%=sns_conferences_path(@project_code)%>\/attach?parent_id=' + id;
+    if (messageText=="コメントする"){
+      $('#cbutton'+id).html("閉じる");
+      $('#bottomCbutton'+id).html("閉じる");
+      $('#fileFrame'+id).attr("src",frameUrl);
+      $('#photoFrame'+id).attr("src",frameUrl + '&kind=photo');
+      //$('#function'+id).hide();
+    }else{
+      $('#cbutton'+id).html("コメントする");
+      $('#bottomCbutton'+id).html("コメントする");
+      $('#fileFrame'+id).attr("src","");
+      $('#photoFrame'+id).attr("src","");
+      return false;
+      //$('#function'+id).show();
+    }
+  });
+
+    $(".commentFormBody").live('focus' ,function(){
+        if($(this).val() == "コメントする")
+            $(this).css('color', '#000').val('');
+    }).blur(function() {
+        if(jQuery.trim($(this).val()) == "") {
+            $(this).css('color', '#999').val("コメントする");
+        }
+    });
+
+    $(".commentSubmitBotton").live('click' ,function(){
+        var id = this.id;
+        id = id.replace(/csubmit/,"");
+        var formid ="#form"+ id;
+        if($(formid + " #comment_body").val() == ""){
+          return false;
+        }else if($(formid + " #comment_body").val() == "コメントする"){
+          return false;
+        }else{
+          return true;
+        }
+    });
+
+
+
+});
+
+
+//]]>
+</script>
+

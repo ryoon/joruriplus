@@ -1,0 +1,10 @@
+<div id="photoID">
+  <%for photo in photos%>
+  <input id="ids_" name="photoids[]" value="<%=photo.id%>" type="hidden">
+  <%end if photos%>
+</div>
+<div id="fileID">
+  <%for file in files%>
+  <input id="ids_" name="fileids[]" value="<%=file.id%>" type="hidden">
+  <%end if files%>
+</div>

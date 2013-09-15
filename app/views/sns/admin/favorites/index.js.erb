@@ -1,0 +1,7 @@
+jQuery.noConflict();
+jQuery(document).ready(function($){
+<%unless @post.blank?%>
+$("#favBtn<%=@post.id%>").html('<%= escape_javascript(link_to "お気に入り", delete_sns_favorite_path(@item,{:p_id=>@post.id,:kind=>@kind}),:remote => true, :title=>"キャンセル") %>');
+$("#favBtn<%=@post.id%>").attr("class","canselFavorite");
+<%end%>
+});

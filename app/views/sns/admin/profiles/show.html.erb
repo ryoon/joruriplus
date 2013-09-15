@@ -1,0 +1,132 @@
+<%
+cls = lambda do |name|
+  _cls  = [ name.to_s ]
+  if name.to_s == "newsfeed"
+    _cls << 'current' if @cat == "news" || @cat == "newsfeed"
+  else
+    _cls << 'current' if name.to_s == @cat
+  end
+
+  _cls.join(' ')
+end
+public_state = @item.privacy_config
+profile_user = Sys::User.find_by_id(@item.user_id)
+user_group =  profile_user.groups[0]
+
+%>
+<td id="snsMenu" class="showPhoto">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <div class="profilePhoto">
+    <%=image_tag(@item.profile_photo_path, :alt => @item.name, :align => 'center', :border => 0, :width=>160)%>
+  </div>
+  <div class="profileInfo">
+  <span><%=@item.name%>（<%=user_group.group_short_name%>）</span>
+  </div>
+  <div class="profileMessage" id="messageField">
+  <div class="messageFrame1">
+    <div class="messageFrame2" id="messageStr"><%=hbr @item.message_show%></div>
+  </div>
+</div>
+<hr />
+<ul class="myMenu">
+  <li><%= link_to "ニュースフィード", sns_profile_path(@item.account,{:cl=>"newsfeed"}),:class=>cls.call(:newsfeed) %></li>
+  <li></li>
+</ul>
+</div>
+<div class="projectMenu">
+  <ul>
+    <li><%= link_to "基本情報",  sns_profile_path(@item.account,{:cl=>"data"}),:class=>cls.call(:data) %></li>
+    <li><%= link_to "フォト",  sns_profile_path(@item.account,{:cl=>"photo"}),:class=>cls.call(:photo) %></li>
+    <li><%= link_to "動画",  sns_profile_path(@item.account,{:cl=>"video"}),:class=>cls.call(:video) %></li>
+    <li><%= link_to "ファイル",  sns_profile_path(@item.account,{:cl=>"file"}),:class=>cls.call(:file) %></li>
+  </ul>
+</div>
+<%if Core.user.has_auth?(:manager)%>
+<script type="text/javascript">
+//<![CDATA[
+
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  $("#messageField").live('click' ,function(){
+    var editForm = "<%= escape_javascript(render :partial=>'sns/admin/message_boards/edit_message', :locals=>{:p_item=>@item} ) %>";
+    var currentMessage = $("#messageStr").html().replace(/(<br>\n<br>)/gi, "\n").replace(/(<br>)/gi, "\r");
+    $("#messageField").html(editForm);
+    if (currentMessage!="　"){
+      $("#prof_message_message").val(currentMessage);
+    }
+    $('#messageField').attr('id', 'messageForm');
+    $('#messageForm').removeClass('empty');
+    $("#prof_message_message").focus();
+  });
+ });
+//]]>
+</script>
+<%end%>
+<%#end%>
+</div>
+</div>
+
+</td>
+
+<td id="snsContent" class="<%='profile' if @cat=='data'%>">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+
+  <div class="leftMenu">
+  <%if @current=="data"%>
+  <h2 class="<%=@class%>">基本情報<span> - <%=@item.name%>（<%=@item.user_group.group_short_name%>）</span></h2>
+    <%if @is_friend==true%>
+     <%= render :partial => "sns/admin/profiles/closed_profile"%>
+    <%else%>
+     <%= render :partial => "sns/admin/profiles/public_profile"%>
+    <%end%>
+  <%else%>
+<%
+if @cat=="newsfeed"
+  cat = false
+else
+  cat = true
+end
+%>
+  <h2 class="<%=@class%>"><%=@title%><span> - <%=@item.name%>（<%=@item.user_group.group_short_name%>）</span></h2>
+  <%= render :partial => "feed_index", :locals=>{:cat_index=>cat}%>
+  <div id="backLog">
+    <%date_str=""
+      date_str = @feeds.last.sequence unless @feeds.blank?%>
+      <%if @cat=="newsfeed"%>
+      <%= render :partial => "sns/admin/posts/request_link", :locals=>{:link_str=>"過去の投稿", :request_uri=>list_sns_posts_path({:account=>@item.account, :date=>date_str,:cat=>nil,:subfeed=>@subfeed})}%>
+      <%else%>
+      <%= render :partial => "sns/admin/posts/request_link", :locals=>{:link_str=>"過去の投稿", :request_uri=>list_sns_posts_path({:account=>@item.account, :date=>date_str,:cat=>@cat,:subfeed=>@subfeed})}%>
+      <%end%>
+  </div>
+  <%end%>
+  </div>
+</div>
+</td>
+
+
+<td id="snsLink">
+<div id="snsLinkContainer">
+<div class="menu">
+  <%if Core.profile.member_limit? || @item.member_limit?%>
+  <%else%>
+    <%unless @is_friend%>
+      <%if @item.is_pending?%>
+        <span style="color:#FF0000; font-weight: bold;">申請中</span>
+      <%else%>
+        <%=link_to("友達申請をする" , new_sns_friend_proposal_path({:to_user_id=>@item.id}), :class=>"button" )%>
+      <%end%>
+    <%end%>
+  <%end%>
+
+  <%= render :partial => "friends_field"%>
+
+</div>
+
+</div>
+</td>

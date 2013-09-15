@@ -1,0 +1,86 @@
+<td id="snsMenu">
+<%= calendar_date_select_includes 'default', :locale => 'ja' %>
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+
+</div>
+
+</td>
+
+<td id="snsContent">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+  <h2 class="project"><%=@project.title%></h2>
+  <h3 class="titleLine" class="schedule">スケジュール</h3>
+  <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+<div class="calenderHead">
+<div class="dayInformation"><%=h sprintf("%d年%d月", @year, @month) %></div>
+<div class="scheduleMove">
+<%=raw schedule_move(@st_time,@project_code)%>
+<!--<span class="separate">|</span>
+<%#= calendar_date_select_tag "hidden_date_selector01", "#{@year}-#{@month}-1", :hidden => "true", :style=>"display:none;", :onchange=>"page_change(this);" %>
+<a href="javascript:void(0);" class="showCalendarTop">カレンダー表示する</a>-->
+</div>
+</div>
+<table class="scheduleCalender">
+<tbody>
+<tr class="wdays">
+<td class="weekday">月</td>
+<td class="weekday">火</td>
+<td class="weekday">水</td>
+<td class="weekday">木</td>
+<td class="weekday">金</td>
+<td class="sat">土</td>
+<td class="sun">日</td>
+</tr>
+
+<% @calendar.days.each_with_index{|day, index| %><%# next if day[:class] =~ /(next|prev)/ %>
+  <%next if day[:wday_class]!="mon"%>
+
+    <tr class="days">
+    <%@calendar.week_days(index).each do |header|%>
+      <td class="<%=header[:td_class]%> day">
+        <%=link_to raw("<span>#{header[:day]}</span>"), daily_sns_schedules_path(@project.code, {:st_date=>"#{header[:year]}#{header[:month]}#{header[:day]}"})%>
+        <!--<span><%#=header[:day]%><br /></span>-->
+        <span class="add"><%=link_to "追加する",new_sns_schedule_path(@project_code,{:st_date=>header[:date]}) if @project.is_join?%></span>
+      </td>
+    <%end%>
+    </tr>
+    <tr class="scheduleData">
+    <%@calendar.week_days(index).each do |data|%>
+      <td class="<%=data[:td_class]%>">
+        <% if @items[data[:date]].size > 0 || data[:holiday] %>
+          <% if data[:holiday] %><span class="data"><%= data[:holiday] %></span><% end %>
+            <% @items[data[:date]].each do |item| %>
+            <span class="time"><%=item.st_at.strftime("%H:%M")%>-<%=item.ed_at.strftime("%H:%M")%></span><br />
+            <span class="data"><%= link_to h(item.category_title), sns_schedule_path(@project_code,item) %></span>
+          <% end %>
+        <% end  if @items[data[:date]]%>
+      </td>
+    <%end%>
+    </tr>
+<% } %>
+</tbody>
+</table>
+<div class="calenderBottom">
+<div class="scheduleMove">
+<%=raw schedule_move(@st_time,@project_code)%>
+<!--
+<%#= calendar_date_select_tag "hidden_date_selector02", "#{@year}-#{@month}-1", :hidden => "true", :style=>"display:none;", :onchange=>"page_change(this);" %>
+<a href="javascript:void(0);" class="showCalendarBottom">カレンダー表示する</a>
+-->
+</div>
+</div>
+  </div>
+</div>
+
+</td>
+<%= render :partial => "side_link"%>
+

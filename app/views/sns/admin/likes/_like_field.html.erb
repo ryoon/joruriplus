@@ -1,0 +1,13 @@
+<div class="likeForm">
+<%like = post.like%>
+<div id="likeBtn<%=post.id%>" class="<%= like.blank? ? 'setLike' : 'censelLike'%>">
+<%if like%>
+<%=link_to "いいねを取り消す", delete_sns_like_path(like,{:p_id=>post.id,:kind=>kind}),:remote => true %></span>
+<%else%>
+<%=link_to "いいね", sns_likes_path({:p_id=>post.id,:kind=>kind}),:remote => true%></span>
+<%end%>
+</div>
+<div id="like<%=post.id%>">
+<%= render :partial => "sns/admin/likes/ajax_create", :locals => {:post => post, :kind=>kind} %>
+</div>
+</div>

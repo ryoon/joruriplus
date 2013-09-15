@@ -1,0 +1,12 @@
+<%for friend in @list%>
+<div class="friendData" id="frendDataField">
+  <div class="left">
+    <% image_str = image_tag(friend.profile_photo_path(true), :alt => friend.name, :align => 'center', :border => 0, :width=>24)%>
+    <%=link_to(raw(image_str) , "/_admin/profile/#{friend.account}") %>
+  </div>
+  <div class="right">
+    <%user_name =%Q(<span class="user">#{friend.name}</span><span class="department">（#{friend.group_name({:s_name=>false})}）</span>) %>
+    <%=link_to(raw(user_name) , "/_admin/profile/#{friend.account}") %>
+  </div>
+</div>
+<%end%>

@@ -1,0 +1,4 @@
+<%
+unless @feeds.blank?
+  for item in @feeds%><%=item.id%>,<%end%>
+<%end%>

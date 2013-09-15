@@ -1,0 +1,48 @@
+<td id="snsMenu" class="<%='showPhoto' if @created_user.account != Core.profile.account%>">
+<%if @created_user.account == Core.profile.account%>
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <%= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+</div>
+<%else%>
+  <%= render :partial => "sns/admin/base/user_menu"%>
+<%end%>
+
+
+</td>
+
+<td id="snsContent" colspan="2" class="detail">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+    <h2 class="video">動画</h2>
+    <%#=link_to "ファイルを追加", new_sns_file_path%>
+    <%feed_user = @item.created_user %>
+
+  <table style="width: 100%;" class="show">
+  <tr>
+    <th>公開範囲</th>
+    <td><span title="<%=@item.custom_group_members%>"><%= @item.range_show%></span></td>
+  </tr>
+  <!--<tr>
+    <th>備考</th>
+  <td>
+    <%#= hbr @item.caption%>
+   </td></tr>-->
+  </table>
+  <%= render :partial => "sns/admin/videos/player"%>
+  <div class="myFunction">
+    <%if feed_user.user_id == Core.user.id%>
+       <%= link_to "編集する",edit_sns_user_video_path(@created_user.account, @item),:class => :edit %>
+       <%=link_to "削除する",sns_user_video_path(@created_user.account,@item),:method=>:delete,
+  :class => :delete, :title => "削除", :confirm=>"この投稿を削除します。よろしいですか？"%>
+     <%end unless feed_user.blank?%>
+  </div>
+  </div>
+</div>
+</td>

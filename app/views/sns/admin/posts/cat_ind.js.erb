@@ -1,0 +1,18 @@
+jQuery.noConflict();
+jQuery(document).ready(function($){
+if (jQuery('#updateField tr').length) {
+            jQuery('#updateField tr').remove();
+        }
+<%if @feeds.blank?%>
+var emptyField = "";
+$('#backLog').html(emptyField);
+<%else%>
+var addList = "<%= escape_javascript(render :partial=>'ajax_index') %>";
+$("#updateField").append(addList);
+var remoteLink = '<%= escape_javascript(render :partial=>'request_link', :locals=>{:link_str=>"過去の投稿",:request_uri=>sns_posts_path({:date=>min_sequence(@feeds),:cat=>@cat,:subfeed=>@subfeed})} ) %>';
+$('#backLog').html(remoteLink);
+/*var refreshLink = '<%#= escape_javascript(render :partial=>'request_link', :locals=>{:link_str=>"更新", :request_uri=>refresh_sns_posts_path({:date=>@feeds[0].sequence,:cat=>@cat})} ) %>';
+$("#refreshLog").html(refreshLink);*/
+$("#dateStr").text("<%=max_sequence(@feeds)%>");
+<%end%>
+});

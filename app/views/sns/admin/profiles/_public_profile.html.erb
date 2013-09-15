@@ -1,0 +1,199 @@
+<%
+data_column = 0
+public_state = @item.privacy_config
+manager_config = display_items_config
+
+p_sequence = @item.profile_photo_path.gsub(/(\/_admin\/_photos\/)([0-9]+)(.*)/,'\2')
+album = Sns::Album.find(:first, :conditions=>{:kind=>"photo", :name => "プロフィール写真", :created_user_id=>@item.id})
+p_photo =  nil
+p_photo = Sns::Photo.where(:sequence=>p_sequence.to_i, :album_id=>album.id).first if album && p_sequence
+
+is_mine_prof = Core.profile.account == @item.account ? true : false
+is_auth = Core.user.has_auth?(:manager)
+
+is_photo_dl = p_photo && (is_mine_prof || is_auth) ? true : false
+%>
+<%if is_photo_dl%>
+<%=link_to "プロフィール写真をダウンロードする", p_photo.download_uri, :class=>"button"%>
+<%end%>
+
+<%if public_state[:base_info]=="public" && is_menu_enabled("base_info")%>
+<div class="profileData<%="1" if data_column == 1 %>">
+<%data_column += 1%>
+<h4>基本情報</h4>
+<table class="show">
+  <%if manager_config[:sex]=="enabled"%>
+  <tr>
+    <th>性別</th>
+    <td><%=@item.sex_show%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:birthday]=="enabled"%>
+  <tr>
+    <th>生年月日</th>
+    <td><%= safe{@item.birthday.strftime('%Y年%m月%d日')}%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:bloodtype]=="enabled"%>
+  <tr>
+    <th>血液型</th>
+    <td><%= @item.bloodtype_show%></td>
+  </tr>
+  <%end%>
+</table>
+</div>
+<%end%>
+<%if public_state[:history]=="public" && !@office.blank? && is_menu_enabled("office")%>
+<%data_column += 1%>
+<div class="profileData<%="1" if data_column == 1%>">
+<h4>勤務先</h4>
+
+<%= render :partial => "sns/admin/offices/show_history", :locals => {:edit_flag => false, :manager_config=>manager_config  }%>
+</div>
+<%end%>
+
+<%if  is_menu_enabled("addr")%>
+<%if public_state[:address]=="public"%>
+<div class="profileData<%="1" if data_column == 1 %>">
+<%data_column += 1%>
+<h4>連絡先</h4>
+<table class="show">
+  <%if manager_config[:address_main]=="enabled"%>
+  <tr>
+    <th>住所</th>
+    <td><%= @item.address%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:phone_number]=="enabled"%>
+  <tr>
+    <th>自宅電話番号</th>
+    <td><%=@item.phone_number%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:mobile_number]=="enabled"%>
+  <tr>
+    <th>携帯電話</th>
+    <td><%=@item.mobile_number%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:mail_addr]=="enabled"%>
+  <tr>
+    <th>メールアドレス（県）</th>
+    <td><%=@item.mail_addr%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:ind_addr]=="enabled"%>
+  <tr>
+    <th>メールアドレス（個人）</th>
+    <td><%=@item.ind_addr%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:facebook_name]=="enabled"%>
+  <tr>
+    <th>facebookユーザネーム（ユニークURL）</th>
+    <td><%=link_to @item.facebook_name, @item.facebook_name, :target=>"_blank" unless @item.facebook_name.blank?%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:addr_01]=="enabled"%>
+  <tr>
+    <th>その他連絡手段（自由記入）</th>
+    <td><%=raw post_show(@item.addr_01)%></td>
+  </tr>
+  <%end%>
+</table>
+</div>
+<%else%>
+<div class="profileData<%="1" if data_column == 1 %>">
+<%data_column += 1%>
+<h4>連絡先</h4>
+<table class="show">
+ <tr>
+    <th>メールアドレス（県）</th>
+    <td><%=@item.mail_addr%></td>
+  </tr>
+</table>
+</div>
+<%end%>
+<%end%>
+
+
+<%if public_state[:skill]=="public" && is_menu_enabled("skill")%>
+<%data_column += 1%>
+<div class="profileData<%="1" if data_column == 1%>">
+<h4>特技</h4>
+<table class="show">
+  <%if manager_config[:job_skill]=="enabled"%>
+  <tr>
+    <th>活用して欲しい能力</th>
+    <td><%=hbr @item.job_skill%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:license]=="enabled"%>
+  <tr>
+    <th>免許・資格</th>
+    <td><%=hbr @item.license%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:circle]=="enabled"%>
+  <tr>
+    <th>サークル活動</th>
+    <td><%=hbr @item.circle%></td>
+  </tr>
+  <%end%>
+</table>
+</div>
+<%end%>
+<%if public_state[:interest]=="public" && is_menu_enabled("interest")%>
+<%data_column += 1%>
+<div class="profileData<%="1" if data_column == 1%>">
+<h4>趣味・関心</h4>
+
+<table class="show">
+  <%if manager_config[:interest_main]=="enabled"%>
+  <tr>
+    <th>趣味</th>
+    <td><%=hbr @item.interest %></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:thought]=="enabled"%>
+  <tr>
+    <th>日頃の考え</th>
+    <td><%=hbr @item.thought %></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:research_group]=="enabled"%>
+  <tr>
+    <th>自主研究グループ</th>
+    <td><%=hbr @item.research_group  %></td>
+  </tr>
+  <%end%>
+</table>
+</div>
+<%end%>
+<%if public_state[:pr]=="public" && is_menu_enabled("pr")%>
+<%data_column += 1%>
+<div class="profileData<%="1" if data_column == 1%>">
+<h4>PR</h4>
+
+<table class="show">
+  <%if manager_config[:self_introduce]=="enabled"%>
+  <tr>
+    <th>自己紹介</th>
+    <td><%=hbr @item.self_introduce%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:resolution]=="enabled"%>
+  <tr>
+    <th>今年の目標</th>
+    <td><%=hbr @item.resolution%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:program]=="enabled"%>
+  <tr>
+    <th>取り組んでいる仕事</th>
+    <td><%=hbr @item.program%></td>
+  </tr>
+  <%end%>
+</table>
+</div>
+<%end%>

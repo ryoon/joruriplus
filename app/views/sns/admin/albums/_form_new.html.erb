@@ -1,0 +1,256 @@
+<%
+range_list = Sns::Post.range_list
+c_groups = Sns::CustomGroup.find(:all, :conditions=>{:user_id=>Core.profile.id})
+unless c_groups.blank?
+  c_groups.each do |c|
+    range_list << [c.name, c.sequence]
+  end
+end
+%>
+<script type="text/javascript" src="/_common/js/swfupload/swfupload.js"></script>
+<script type="text/javascript" src="/_common/js/swfupload/plugins/swfupload.queue.js"></script>
+<script type="text/javascript" src="/_common/js/swfupload/plugins/fileprogress.js"></script>
+<script type="text/javascript" src="/_common/js/swfupload/plugins/handlers.js"></script>
+<script type="text/javascript" src="/_common/js/dump.js"></script>
+<%= f.hidden_field :created_user_id %>
+  <table class="show">
+    <tr>
+      <th>アルバム名称</th>
+      <td><%= f.text_field :name%></td>
+    </tr>
+    <tr>
+      <th>画像</th>
+      <td>
+        <div id="swfupButtons">
+          <div id="swfBox1">
+            <span id="spanButtonPlaceHolder1"></span>
+            <input id="btnCancel1" type="button" value="キャンセル" onclick="swfu.cancelQueue();" disabled="disabled" />
+          </div>
+        </div>
+        <div id="uploadedFiles" style="display: none;" class="uploadedFilesShow"></div>
+        <div id="divStatus"></div>
+        <div id="fsUploadProgress"></div>
+        <div id="photoID"></div>
+      </td>
+    </tr>
+    <tr>
+      <th>公開範囲</th>
+      <td><%= f.select :privacy, range_list %></td>
+    </tr>
+    <tr>
+      <td></td><td><%= raw submit(:register) %></td>
+    </tr>
+  </table>
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  // ここでは、$はjQueryとして使えます。
+});
+
+var swfu1 = null;
+
+function my_submit(){
+  var targetField = [];
+  var targetMessage = [];
+  targetField.push($('item_name').value);
+  targetField.push($('photoID').innerHTML);
+  targetMessage.push("アルバム名が入力されていません。");
+  targetMessage.push("フォトが登録されていません。");
+  var validate = true;
+  var alertArr = [];
+  for (var i = 0; i < targetField.length; i++) {
+    if(targetField[i]==""){
+      validate = false;
+      alertArr.push(targetMessage[i]);
+    }
+  }
+  if (validate){
+    return true;
+  }else{
+    var alertMessage= "";
+    for(var n =0; n < alertArr.length; n++){
+      alertMessage +=  alertArr[n];
+      if(n != alertArr.length - 1){
+        alertMessage += "\n"
+      }
+    }
+    alert(alertMessage);
+    return false;
+  }
+}
+
+var my_load = function() {
+
+}
+my_load();window.onload = function(){
+  initSwfupload(swfu1);
+}
+
+// file uploader
+function initSwfupload(swfu1,swfu2) {
+  swfu1 = new SWFUpload({
+    upload_url : "<%= sns_uploads_path %>",
+    post_params: {
+      authenticity_token : "<%= form_authenticity_token %>",
+      core_profile_id : "<%= Core.profile.id%>",
+      album_kind : "feed",
+      form_kind : "photo",
+      total_size_limit : "10 MB"
+    },
+    flash_url : "/_common/js/swfupload/swfupload.swf",
+    file_post_name : "upload",
+    file_size_limit : "10 MB",
+    file_types : "*.*",
+    file_types_description : "All Files",
+    file_upload_limit : 0,
+    file_queue_limit : 0,
+    custom_settings : {
+      progressTarget : "fsUploadProgress",
+      cancelButtonId : "btnCancel1"
+    },
+    debug: false,
+    prevent_swf_caching : false,
+    button_image_url: "/_common/themes/admin/sns/images/bt/bt_f_newfile.png",
+    button_width: "99",
+    button_height: "24",
+    button_placeholder_id: "spanButtonPlaceHolder1",//"uploadHtml",
+    //file_dialog_complete_handler : function(numFilesSelected, numFilesQueued) { this.startUpload(); },
+    //upload_error_handler : function(file, errorCode, message){ alert('読み込みに失敗しました。'); },
+    //upload_success_handler : function(file, data, response) { tinyMCE.activeEditor.setContent(data); }
+    file_queued_handler : fileQueued,
+    file_queue_error_handler : fileQueueError,
+    file_dialog_complete_handler : fileDialogComplete,
+    upload_start_handler : uploadStart,
+    upload_progress_handler : uploadProgress,
+    upload_error_handler : uploadError,
+    //upload_success_handler : uploadSuccess,
+    upload_success_handler : function(file, data) {
+      var progress = new FileProgress(file, this.customSettings.progressTarget);
+      progress.setComplete();
+      progress.setStatus("Complete.");
+      progress.toggleCancel(false);
+      if (data.match(/^Error/i) != null) {
+        alert(data);
+      } else {
+        var id = '', name = '', size = '', image_is = '', filename = '';
+        if (data.match(/^OK (.+) (.+) (.+?) (.?) (.+?)$/)) {
+          id = RegExp.$1;
+          name = RegExp.$2;
+          size = RegExp.$3;
+          image_is = RegExp.$4;
+          filename = RegExp.$5;
+        }
+        addUploadedFile(id, name, size, image_is, filename);
+      }
+    },
+    upload_complete_handler : uploadComplete,
+    queue_complete_handler : queueComplete  // Queue plugin event
+  });
+}
+
+// load uploaded files
+function loadUploadedFiles() {
+  var uri = "<%= sns_uploads_path(:format => 'xml') %>";
+  var myAjax = new Ajax.Request(uri, {
+    method: 'get',
+    onSuccess: showUploadedFiles,
+    onFailure: function(request) { alert('送信に失敗しました。'); }
+  });
+}
+function showUploadedFiles(request) {
+  var html  = "";
+  var items = request.responseXML.getElementsByTagName("item");
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    var id   = getNodeValue(item, 'id');
+    var name = getNodeValue(item, 'name');
+    var size = getNodeValue(item, 'eng_unit');
+    var image_is = getNodeValue(item, 'image_is');
+    addUploadedFile(id, name, size, image_is);
+  }
+}
+function getNodeValue(node, name) {
+  var elem = node.getElementsByTagName(name);
+  if (elem && elem[0] && elem[0].firstChild) {
+    return elem[0].firstChild.nodeValue;
+  }
+  return "";
+}
+function addUploadedFile(id, name, size, image_is, filename) {
+  var field = $('uploadedFiles');
+  if (field.visible() == false) { field.show(); }
+  var sepa = ""; //(field.innerHTML == "") ? '' : '<span class="uploadedFileSeparator"></span>';
+  var icon = "iconFile icon" + name.replace(/.*\./, '').capitalize();
+  var sequence = filename.replace(/\..+/, '');
+  var html = '<span id="uploadedFile' + id + '" class="uploadedFile">' + sepa;
+  var uri = '';
+  if (image_is == '1'){
+    uri =  '/_admin/_photos/' + sequence + '/' + filename
+  }else{
+    uri =  '/_admin/_files/' + sequence + '/' + filename
+  }
+  var opt = '';
+  if (image_is == '1') {
+    opt = 'target="_blank"';
+  } else {
+    opt = 'onclick="return downloadUploadedFile(this.href);"';
+  }
+  html += '<a href="' + uri +'" class="uploadedFileName '+ icon + '" ' + opt + ' >' + name.escapeHTML() + "(" + size + ")" + '</a>';
+  html += '<a href="#" onclick="return deleteUploadedFile(\'' + id + '\')" title="削除" class="deleteUploadedFile">x</a>';
+  html += '</span> ';
+  field.innerHTML += html;
+  if (image_is == '1') {
+    var photoField = $('photoID');
+    photo_html = '<input type="hidden" id="ids_" name="ids[]" value="' + id + '">'
+    photoField.innerHTML += photo_html;
+  }else{
+    var fileField = $('fileID');
+    file_html = '<input type="hidden" id="ids_" name="ids[]" value="' + id + '">'
+    fileField.innerHTML += file_html;
+  }
+}
+function downloadUploadedFile(uri) {
+  var beforeUnloadFunc = window.onbeforeunload;
+  window.onbeforeunload = function() {
+    window.onbeforeunload = beforeUnloadFunc;
+  };
+  window.location.href = uri;
+  return false;
+}
+function deleteUploadedFile(id) {
+  var elm = $('uploadedFile' + id);
+  var uri = "<%= sns_uploads_path %>/" + id + '.xml?kind=photo';
+  var myAjax = new Ajax.Request(uri, {
+    method: 'post',
+    parameters: "_method=delete&authenticity_token=<%= form_authenticity_token %>",
+    onComplete: deletedUploadedFile,
+    onFailure: function(request) { alert('送信に失敗しました。'); }
+  });
+  removeIdField(id);
+  return false;
+}
+function deletedUploadedFile(request) {
+  var id  = request.responseText.replace(/^OK /, '');
+  var elm = $('uploadedFile' + id);
+  if (elm) { elm.remove(); }
+  var field = $('uploadedFiles');
+  field.innerHTML = field.innerHTML.replace(/> +</, '> <');
+  if (field.innerHTML.match(/^ *$/) != null) {
+    field.innerHTML = "";
+    field.hide();
+  }
+}
+
+function removeIdField(id){
+  var parent = document.getElementById("photoID");
+  var targetField = parent.getElementsByTagName('input');
+  for (var i=0; i < targetField.length; i++) {
+   option = targetField [i];
+   if(option.value==id){
+     option.remove();
+   }
+  }
+}
+</script>

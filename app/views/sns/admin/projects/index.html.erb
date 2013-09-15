@@ -1,0 +1,53 @@
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+
+</div>
+
+</td>
+
+<td id="snsContent" colspan="2" class="project">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+    <h2 class="project">プロジェクト一覧</h2>
+  <% form_tag(sns_projects_path, {:method => 'get'}) do %>
+  <div style="padding-top: 10px;padding-left: 15px; padding-bottom: 10px;">
+  <%= text_field_tag('word', params[:word] , :size => 80 ) %>
+  <%= submit_tag "検索", :class=>"button" %>
+  </div>
+  <!-- end form -->
+  <% end %>
+    <%=link_to "プロジェクトを作成する", new_sns_project_path, :class=>"buttonNew" if Core.user.has_auth?(:manager)%>
+    <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+<%
+is_sys_admin=false
+is_sys_admin = true if Core.user.has_auth?(:manager)
+%>
+<%if @items.blank?%>
+<br />表示するプロジェクトが存在しません。
+<%else%>
+  <table style="width: 100%;" class="list">
+  <%for item in @items%>
+  <tr><td>
+    <%= link_to(item.title ,sns_project_path(item.code)) %>
+    <%= %Q(（#{item.publish_show}）)%>
+    <div class="delete">
+       <span><%= link_to "編集する",edit_sns_project_path(item),:class => "button" if item.is_admin?%></span>
+       <span><%=link_to "削除する",sns_project_path(item),:method=>:delete,
+        :class => :delete, :title => "削除", :confirm=>"このプロジェクトを削除します。よろしいですか？" if is_sys_admin%></span>
+     </div>
+   </td></tr>
+  <%end%>
+  </table>
+<%= paginate @items %>
+<%end%>
+  </div>
+</div>
+</td>

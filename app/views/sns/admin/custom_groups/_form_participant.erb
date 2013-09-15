@@ -1,0 +1,36 @@
+<%
+if params[:item][:friend_user_id].blank?
+  @members = nil
+else
+  params[:item][:friend_user_id] = params[:item][:friend_user_id].dup
+  @members = Sns::Profile.any_in("_id"=>params[:item][:friend_user_id])
+end unless params[:item].blank?
+selected_members = []
+@members.each do |m|
+  selected_members << [m.name, m.id]
+end unless @members.blank?
+
+%>
+
+<table class="show">
+<tr>
+    <td width="160">
+      <%=select_tag("user_list", options_for_select(@users, nil), :size=>10, :style => 'width:150px;', :multiple => true, :ondblclick => 'add_participant()')%>
+    </td>
+    <td style="width : 80px;">
+      <%= button_to_function '追加 →', 'add_participant()' %><br /><br />
+      <%= button_to_function '← 削除', 'del_participant()' %>
+    </td>
+    <td>
+      <%= select_tag 'participant_id',options_for_select(selected_members, nil) , :size=>10, :style => 'width:150px;', :ondblclick => 'del_participant()', :multiple => true %>
+      <div id="participantID">
+        <%for member in selected_members%>
+          <%=hidden_field_tag "item[friend_user_id][]", member[1]%>
+        <%end if selected_members%>
+      </div>
+    </td>
+</tr>
+  <tr>
+    <td><%= f.submit(form_class, :class=>"button") %></td>
+  </tr>
+</table>

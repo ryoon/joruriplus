@@ -1,0 +1,30 @@
+<a id="stackButton" href="javascript:void(0);" class="button">▼</a>
+<div  id="stackField" style="display: none;">
+読み込み中…
+</div>
+<script type="text/javascript">
+//<![CDATA[
+
+jQuery.noConflict();
+jQuery(document).ready(function($){
+
+  $("#stackButton").click(function () {
+    $("#stackField").toggle();
+  });
+
+  function refresh(){
+    $.ajax({
+        type: 'GET',
+        url:  '<%=stack_sns_presences_path%>',
+        contentType: 'application/json',
+        dataType: 'text',
+        success: function(request) {
+          $('#stackField').html(request);
+        }
+    });
+  }
+
+  refresh(); setInterval(refresh, 300000); // 1min
+  });
+//]]>
+</script>

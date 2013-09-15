@@ -1,0 +1,62 @@
+<%
+today = Date.today
+s_year = @year || today.year
+s_month = @month || today.month
+@calendar = Util::Date::Calendar.new(s_year, s_month,{:form_w=>"mon"})
+sdate = "#{s_year}-#{s_month}-01"
+edate = (Date.new(s_year, s_month, 1) >> 1).strftime('%Y-%m-%d')
+if @schedule_items.blank?
+items = {}
+
+@calendar.days.each{|d| items[d[:date]] = [] if d[:month].to_i == s_month }
+events = Sns::Schedule.where(:project_id=>@project.id).where({:st_at.gt=>sdate,:ed_at.lt=>edate}).asc(:st_at)
+events.each do |ev|
+  items[ev.st_at.strftime("%Y-%m-%d").to_s] << ev
+end
+else
+items = @schedule_items
+end
+%>
+<div class="schedule">
+  <div class="pieceHeader">スケジュール</div>
+  <div class="pieceBody">
+
+<table class="scheduleCalender">
+<tbody>
+<tr class="head">
+<td colspan="7"><%="#{s_year}年#{s_month}月"%></td>
+</tr>
+<tr class="wdays">
+<td class="weekday">月</td>
+<td class="weekday">火</td>
+<td class="weekday">水</td>
+<td class="weekday">木</td>
+<td class="weekday">金</td>
+<td class="sat">土</td>
+<td class="sun">日</td>
+</tr>
+
+<%@calendar.days.each_with_index{ |day, index|%>
+<%next if day[:wday_class]!="mon"%>
+<tr class="days">
+<%@calendar.week_days(index).each do |td|%>
+<td class="<%=td[:td_class]%>">
+  <%if items[td[:date]].blank?%>
+  <%=td[:day]%>
+  <%else%>
+  <%=link_to td[:day], daily_sns_schedules_path(@project.code, {:st_date=>"#{td[:date].gsub(/-/,"")}"})%>
+  <%end%>
+</td>
+<%end%>
+</tr>
+<%}%>
+
+<tr class="bottom">
+<td colspan="7">
+  <%=raw side_schedule_move(sdate, @project_code)%>
+</td>
+</tr>
+</tbody>
+</table>
+  </div>
+</div>

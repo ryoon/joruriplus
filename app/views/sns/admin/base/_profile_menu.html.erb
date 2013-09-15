@@ -1,0 +1,39 @@
+<%= render :partial => "sns/admin/base/core_profile"%>
+
+<%
+p_cls = lambda do |name|
+  _cls  = [ name.to_s ]
+  _cls << 'current' if name.to_s == @class
+  _cls.join(' ')
+end
+%>
+<%
+projects = Core.profile.projects_show
+%>
+<div class="projectMenu">
+  <%if projects%>
+  <ul class="projectMenu">
+  <li class="level1"><%= link_to "プロジェクト", sns_projects_path, :class=>"project" %></li>
+   <%for project in projects%>
+    <%
+    if project.code == @project_code
+      project_menu = "display:block;"
+      pr_class = " current"
+    else
+      project_menu = "display: none;"
+      pr_class = ""
+    end
+    %>
+    <li class="level2"><%= link_to project.title, project.project_uri, :class=>"myProject #{pr_class}" %></li>
+    <ul style="<%=project_menu%>" id="project<%=project.id%>">
+      <li style="<%=project_menu%>">
+        <%= link_to "電子会議室", sns_conferences_path(project.code), :class=>p_cls.call(:meetingRoom)%>
+        <li><%= link_to "フォト", sns_project_photos_path(project.code), :class=>p_cls.call(:meetingPhoto)%></li>
+        <li><%= link_to "ファイル", sns_project_files_path(project.code), :class=>p_cls.call(:meetingFile)%></li>
+      </li><li style="<%=project_menu%>"><%= link_to "スケジュール",  sns_schedules_path(project.code), :class=>p_cls.call(:schedule) %></li>
+      <li style="<%=project_menu%>"><%= link_to "メンバー", sns_members_path(project.code), :class=>p_cls.call(:join) %></li>
+    </ul>
+  <%end%>
+  </ul>
+  <%end%>
+</div>

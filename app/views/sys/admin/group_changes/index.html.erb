@@ -1,0 +1,45 @@
+<% if @items.blank? %>
+<div class="notice">表示対象がありません</div>
+<% else %>
+<table class="index">
+  <tr>
+    <th></th>
+    <th>引継分類</th>
+    <th>部局</th>
+    <th>新所属</th>
+    <th>引継元</th>
+  </tr>
+  <%for item in @items%>
+  <tr>
+    <td><%=link_to "詳細", sys_group_change_path(item)%></td>
+    <td><%=item.kind_show%></td>
+    <td><%=item.parent_code%><%=item.parent_name%></td>
+    <td><%=item.code%><%=item.name%></td>
+    <td><%=item.old_code%><%=item.old_name%></td>
+  </tr>
+  <% end %>
+</table>
+<%#= paginate @items %>
+<% end %>
+
+<script type="text/javascript">
+//<![CDATA[
+  function showConfirmWindow(confirmText){
+    /*if(kind=="import"){
+      var redirecuUrl = "<%=import_sys_group_changes_path%>"
+    }else if(kind=="reflect"){
+      var redirecuUrl = "<%=reflect_sys_group_changes_path%>"
+    }else{
+      return false;
+    }*/
+
+    // 「OK」時の処理開始 ＋ 確認ダイアログの表示
+    if(window.confirm(confirmText)){
+      //window.location.href = redirectUrl;
+      return true;
+    }else{
+      return false;
+    }
+  }
+//]]>
+</script>

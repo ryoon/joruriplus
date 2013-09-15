@@ -1,0 +1,16 @@
+jQuery.noConflict();
+jQuery(document).ready(function($){
+<%if @item%>
+<%
+is_msg = true
+  message_str = @item.message_show
+%>
+
+var noteBody = '<div class="messageFrame1"><div class="messageFrame2"  id="messageStr"><%=hbr message_str%></div></div>';
+$("#messageForm").html(noteBody);
+
+$('#messageForm').attr('id', 'messageField');
+<%unless is_msg%>$('#messageField').addClass('empty');<%end%>
+<%end%>
+});
+

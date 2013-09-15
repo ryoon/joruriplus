@@ -1,0 +1,68 @@
+<%
+comments_size = @comments.size
+is_fold = false
+hide_limit = 0
+if comments_size >= 4
+  is_fold = true
+  hide_limit = comments_size - 3
+end
+num = 1
+%>
+   <%for comment in @comments%>
+     <% if is_fold==true && num==1 && params[:fold]=="true"%>
+       <div class="showComment">
+         <span class="newComment" id="newCommentMark<%=@post.id%>">最新のコメントのみ表示しています。</span>
+         <span class="open"><%=link_to "コメントをすべて見る", "javascript:void(0);", :id=>"foldMessage#{@post.id}", :class=>"showFoldComment"%></span>
+       </div>
+       <div id="foldComment<%=@post.id%>" style="display: none;">
+     <%end%>
+<div class="comment">
+  <div class="commentBody" id="comment<%=comment.id%>">
+    <table>
+    <tbody>
+      <%comment_user = comment.created_user
+        is_same_group = false
+        if @post.privacy=="all"
+          comment_user_group = comment_user.user_group
+          is_same_group = true if comment_user_group.id == Core.user_group.id  unless comment_user_group.blank?
+        end
+        link_str = %Q(<span class="user">#{comment.created_user_name}</span>)
+        link_str += %Q(<span class="department">（#{comment.created_group_name}）</span>)
+        %>
+      <%unless comment_user.blank?%>
+      <%
+      image_str =image_tag(creator_photo(comment_user,comment), :alt => comment_user.name, :align => 'center', :border => 0, :width=>32)
+      if comment.created_user_name.blank?
+        link_str = %Q(<span class="user">#{comment_user.name}</span>)
+        link_str += %Q(<span class="department">（#{comment_user.group_name({:s_name=>false})}）</span>)
+      end
+      %>
+      <tr>
+      <td class="left"><%=link_to(image_str , "/_admin/profile/#{comment_user.account}") %></a></td>
+      <td class="right">
+      <div class="name"><%=link_to(raw(link_str) , "/_admin/profile/#{comment_user.account}") %></div>
+      <div class="commentInfo">
+      <div class="date"><%=comment.created_at.strftime("%m月%d日 %H:%M") unless comment.created_at.blank?%></div>
+      </div>
+      <div class="talk">
+      <%= hbr comment.body %>
+      </div>
+      <%= render :partial => "sns/admin/likes/comment_like_field", :locals => {:item=>comment,:post => @post, :kind=>"post"} %>
+      <%if comment_user.id == Core.profile.id || Core.user.has_auth?(:manager) || is_same_group==true%>
+       <div class="delete">
+         <%=link_to "削除する", 'javascript: void(0);',  :title => "削除",:class => :delete, :id=>"cdelete#{comment.id}_#{@post.id}"%>
+       </div>
+       <%end%>
+      </td>
+      </tr>
+      <%end%>
+    </tbody>
+    </table>
+    </div>
+</div>
+<%= raw %Q(</div>) if is_fold==true && num==hide_limit && params[:fold]=="true"%>
+<%
+num+=1
+end
+%>
+

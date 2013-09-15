@@ -1,0 +1,68 @@
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <%= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+
+</div>
+</td>
+<td id="snsContent" class="friendProposals">
+<div class="menu">
+  <div class="leftMenu">
+    <h2 class="friendProposals">友達申請</h2>
+    <%= form_for :item, :url => {:action => :do_proposal} do |f| %>
+
+    <%= f.error_messages %>
+    <%=f.hidden_field :fr_user_id, :value=>Core.profile.id%>
+    <table class="show">
+      <tr>
+        <th>申請先ユーザー</th>
+        <td id="userList">
+          <%for user in @users%>
+          <div id="userShow<%=user.id%>">
+          <%=image_tag(user.profile_photo_path(true), :alt => user.name, :align => 'center', :border => 0, :width=>48)%>
+          <%=user.name%>（<%=user.group_name({:s_name=>false})%>）
+          <%=link_to "取り消し", "#", :class=>"userCansel button", :id=>"cansel#{user.id}"%><br />
+          <%=hidden_field_tag "ids[]", user.id%>
+          </div>
+          <%end%>
+        </td>
+      </tr>
+      <tr>
+        <th>メッセージ</th>
+        <td><%=f.text_area :body, :rows=>5%></td>
+      </tr>
+    </table>
+    <%= f.submit('申請する', :class=>"button") %>
+  <% end %>
+  </div>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  $(".userCansel").click(function(){
+    var id = this.id.replace(/cansel/,"");
+    $("#userShow" + id ).remove();
+    return false;
+  });
+
+  $("#item_submit").click(function(){
+    var toUserIds = $("#userList").html();
+    if (!toUserIds.match(/\S/g)){
+      alert("ユーザーが選択されていません。");
+      return false;
+    }else{
+      return true;
+    }
+  });
+
+});
+
+
+</script>
+
+</td>
+<%= render :partial => "side_link"%>

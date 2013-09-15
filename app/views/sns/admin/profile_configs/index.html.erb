@@ -1,0 +1,65 @@
+<%
+public_state = @item.privacy_config
+
+if @edit_current == "addr"
+ title_str = "連絡先"
+elsif @edit_current == "skill"
+ title_str = "特技"
+elsif @edit_current == "interest"
+ title_str = "趣味、関心"
+elsif @edit_current == "pr"
+ title_str = "PR"
+else
+ title_str = "基本情報"
+end
+manager_config = display_items_config
+%>
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="leftMenu">
+    <%= render :partial => "sns/admin/profile_configs/editing_menu", :locals => {:current => @edit_current, :manager_config=> manager_config}%>
+</div>
+
+</div>
+</td>
+
+<td id="snsContent" colspan="2" class="<%=@edit_current%>">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu configs">
+<% if @edit_current == "closed" %>
+  <h2 class="preview">プレビュー</h2>
+  <h3 class="titleLine">友達プロフィール</h3>
+  <%= render :partial => "sns/admin/profiles/closed_profile", :locals => {:public_state => public_state }%>
+<%elsif @edit_current == "public"%>
+  <h2 class="preview">プレビュー</h2>
+  <h3 class="titleLine">公開プロフィール</h3>
+  <%= render :partial => "sns/admin/profiles/public_profile", :locals => {:public_state => public_state }%>
+<%else%>
+  <h2 class="profileEdit">プロフィール編集</h2>
+  <h3 class="titleLine"><%= title_str%></h3>
+  <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+  <%= form_for :item, :url => sns_profile_config_path(@item), :html => {:method => :put, :multipart=>true} do |f| %>
+  <%= f.error_messages %>
+  <%= render :partial => "forms", :locals => {:f => f, :current=>@edit_current} %>
+  <% end %>
+<%end%>
+  </div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+ $(document).ready(function(){
+    $('textarea').autosize();
+
+    });
+});
+</script>
+
+</td>

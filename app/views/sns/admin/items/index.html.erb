@@ -1,0 +1,70 @@
+<%
+if @cat=="news"
+  link_title="投稿する"
+else
+  link_title="#{@title}を投稿する"
+end
+
+%>
+
+<td id="snsMenu"<%=raw(%Q( class="showPhoto")) if @cat=="news"%>>
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <%= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+
+</div>
+</td>
+
+<td id="snsContent">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+    <div class="contentTitleLine"><h2 class="<%=@class%>"><%=@title%></h2></div>
+  <%= render :partial => "sns/admin/favorites/fav_link",
+      :locals=>{:favorite_lnk  =>sns_items_path({:fav=>"1",:cat=>@cat}), :no_favorite_lnk => sns_items_path({:fav=>"0",:cat=>@cat}) }%>
+      <div style="clear:both;"></div>
+    <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+    <%if @cat=="news"%>
+    <div id="feedForms">
+      <%= render :partial => "sns/admin/profiles/feed_forms"%>
+      <%= render :partial => "sns/admin/profiles/feed_form_js"%>
+    </div>
+    <%elsif @cat=="favorite"%>
+    <%else%>
+    <span class="makeComment">
+      <span id="formMark" style="display: none;">▼</span>
+      <%=link_to link_title,"javascript:void(0);", :onclick=>"return false;", :id=>"itemsFormLink#{@cat}", :class=>"itemFoldForm buttonNew"%>
+    </span>
+  <div id="feedForms" style="display: none;">
+   <%= render :partial => "form"%>
+  </div>
+   <%= render :partial => "form_js"%>
+   <%end%>
+  <%= render :partial => "sns/admin/profiles/feed_index", :locals=>{:cat_index=>true}%>
+  <div id="backLog">
+    <%date_str=""
+      date_str = min_sequence(@feeds) unless @feeds.blank?
+      %>
+      <%= render :partial => "sns/admin/posts/request_link", :locals=>{:link_str=>"過去の投稿", :request_uri=>sns_posts_path({:date=>date_str,:cat=>@cat,:subfeed=>@subfeed,:fav=>@fav})}%>
+  </div>
+  </div>
+</div>
+</td>
+
+
+<td id="snsLink">
+<div id="snsLinkContainer">
+<div class="menu">
+<%= render :partial => "sns/admin/profiles/project_field"%>
+<%= render :partial => "sns/admin/profiles/friends_field"%>
+  
+</div>
+
+</div>
+</td>
+

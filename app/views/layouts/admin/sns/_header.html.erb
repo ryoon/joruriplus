@@ -1,0 +1,52 @@
+<div id="header">
+<div id="headerContainer">
+
+  <h1><a href="/_admin">Joruri Plus+</a></h1>
+
+  <div class="search">
+  <%= form_tag(sns_sys_addresses_path, {:method => 'get'}) do %>
+  <%= text_field_tag('word', params[:word] , :size => 30 ) %>
+  <%= submit_tag "ユーザー検索", :class=>"button" %>
+  <% end %>
+  </div>
+
+
+
+  <div class="menu">
+    <span class="user"><%= safe{Core.user_group.name} %>　<%=h safe{Core.user.name_with_account} %></span>
+<div style="text-align: right;">
+<ul id="dropMenu">
+<li><span class="dropButton"><a href="javascript:void(0);">▼</a></span>
+<%=raw header_menu%>
+</li>
+</ul>
+</div>
+  </div>
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  // ここでは、$はjQueryとして使えます。
+  $("#dropMenu li").click(function () {
+    $(this).children('ul').toggle();
+});
+
+  function refresh(){
+    $.ajax({
+        type: 'GET',
+        url:  '<%=set_sns_presences_path%>',
+        contentType: 'application/json',
+        dataType: 'text',
+        success: function(request) {
+          //
+        }
+    });
+  }
+
+  refresh(); setInterval(refresh, 300000); // 1min
+});
+//]]>
+</script>
+<!-- /#headerContainer --></div>
+<!-- /#header --></div>
+

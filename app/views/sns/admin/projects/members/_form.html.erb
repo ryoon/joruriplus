@@ -1,0 +1,7 @@
+<table class="show">
+      <tr>
+        <th>メッセージ</th>
+        <td><%= f.text_area :body, :style=>"height: 150px;" %></td>
+      </tr>
+    </table>
+<%=hidden_field_tag 'project_id', @project.id %>

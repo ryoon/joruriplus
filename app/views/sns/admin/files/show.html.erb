@@ -1,0 +1,21 @@
+
+  <table style="width: 100%;" class="show">
+  <tr>
+    <th>公開範囲</th>
+    <td><%= @item.range_show%></td>
+  </tr>
+  <tr>
+    <th>ファイル名</th>
+    <td>
+      <%= link_to("#{@item.display_file_name}",@item.public_uri,:class => file_icon_class(@item.file_name) ,:target => '_blank') %>
+    </td>
+  <tr>
+    <th>備考</th>
+  <td>
+    <%= hbr @item.caption%>
+   </td></tr>
+  </table>
+  </div>
+</div>
+</td>
+

@@ -1,0 +1,25 @@
+<td id="snsMenu">
+<%if @created_user.account == Core.profile.account%>
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <%= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+</div>
+<%else%>
+  <%= render :partial => "sns/admin/base/user_menu"%>
+<%end%>
+<td  id="snsContent" colspan="2" class="detail">
+<div class="menu">
+  <div class="leftMenu">
+    <h2 class="video">動画</h2>
+  <%= form_for :item, :url => {:action => :update}, :html => {:method => :put} do |f| %>
+
+  <%= f.error_messages %>
+  <%= render :partial => "form", :locals => {:f => f, :current=>@edit_current} %>
+
+
+<% end %>
+  <%#= render :partial => "sns/admin/base/show_history"%>
+  </div>
+</div>
+</td >

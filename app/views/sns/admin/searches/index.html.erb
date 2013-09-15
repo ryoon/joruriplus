@@ -1,0 +1,53 @@
+<%
+
+cls = lambda do |name|
+  _cls  = [ name.to_s ]
+  _cls << 'current' if name.to_s == @cl
+  _cls.join(' ')
+end
+%>
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <span>フィルタ</span>
+  <ul class="myMenu">
+    <li><%= link_to "すべて", sns_searches_path({:cl=>"all",:keyword=>@word}), :class=>"#{cls.call(:all)}" %>
+    <li><%= link_to "ユーザー", sns_searches_path({:cl=>"user",:keyword=>@word}), :class=>"#{cls.call(:user)} companion" %></li>
+    <li><%= link_to "ニュースフィード", sns_searches_path({:cl=>"feed",:keyword=>@word}), :class=>"#{cls.call(:feed)} newsfeed" %>
+  </ul>
+</div>
+<div class="projectMenu">
+  <ul class="projectMenu">
+  <li class="level1"><%= link_to "プロジェクト", sns_searches_path({:cl=>"project",:keyword=>@word}), :class=>"#{cls.call(:project)}" %></li>
+  <li><%= link_to "アクティビティ", sns_searches_path({:cl=>"activity",:keyword=>@word}), :class=>"#{cls.call(:activity)} myProject"%></li>
+  <li><%= link_to "電子会議室", sns_searches_path({:cl=>"thread",:keyword=>@word}), :class=>"#{cls.call(:thread)} meetingRoom"%></li>
+  </ul>
+</div>
+
+</div>
+</td>
+
+<td id="snsContent" colspan="2">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+    <%= render :partial => "sns/admin/likes/show_like_users", :locals=>{:kind=>"post"}%>
+    <%= render :partial => "sns/admin/profiles/feed_js"%>
+  <%= render :partial => "user_index"%>
+  <%= render :partial => "feed_index"%>
+  <%= render :partial => "project_index"%>
+  <%= render :partial => "activity_index"%>
+  <%= render :partial => "thread_index"%>
+  </div>
+</div>
+</td>
+
+
+
+
+

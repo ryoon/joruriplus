@@ -1,0 +1,11 @@
+jQuery.noConflict();
+jQuery(document).ready(function($){
+<%unless @post.blank?
+btn_class = 'setLike'
+%>
+$("#likeBtn<%=@post.id%>").html('<%= escape_javascript(link_to "いいね", sns_likes_path({:p_id=>@post.id,:kind=>@kind}),:remote => true) %>');
+var addList = '<%= escape_javascript(render :partial=>"ajax_create", :locals=>{:post=>@post, :kind=>@kind}) %>';
+$("#like<%=@post.id%>").html(addList);
+$("#likeBtn<%=@post.id%>").attr("class","<%=btn_class%>");
+<%end%>
+});

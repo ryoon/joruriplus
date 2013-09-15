@@ -1,0 +1,40 @@
+<%unless @managers.blank?%>
+<h3 class="titleLine"><span>管理者</span></h3>
+<div class="memberList">
+  <%for item in @managers
+    member = item.user
+    next if member.blank?%>
+    <div class="member">
+    <div class="thumbnail">
+    <%=link_to(image_tag(member.profile_photo_path(true), :alt => member.name, :align => 'center', :border => 0, :width=>48), member.profile_uri) unless member.blank?%>
+    </div>
+    <div class="name">
+    <%=link_to(member.name, member.profile_uri, :class=>"name") unless member.blank?%><br><span>（<%=member.group_name({:s_name=>false})%>）</span><br />
+    </div>
+    </div>
+  <%end%>
+
+  </div>
+<%end%>
+
+<%unless @members.blank?%>
+<h3 class="titleLine"><span>メンバー</span></h3>
+<div class="memberList">
+  <%for item in @members
+    member = item.user
+    next if member.blank?%>
+    <div class="member">
+    <div class="thumbnail">
+    <%=link_to(image_tag(member.profile_photo_path(true), :alt => member.name, :align => 'center', :border => 0, :width=>48), member.profile_uri) unless member.blank?%>
+    </div>
+    <div class="name">
+    <%=link_to(member.name, member.profile_uri, :class=>"name") unless member.blank?%><br><span>（<%=member.group_name({:s_name=>false})%>）</span><br />
+    </div>
+    </div>
+  <%end%>
+
+</div>
+<%end%>
+
+
+

@@ -1,0 +1,151 @@
+<%
+if params[:manager_id]
+  @managers = Sns::Profile.any_in("_id"=>params[:manager_id])
+end
+p_id = params[:m_p_id] || Core.user_group.parent_id
+g_id = params[:m_g_id] || Core.user_group.id
+parent_groups = Sys::Group.find(:all ,
+    :conditions=>["state = ? AND level_no = ?","enabled",2],:order=>:code)
+parent_groups = parent_groups.collect{|x| ["(#{x.code})#{x.name}", x.id]}
+if params[:m_p_id].blank?
+  groups = Sys::Group.find(:all ,
+    :conditions=>["parent_id =? AND state = ? AND level_no = ?",Core.user_group.parent_id,"enabled",3],:order=>:code)
+  unless groups.blank?
+    groups = groups.collect{|x| ["(#{x.code})#{x.name}", x.id]}
+  end
+else
+  groups = Sys::Group.find(:all , :conditions=>["parent_id =? AND state = ? AND level_no = ?",params[:m_p_id],"enabled",3],:order=>:code)
+  unless groups.blank?
+    groups = groups.collect{|x| ["(#{x.code})#{x.name}", x.id]}
+  end
+end
+if g_id.blank?
+@users = Sns::Profile.get_user_select(p_id,nil,{:select=>true})
+else
+@users = Sns::Profile.get_user_select(g_id,nil,{:select=>true})
+end
+
+selected_members = []
+@managers.each do |m|
+  selected_members << [m.name, m.id]
+end unless @managers.blank?
+
+%>
+
+<table class="show">
+
+<tr>
+  <th>所属選択</th>
+  <td>
+    <%= select_tag('m_p_id', options_for_select(parent_groups, p_id),:onchange => 'm_get_child_group()') %>
+    <%= select_tag('m_g_id', options_for_select(groups, g_id),:onchange=>"m_get_users()" , :include_blank =>true) %>
+  </td>
+</tr>
+<tr>
+  <th>
+    <span id="manager_title">管理者</span><br />
+    <span style="color:#FF0000;">※最低1名</span><br />
+    </th>
+  <td>
+    <table style="border: 0px">
+      <tr>
+        <td>
+          <%=select_tag("manager_list", options_for_select(@users, nil), :size=>10, :style => 'width:150px;', :multiple => true, :ondblclick => 'add_manager()')%>
+        </td>
+        <td>
+          <%= button_to_function '追加 →', 'add_manager()' %><br /><br />
+          <%= button_to_function '← 削除', 'del_manager()' %>
+        </td>
+        <td>
+          <%= select_tag 'manager_id',options_for_select(selected_members, nil) , :size=>10, :style => 'width:150px;', :ondblclick => 'del_manager()', :multiple => true %>
+          <div id="managerID">
+            <%for member in selected_members%>
+              <%=hidden_field_tag "manager_id[]", member[1]%>
+            <%end if selected_members%>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+
+</table>
+<script type="text/javascript">
+//<![CDATA[
+var add_manager = function() {
+  add_m_list('manager_list', 'manager_id')
+}
+var del_manager = function() {
+  del_m_list('manager_id')
+}
+
+var add_m_list = function(fr_id, to_id) {
+  var fr = $(fr_id);
+  var to = $(to_id);
+  var n = to.options.length;
+  var managersField = $('managerID');
+  for (var i=0; i < fr.options.length; i++) {
+    var option = fr.options[i];
+    if (option.selected==true){
+      to.options[n] = new Option(option.text,option.value);
+      user_html = '<input type="hidden" id="ids_" name="manager_id[]" value="' + option.value + '">'
+      managersField.innerHTML += user_html;
+      n++;
+    }
+  }
+
+
+
+};
+var del_m_list = function(fr_id) {
+  var fr = $(fr_id);
+  for (var i=0; i < fr.options.length; i++) {
+    var option = fr.options[i];
+    if (option.selected == true) {
+      fr.options[i] = null;
+      removeManagerIdField(option.value)
+    }
+  }
+};
+
+function removeManagerIdField(id){
+  var parent = document.getElementById('managerID');
+  var targetField = parent.getElementsByTagName('input');
+  for (var i=0; i < targetField.length; i++) {
+   option = targetField [i];
+   if(option.value==id){
+     option.remove();
+   }
+  }
+}
+
+  var end_cnt = -1;
+  var ed_str = '';
+  function m_get_child_group() {
+    p_id = $("m_p_id").value;
+    document.body.style.cursor = 'wait';
+    end_cnt = 0;
+    new Ajax.Request("/_admin/sns/projects/<%=@project.code%>/members/group_field?p_id="+ p_id , {method:'get', onComplete: function(x){
+      $('m_g_id').update(x.responseText);
+      end_cnt = end_cnt + 1;
+      if (end_cnt == 1) {
+        document.body.style.cursor = 'default';
+      }
+    }})
+  }
+  function m_get_users() {
+    p_id = $("m_p_id").value;
+    g_id = $("m_g_id").value;
+    document.body.style.cursor = 'wait';
+    end_cnt = 0;
+    new Ajax.Request("/_admin/sns/projects/<%=@project.code%>/members/users_field?p_id="+ p_id  + "&g_id=" + g_id, {method:'get', onComplete: function(x){
+      $('manager_list').update(x.responseText);
+      end_cnt = end_cnt + 1;
+      if (end_cnt == 1) {
+        document.body.style.cursor = 'default';
+      }
+    }})
+  }
+
+//]]>
+</script>

@@ -1,0 +1,61 @@
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</div>
+</td>
+
+<td id="snsContent">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+  <h2 class="project"><%=@project.title%></h2>
+  <h3 class="titleLine"><span>退会申請</span></h3>
+  <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+    <%= form_for :item, :url => {:action => :leave} do |f| %>
+
+    <%= f.error_messages %>
+    <%= render :partial => "form", :locals => {:f => f, :current=>@edit_current} %>
+  <table class="show">
+    <tr>
+      <th>退会理由</th>
+      <td><%=f.text_area :body%></td>
+    </tr>
+  </table>
+  <%= f.submit('申請する', :class=>"button") %>
+  <% end %>
+</div>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+
+  $("#item_submit").click(function(){
+      var reason = $('item_body').val();
+      validate = false;
+      if (!reason.match(/\S/g)){
+        validate = true;
+      }else if(reason.match(/^[\n\r]/)){
+        validate = true;
+      }
+
+      if (validate){
+        alert("退会理由が入力されていません。");
+        return false;
+      }else{
+        return true;
+      }
+
+    });
+});
+//]]>
+</script>
+</td>
+<%= render :partial => "side_link"%>

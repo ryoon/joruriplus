@@ -1,0 +1,14 @@
+jQuery.noConflict();
+jQuery(document).ready(function($){
+<%if @feeds.blank?%>
+$('#backLog').empty();
+<%else%>
+var addList = "<%= escape_javascript(render :partial=>'ajax_index') %>";
+$("#updateField").append(addList);
+var remoteLink = '<%= escape_javascript(render :partial=>'request_link', :locals=>{:link_str=>"過去の投稿", :request_uri=>list_sns_posts_path({:account=>params[:account],:date=>@date_str,:cat=>@cat,:subfeed=>@subfeed,:fav=>@fav})} ) %>';
+$('#backLog').html(remoteLink);
+<%@feed_body_ids.each do |f|%>
+$("<%=f%>").autosize();
+<%end unless @feed_body_ids.blank?%>
+<%end%>
+});

@@ -1,0 +1,56 @@
+<script type="text/javascript">
+//<![CDATA[
+
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  // ここでは、$はjQueryとして使えます。
+});
+
+var add_participant = function() {
+  add_list('user_list', 'participant_id')
+}
+var del_participant = function() {
+  del_list('participant_id')
+}
+
+var add_list = function(fr_id, to_id) {
+  var fr = $(fr_id);
+  var to = $(to_id);
+  var n = to.options.length;
+  var participantsField = $('participantID');
+  for (var i=0; i < fr.options.length; i++) {
+    var option = fr.options[i];
+    if (option.selected==true){
+      to.options[n] = new Option(option.text,option.value);
+      user_html = '<input type="hidden" id="ids_" name="user_id[]" value="' + option.value + '">'
+      participantsField.innerHTML += user_html;
+      n++;
+    }
+  }
+
+
+
+};
+var del_list = function(fr_id) {
+  var fr = $(fr_id);
+  for (var i=0; i < fr.options.length; i++) {
+    var option = fr.options[i];
+    if (option.selected == true) {
+      fr.options[i] = null;
+      removeIdField(option.value)
+    }
+  }
+};
+
+function removeIdField(id){
+  var parent = document.getElementById('participantID');
+  var targetField = parent.getElementsByTagName('input');
+  for (var i=0; i < targetField.length; i++) {
+   option = targetField [i];
+   if(option.value==id){
+     option.remove();
+   }
+  }
+}
+//]]>
+</script>

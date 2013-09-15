@@ -1,0 +1,13 @@
+<%if manager_config[:self_introduce]=="enabled"%>
+<span>自己紹介</span>
+<%=f.text_area :self_introduce, {:cols=>60 ,:rows=>5}%>
+<%end%>
+<%if manager_config[:resolution]=="enabled"%>
+<span>今年の目標</span>
+<%=f.text_area :resolution, {:cols=>60 ,:rows=>5}%>
+<%end%>
+<%if manager_config[:program]=="enabled"%>
+<span>取り組んでいる仕事</span>
+<%=f.text_area :program, {:cols=>60 ,:rows=>5}%>
+<%end%>
+<%= f.submit("登録する", :class=>"button") %>

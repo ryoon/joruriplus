@@ -1,0 +1,22 @@
+<%unless @feeds.blank?%>
+<h2 class="newsFeed">ニュースフィードの検索結果</h2>
+<table style="width: 100%;" class="show" id="updateField">
+<tr class="fieldBase"><td class="left"></td><td class="right"></td></tr>
+<%for item in @feeds%>
+<%feed_user = item.created_user%>
+  <%if item.is_activity?%>
+  <%= render :partial => "sns/admin/posts/activity_item", :locals=>{:item => item, :feed_user=>feed_user}%>
+  <%else%>
+  <%= render :partial => "sns/admin/posts/post_item", :locals=>{:item => item, :feed_user=>feed_user,:category=>"feed"}%>
+  <%end%>
+<%end unless @feeds.blank?%>
+</table>
+
+<%if @cl=="feed"%>
+  <%= paginate @feeds %>
+<%else%>
+<div class="pagination">
+   <%=link_to "ニュースフィード内の検索結果を見る",sns_searches_path({:keyword=>@word,:cl=>"feed"})%>
+</div>
+<%end%>
+<%end%>

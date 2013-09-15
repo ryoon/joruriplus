@@ -1,0 +1,69 @@
+<%
+is_join = @project.is_join?
+tdspan=" colspan='2'"
+tdspan="" if is_join
+%>
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</div>
+</td>
+
+
+<td id="snsContent"<%=tdspan%>>
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+  <h2 class="project"><%=@project.title%></h2>
+  <h3 class="titleLine"><span><%=@title%>申請</span></h3>
+  <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+    <%= form_for :item, :url => {:action => :create} do |f| %>
+    <%= f.error_messages %>
+    <%=f.hidden_field :kind%>
+  <table class="show">
+    <tr>
+      <th><%=@title%>理由</th>
+      <td><%=f.text_area :body%></td>
+    </tr>
+  </table>
+  <%= f.submit('申請する', :class=>"button") %>
+  <%=hidden_field_tag :kind, @kind%>
+  <% end %>
+</div>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+
+  $("#item_submit").click(function(){
+      var reason = $('#item_body').val();
+      var validate = false;
+      if (!reason.match(/\S/g)){
+        validate = true;
+      }else if (reason.match(/\A[\n\r]\z/)) {
+        validate = true;
+      } else if (reason == "") {
+        validate = true;
+      }
+      if (validate){
+        alert("<%=@title%>理由が入力されていません。");
+        return false;
+      }else{
+        return true;
+      }
+
+    });
+});
+//]]>
+</script>
+</td>
+<%= render :partial => "/sns/admin/projects/members/side_link" if is_join%>

@@ -1,0 +1,27 @@
+<% if defined?(container) && container != :tr %>
+<table class="show">
+<% end %>
+<tr>
+    <th><%= @item.locale(:state) %></th>
+    <td><%= safe{@item.status.name} %></td>
+  </tr><tr>
+    <th><%= @item.locale(:concept_id) %></th>
+    <td><%=h safe{@item.inherited_concept(:name)} %></td>
+  </tr>
+  <%#= layout_view @item, :container => :tr %>
+  <tr>
+    <th><%= @item.locale(:content_id) %></th>
+    <td><%=h @item.content_name %></td>
+  </tr><tr>
+    <th><%= @item.locale(:model) %></th>
+    <td><%=h @item.model_name(:short) %></td>
+  </tr><tr>
+    <th><%= @item.locale(:route_id) %></th>
+    <td><%= @item.bread_crumbs.to_links.gsub(/<[\/a].*?>/, '') %></td>
+  </tr><tr>
+    <th><%= @item.locale(:title) %></th>
+    <td><%=h safe{@item.title} %></td>
+  </tr>
+<% if defined?(container) && container != :tr %>
+</table>
+<% end %>

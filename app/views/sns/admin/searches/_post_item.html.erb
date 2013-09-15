@@ -1,0 +1,4 @@
+<tr><td colspan="2">
+  <%=raw(item.post_body)%><br />
+  <%= link_to(">>続きを見る" ,sns_search_path(item.id,{:cl=>category}), :target=>"_blank")%>
+</td></tr>

@@ -1,0 +1,16 @@
+<%for photo in photos%>
+  <span id="uploadedFile<%=photo.id%>" class="uploadedFile">
+  <span id="uploadedShow<%=photo.id%>">
+  <a href="<%=photo.download_uri%>" class="uploadedFileName <%=file_icon_class(photo.file_name)%>" target="_blank"><%=photo.display_file_name%></a>
+  </span>
+  <a href="#" onclick="return deleteUploadedFile('<%=photo.id%>', '1')" title="削除" class="deleteUploadedFile">x</a>
+  </span>
+<%end if photos%>
+<%for file in files%>
+  <span id="uploadedFile<%=file.id%>" class="uploadedFile">
+  <span id="uploadedShow<%=file.id%>">
+  <a href="<%=file.public_uri%>" class="uploadedFileName <%=file_icon_class(file.file_name)%>" onclick="return downloadUploadedFile(this.href);"><%=file.display_file_name%></a>
+  </span>
+  <a href="#" onclick="return deleteUploadedFile('<%=file.id%>', '0')" title="削除" class="deleteUploadedFile">x</a>
+  </span>
+<%end if files%>

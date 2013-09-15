@@ -1,0 +1,26 @@
+<%
+unless post.blank?
+unless post.likes.blank?
+members_str = ""
+#post_likes = post.likes.group_by{|like|like.created_user_id}
+post_likes = post.likes
+like_user_ids = []
+count = 0
+post_likes.each_with_index{ |item, n|
+if like_user_ids.blank?
+like_user_ids << item.created_user_id
+else
+next unless like_user_ids.index(item.created_user_id).blank?
+like_user_ids << item.created_user_id
+end
+count+=1
+members_str += ","  unless count== 1
+members_str += "#{item.name}"
+
+} unless post_likes.blank?
+%>
+<span title="<%=members_str%>" id="likeUserNumber<%=post.id%>">
+  <%=link_to "#{count}人","#",:class=>"showLikeUserList", :id=>"showLikeBtn#{post.id}"%>
+</span>
+<%end%>
+<%end%>

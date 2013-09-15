@@ -1,0 +1,33 @@
+<%
+from_class = ''
+
+%>
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="leftMenu">
+    <%= render :partial => "sns/admin/profile_configs/editing_menu", :locals => {:current => @edit_current }%>
+</div>
+
+</div>
+</td>
+
+<td id="snsContent" colspan="2">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu photos">
+   <h2 class="profileEdit">プロフィール編集</h2>
+  <h3 class="titleLine">プロフィール写真</h3>
+  <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+  <%if @cl=="webcam"%>
+    <%= render :partial => "index_webcam"%>
+  <%else%>
+    <%= render :partial => "index_upload"%>
+  <%end%>
+  </div>
+</td>
+

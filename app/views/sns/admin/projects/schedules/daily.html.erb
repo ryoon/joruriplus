@@ -1,0 +1,102 @@
+<td id="snsMenu">
+<%date_str = "%Y%m%d"%>
+<%= calendar_date_select_includes 'default', :locale => 'ja' %>
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+
+</div>
+
+</td>
+
+<td id="snsContent">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+  <h2 class="project"><%=@project.title%></h2>
+  <h3 class="titleLine" class="schedule">スケジュール</h3>
+  <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+<div class="calenderHead">
+<div class="dayInformation"><%=h @sdate.strftime("%Y年%m月%d日") %>
+</div>
+<span class="add"><%=link_to "追加する",new_sns_schedule_path(@project_code,{:st_date=>@sdate.strftime("%Y-%m-%d")}) if @project.is_join?%></span>
+<div class="scheduleMove">
+<%=raw schedule_move(@st_date,@project_code,{:day_link=>true})%>
+<%= calendar_date_select_tag "hidden_date_selector01", @sdate.beginning_of_month, :hidden => "true", :style=>"display:none;", :onchange=>"page_change(this);" %>
+<a href="javascript:void(0);" class="showCalendarTop">カレンダー表示する</a>
+</div>
+</div>
+<%is_holiday = Util::Date::Holiday.holiday?(@st_year, @st_month, @st_day)%>
+<%if @items.blank?%>
+予定が登録されていません。
+<%else%>
+<table class="list">
+  <tr>
+    <th>開始時刻</th>
+    <th>終了時刻</th>
+    <th>件名</th>
+  </tr>
+<%for item in @items%>
+<tr>
+  <td><%=item.st_at.strftime("%H:%M")%></td>
+  <td><%=item.ed_at.strftime("%H:%M")%></td>
+  <td><%= link_to h(item.category_title), sns_schedule_path(@project_code,item) %></td>
+</tr>
+<%end%>
+</table>
+<%end%>
+<div class="calenderBottom">
+<div class="scheduleMove">
+<%=raw schedule_move(@st_date,@project_code,{:day_link=>true})%>
+<%= calendar_date_select_tag "hidden_date_selector02", @sdate.beginning_of_month, :hidden => "true", :style=>"display:none;", :onchange=>"page_change(this);" %>
+<a href="javascript:void(0);" class="showCalendarTop">カレンダー表示する</a>
+</div>
+</div>
+  </div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  // ここでは、$はjQueryとして使えます。
+  $(".showCalendarTop").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/clarender/,"");
+    $(".calendar_date_select_popup_icon")[0].click();
+    });
+
+  $(".showCalendarBottom").live('click' ,function(){
+    var id = this.id;
+    id = id.replace(/clarender/,"");
+    $(".calendar_date_select_popup_icon")[1].click();
+    });
+  $("#hidden_date_selector01").change(function(){
+      var date_value = this.val();
+      var date_str = date_value.split("/");
+      window.location = '<%=daily_sns_schedules_path(@project_code)%>' + '?st_date=' + date_str[0] + date_str[1] + date_str[2];
+    });
+  $("#hidden_date_selector02").change(function(){
+      var date_value = this.val();
+      var date_str = date_value.split("/");
+      window.location = '<%=daily_sns_schedules_path(@project_code)%>' + '?st_date=' + date_str[0] + date_str[1] + date_str[2];
+    });
+});
+
+function page_change(date){
+  var date_value = date.value;
+  var date_str = date_value.split("/");
+  window.location = '<%=daily_sns_schedules_path(@project_code)%>' + '?st_date=' + date_str[0] + date_str[1] + date_str[2];
+}
+
+//]]>
+</script>
+
+
+</td>
+<%= render :partial => "side_link"%>
+

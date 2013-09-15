@@ -1,0 +1,16 @@
+<%=hidden_field_tag "cl", current%>
+<%
+manager_config = display_items_config
+%>
+<% if current == "addr" %>
+  <%= render :partial => "form_addr" , :locals => {:f => f, :manager_config=>manager_config}%>
+<% elsif current == "skill" %>
+  <%= render :partial => "form_skill", :locals => {:f => f, :manager_config=>manager_config}%>
+<% elsif current == "interest" %>
+  <%= render :partial => "form_interest" , :locals => {:f => f, :manager_config=>manager_config}%>
+<% elsif current == "pr" %>
+  <%= render :partial => "form_pr" , :locals => {:f => f, :manager_config=>manager_config}%>
+<%else%>
+  <%= render :partial => "form_base" , :locals => {:f => f, :manager_config=>manager_config}%>
+<%end%>
+

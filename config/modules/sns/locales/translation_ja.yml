@@ -1,0 +1,31 @@
+ja:
+  mongoid:
+    attributes:
+      sns/photo:
+        upload: "ファイル"
+      sns/video:
+        url: "動画ＵＲＬ"
+      sns/project:
+        title: "名称"
+        caption: "目的と概要"
+        code: "管理用コード"
+      sns/thread:
+        title: "タイトル"
+        body: "本文"
+      sns/schedule:
+        title: "件名"
+        memo: "メモ"
+        st_at: "開始時刻"
+        ed_at: "終了時刻"
+      sns/note:
+        title: "タイトル"
+        body: "本文"
+      sns/project:
+        title: "タイトル"
+        caption: "概要"
+      sns/custom_group:
+        name: "グループ名称"
+        friend_user_id: "ユーザー"
+      sns/friend_proposal:
+        body: "メッセージ"
+        reply_body: "返信"

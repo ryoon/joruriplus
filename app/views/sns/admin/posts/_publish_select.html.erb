@@ -1,0 +1,22 @@
+<%
+range_list = form_publish_select%>
+<ul style="position: absolute; left: 150px; width: 200px; background : #ffffff; ">
+<%for range in range_list%>
+<li>
+<%if item.privacy == range[1] && range[1]!="select"%>
+<span><%=range[0]%></span>
+<%elsif range[1]=="all"%>
+<%=link_to range[0], "javascript:void(0);", :id=>"allButton#{item.id}", :class=>"publishAll"%>
+<%elsif range[1]=="public"%>
+<%=link_to range[0], "javascript:void(0);", :id=>"publicButton#{item.id}", :class=>"publishPublic"%>
+<%elsif range[1]=="select"%>
+<%=link_to range[0], "javascript:void(0);", :id=>"selectButton#{item.id}", :class=>"publishSelect"%>
+<%elsif range[1]=="none"%>
+<hr />
+<%else%>
+<%=link_to range[0], publish_sns_post_path(item,{:privacy=>range[1]}), :remote=>true%>
+<%end%>
+</li>
+<%end%>
+</ul>
+

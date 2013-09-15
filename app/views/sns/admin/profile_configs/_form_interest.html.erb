@@ -1,0 +1,13 @@
+<%if manager_config[:interest_main]=="enabled"%>
+<span>趣味</span>
+</span><%=f.text_area :interest, {:cols=>60 ,:rows=>5}%>
+<%end%>
+<%if manager_config[:thought]=="enabled"%>
+<span>日頃の考え</span>
+</span><%=f.text_area :thought, {:cols=>60 ,:rows=>5}%>
+<%end%>
+<%if manager_config[:research_group]=="enabled"%>
+<span>自主研究グループ</span>
+</span><%=f.text_area :research_group, {:cols=>60 ,:rows=>5}%>
+<%end%>
+<%= f.submit("登録する", :class=>"button") %>

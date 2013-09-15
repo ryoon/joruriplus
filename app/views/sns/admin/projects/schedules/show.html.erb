@@ -1,0 +1,118 @@
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer"><%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</div>
+</td>
+
+<td id="snsContent">
+
+<div class="bread_crumbs">
+
+</div>
+<div class="menu">
+  <div class="leftMenu">
+  <h2 class="project"><%=@project.title%></h2>
+  <h3 class="titleLine" class="schedule">スケジュール</h3>
+  <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+
+    <table class="show">
+    <tr>
+      <th>開催日</th>
+      <td><%= @item.st_at.strftime("%Y-%m-%d") %></td>
+    </tr>
+    <tr>
+      <th>開始時間</th>
+      <td><%= @item.st_at.strftime("%H:%M")%></td>
+    </tr>
+    <tr>
+      <th>終了時間</th>
+      <td><%= @item.ed_at.strftime("%H:%M") %></td>
+    </tr>
+    <tr>
+      <th>タイトル</th>
+      <td><%=@item.category_title%></td>
+    </tr>
+    <tr>
+      <th>場所</th>
+      <td><%= @item.place %></td>
+    </tr>
+      <tr>
+        <th>メモ</th>
+        <td><%= hbr @item.memo%></td>
+      </tr>
+    </table>
+    <div class="myFunction">
+    <%if @item.editable? || @project.is_admin?%>
+      <%=link_to "編集する", edit_sns_schedule_path(@project_code,@item), :class=>"button" %>
+      <%=link_to "削除する",sns_schedule_path(@project_code, @item),:method=>:delete, :title => "削除する",
+      :confirm=>"この予定を削除します。よろしいですか？",:class => :delete%>
+    <%end%>
+    </div>
+    <%if @project.is_join?(Core.profile)%>
+      <%if @item.is_join?(Core.profile)%>
+        <%join_state = @item.user_state%>
+        <%=link_to "参加する", join_sns_schedule_path(@project_code,@item,{:do=>"join"}), :class=>"button" if join_state == "unread" || join_state == "absence"%>
+        <%=link_to "不参加", join_sns_schedule_path(@project_code,@item,{:do=>"absence"}), :class=>"button" if join_state == "unread" || join_state == "join"%>
+      <%else%>
+        <%=link_to "参加する", join_sns_schedule_path(@project_code,@item,{:do=>"join"}), :class=>"button"%>
+      <%end%>
+      <span style="color:#FF0000;">※「参加」，「不参加」を選択してください。</span>
+    <%end%>
+    <h3 class="titleLine"><span>参加者</span></h3>
+    <%if @members[:join].blank?%>
+      <span>現在、参加しているユーザーはいません。</span>
+    <%else%>
+    <div class="memberList">
+      <%for item in @members[:join]
+        member = item.user%>
+        <div class="member">
+        <div class="thumbnail">
+        <%=link_to(image_tag(member.profile_photo_path(true), :alt => member.name, :align => 'center', :border => 0, :width=>48), member.profile_uri) unless member.blank?%>
+        </div>
+        <div class="name">
+        <%=link_to(member.name, member.profile_uri, :class=>"name") unless member.blank?%><br><span>（<%=member.group_name({:s_name=>false})%>）</span><br />
+        </div>
+        </div>
+      <%end%>
+    </div>
+    <%end%>
+
+    <%unless @members[:absence].blank?%>
+    <h3 class="titleLine"><span>不参加</span></h3>
+    <div class="memberList">
+      <%for item in @members[:absence]
+        member = item.user%>
+        <div class="member">
+        <div class="thumbnail">
+        <%=link_to(image_tag(member.profile_photo_path(true), :alt => member.name, :align => 'center', :border => 0, :width=>48), member.profile_uri) unless member.blank?%>
+        </div>
+        <div class="name">
+        <%=link_to(member.name, member.profile_uri, :class=>"name") unless member.blank?%><br><span>（<%=member.group_name({:s_name=>false})%>）</span><br />
+        </div>
+        </div>
+      <%end if @members[:absence]%>
+    </div>
+    <%end%>
+
+    <%unless  @members[:unread].blank?%>
+    <h3 class="titleLine"><span>未処理</span></h3>
+    <div class="memberList">
+      <%for item in @members[:unread]
+        member = item.user%>
+        <div class="member">
+        <div class="thumbnail">
+        <%=link_to(image_tag(member.profile_photo_path(true), :alt => member.name, :align => 'center', :border => 0, :width=>48), member.profile_uri) unless member.blank?%>
+        </div>
+        <div class="name">
+        <%=link_to(member.name, member.profile_uri, :class=>"name") unless member.blank?%><br><span>（<%=member.group_name({:s_name=>false})%>）</span><br />
+        </div>
+        </div>
+      <%end if @members[:unread]%>
+    </div>
+    <%end%>
+
+  </div>
+</div>
+</td>
+<%= render :partial => "side_link"%>

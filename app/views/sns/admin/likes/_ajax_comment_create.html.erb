@@ -1,0 +1,21 @@
+<%
+unless item.blank?
+unless item.like_user_id.blank?
+members_str = ""
+l_member = Sns::Profile.where(:_id.in=>item.like_user_id)
+count = "0"
+unless l_member.blank?
+count = "#{l_member.size}"
+l_member.each_with_index{ |l, n|
+members_str += "#{l.name}"
+members_str += "," if n != l_member.length - 1
+}
+
+end
+%>
+<span title="<%=members_str%>" id="likeUserNumber<%=item.id%>">
+  <%=link_to "#{count}人","#",:class=>"showCommentLikeUserList", :id=>"showCommentLikeBtn#{item.id}"%>
+</span>
+<span style="display:none;" id="commentParentId<%=item.id%>"><%=post.id%></span>
+<%end%>
+<%end%>

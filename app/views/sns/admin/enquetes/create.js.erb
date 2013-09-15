@@ -1,0 +1,5 @@
+jQuery.noConflict();
+jQuery(document).ready(function($){
+var addList = "<%= escape_javascript(render :partial=>'ajax_create', :locals=>{:item=>@post}) %>";
+$("#answer<%=@post._id%>").html(addList);
+});

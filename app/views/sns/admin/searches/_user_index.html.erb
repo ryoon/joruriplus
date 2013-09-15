@@ -1,0 +1,100 @@
+<%unless @users.blank?%>
+<h2 class="friendProposals">ユーザーの検索結果</h2>
+<%member_limit = Core.profile.member_limit?%>
+<div class="memberList">
+<%for item in @users%>
+    <div class="member">
+    <div class="thumbnail">
+    <%=link_to(image_tag(item.profile_photo_path(true), :alt => item.name, :align => 'center', :border => 0, :width=>48), item.profile_uri, :target=>"_blank")%><br />
+    </div>
+    <div class="name">
+    <%=link_to(item.name, item.profile_uri, :class=>"name", :target=>"_blank") unless item.blank?%><br><span>（<%=item.group_name%>）</span><br />
+    </div>
+    <%
+      link_str =image_tag(item.profile_photo_path(true), :alt => item.name, :align => 'center', :border => 0, :width=>50)
+      link_str += item.name
+      link_str += %Q(（#{item.group_name({:s_name=>false})}）)
+      friend_str = "共通の友達"
+      common_friend = Core.profile.common_friend(item,@my_friend)
+      if common_friend.blank? or common_friend == 0
+        friend_str += "なし"
+      else
+        friend_str += "#{common_friend.to_s}人"
+      end
+    %>
+    <div class="memberFunction">
+    <%if member_limit==false%>
+      <%if item.is_pending?%>
+      <%else%>
+      <%=link_to("友達申請をする" , new_sns_friend_proposal_path({:to_user_id=>item.id}), :target=>"_blank" ) unless Core.profile.is_friend?(item)%><br />
+      <%end%>
+    <%end%>
+    <% if item.account != Core.profile.account%>
+    <span class="commonMember">
+      <%if common_friend.blank? or common_friend == 0%>
+        <%=friend_str%>
+      <%else%>
+        <%=link_to friend_str, "#", :class=>"showCommonFriends" , :id=>"usershowCommon#{item.id}"%>
+      <%end%>
+    </span>
+    <%end%>
+
+    </div>
+    <div style="display: none;"><%=item.name%></div>
+    <div style="display: none;"><%=item.kana%></div>
+    <div style="display: none;"><%=item.sort_no%></div>
+    </div>
+<%end%>
+<br />
+  <%if @cl=="user"%>
+    <%= paginate @users %>
+  <%else%>
+  <div class="pagination">
+     <%=link_to "ユーザーの検索結果を見る",sns_searches_path({:keyword=>@word,:cl=>"user"})%>
+  </div>
+  <%end%>
+</div>
+<div id="showCommonDialog" style="display: none;background-color:#DEDEF2;">
+  <span id="CommonMessage"></span><%=link_to "×閉じる","#",:class=>"button",:id=>"closeCommonDialog"%>
+  <iframe src="" frameborder="1" style="margin: 10px 0px; height: 450px; width: 100%;" id="userCommonFrame"></iframe>
+</div>
+  <script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+
+
+  $(".showCommonFriends").live('click' ,function(){
+    var orig_id = this.id;
+    var id = orig_id.replace(/.*showCommon/,"");
+    var commonStr = $("#"+ orig_id).text();
+    $("#CommonMessage").text(commonStr);
+    var listUrl = "<%=sns_sys_addresses_path%>" + "/" + id;
+    $('#userCommonrame').attr("src",listUrl);
+    $('#showCommonDialog')
+    .dialog({
+      bgiframe: true,
+      autoOpen: false,
+      width: 500,
+      height: 500,
+      modal: true,
+      title: "",
+      closeText: "",
+    })
+    .dialog('open');
+  return false;
+ });
+
+  $("#closeCommonDialog").live('click' ,function(){
+   $("#CommonMessage").empty();
+   $('#showCommonDialog').dialog('close');
+   $('#userCommonFrame').attr("src","");
+   return false;
+  });
+
+});
+
+
+//]]>
+</script>
+<%end%>

@@ -1,0 +1,22 @@
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <%= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+
+</div>
+</td>
+<td  id="snsContent" colspan="2" class="friendProposals">
+<div class="menu">
+  <div class="leftMenu">
+    <h2 class="friendProposals">申請情報</h2>
+  <%= form_for :item, :url => {:action => :update}, :html => {:method => :put} do |f| %>
+
+  <%= f.error_messages %>
+  <%= render :partial => "form", :locals => {:f => f, :current=>@edit_current} %>
+  <% end %>
+  </div>
+</div>
+</td >
+

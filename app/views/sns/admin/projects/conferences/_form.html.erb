@@ -1,0 +1,32 @@
+<%
+if params[:user_id]
+  params[:user_id] = params[:user_id].uniq
+  @members = Sns::Profile.any_in("_id" => params[:user_id])
+end
+%>
+<%=hidden_field_tag 'project_id', @project.id %>
+<div id="userIds">
+  <%if @members%>
+    <%for member in @members%>
+      <div id="member<%=member.id%>">
+      <%=hidden_field_tag 'user_id[]', member.id %>
+      <%=member.name%>
+      <%=link_to "削除", "javascript:void(0);", :onclick=>"removeUser('#{member.id}'); return false;"%><br />
+      </div>
+    <%end%>
+  <%end%>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  // ここでは、$はjQueryとして使えます。
+});
+
+
+
+function removeUser(id){
+  var option = $("member"+id);
+  option.remove();
+}
+</script>

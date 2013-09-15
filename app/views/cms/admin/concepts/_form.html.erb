@@ -1,0 +1,23 @@
+<%
+
+root_concepts = Cms::Concept.find(:all, :conditions => {:site_id => Core.site.id, :level_no => 1}, :order => :sort_no)
+
+%><p class="form">基本情報</p>
+
+<table class="show">
+  <tr>
+    <th><%= @item.locale(:parent_id) %></th>
+    <td><%= f.select_with_tree :parent_id, root_concepts, :include_blank => '-- ROOT --' %></td>
+  </tr><tr>
+    <th><%= @item.locale(:name) %></th>
+    <td><%= f.text_field :name, :class => 'name' %></td>
+  </tr><tr>
+    <th><%= @item.locale(:state) %></th>
+    <td><%= f.radio_buttons :state, @item.states, :class => 'status' %></td>
+  </tr><tr>
+    <th><%= @item.locale(:sort_no) %></th>
+    <td><%= f.text_field :sort_no, :class => 'number' %></td>
+  </tr>
+</table>
+
+<%= creator_form f %>

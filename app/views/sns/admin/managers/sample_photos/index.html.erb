@@ -1,0 +1,28 @@
+<%= render :partial => "menu"%>
+<td id="snsContent" colspan="2">
+<div class="menu">
+  <div class="leftMenu">
+    <%= render :partial => "title"%>
+<%=link_to "サンプルフォトを追加",new_sns_sample_photo_path,:class => "buttonNew", :title => "サンプルフォトを追加"%>
+<div class="memberList">
+
+  <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+<%if @items.blank?%>
+サンプルフォトが登録されていません。
+<%else%>
+<%for item in @items%>
+    <div class="member">
+    <div class="thumbnail">
+    <%=link_to(image_tag(item.resized_public_uri, :alt => item.original_file_name, :align => 'center', :border => 0, :width=>48), sns_sample_photo_path(item))%><br />
+    </div>
+    <%#=link_to "変更",edit_sns_sample_photo_path(item), :class => "button"%>
+    <%=link_to "削除",sns_sample_photo_path(item),:method=>:delete,
+      :class => :delete, :title => "サンプルフォトを削除", :confirm=>"このサンプルフォトを削除します。よろしいですか？"%>
+    </div>
+<%end%>
+<%= paginate @items %>
+<%end%>
+</div>
+  </div>
+</div>
+</td>

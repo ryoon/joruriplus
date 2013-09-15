@@ -1,0 +1,55 @@
+<%
+if params[:user_id]
+  @members = Sns::Profile.any_in("_id"=>params[:user_id])
+end
+p_id = params[:p_id] || Core.user_group.parent_id
+g_id = params[:g_id] || Core.user_group.id
+parent_groups = Sys::Group.find(:all ,
+    :conditions=>["state = ? AND level_no = ?","enabled",2],:order=>:code)
+parent_groups = parent_groups.collect{|x| ["(#{x.code})#{x.name}", x.id]}
+parent_groups = [["プロジェクト参加者から選択",0]] + parent_groups
+if params[:p_id].blank?
+  groups = Sys::Group.find(:all ,
+    :conditions=>["parent_id =? AND state = ? AND level_no = ?",Core.user_group.parent_id,"enabled",3],:order=>:code)
+  unless groups.blank?
+    groups = groups.collect{|x| ["(#{x.code})#{x.name}", x.id]}
+  end
+else
+  groups = Sys::Group.find(:all , :conditions=>["parent_id =? AND state = ? AND level_no = ?",params[:p_id],"enabled",3],:order=>:code)
+  unless groups.blank?
+    groups = groups.collect{|x| ["(#{x.code})#{x.name}", x.id]}
+  end
+end
+selected_members = []
+@members.each do |m|
+  selected_members << [m.name, m.id]
+end unless @members.blank?
+
+%>
+
+<table class="show">
+<tr>
+  <th><span id="participant_title">参加者</span><br /><span color="red">※最低1名</span></th>
+        <td style="width : 160px;">
+          <%=select_tag("user_list", options_for_select(@users, nil), :size=>10, :style => 'width:150px;', :multiple => true, :ondblclick => 'add_participant()')%>
+        </td>
+        <td style="width : 80px;">
+          <%= button_to_function '追加 →', 'add_participant()' %><br /><br />
+          <%= button_to_function '← 削除', 'del_participant()' %>
+        </td>
+        <td>
+          <%= select_tag 'participant_id',options_for_select(selected_members, nil) , :size=>10, :style => 'width:150px;', :ondblclick => 'del_participant()', :multiple => true %>
+          <div id="participantID">
+            <%for member in selected_members%>
+              <%=hidden_field_tag "user_id[]", member[1]%>
+            <%end if selected_members%>
+          </div>
+        </td>
+</tr>
+<tr>
+  <td></td>
+  <td>
+    <%= f.submit(form_class, :class=>"button") %><%=help_link(4)%>
+  </td>
+</tr>
+</table>

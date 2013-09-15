@@ -1,0 +1,14 @@
+development:
+  host: 127.0.0.1
+  port: 389
+  base: dc=www,dc=joruri,dc=org
+
+test:
+  host:
+  port:
+  base:
+
+production:
+  host:
+  port:
+  base:

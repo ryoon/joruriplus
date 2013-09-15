@@ -1,0 +1,34 @@
+<%
+from_class = ''
+cls = lambda do |name|
+  _cls  = [ name.to_s ]
+  _cls << 'current' if name.to_s == current
+  _cls.join(' ')
+end
+%>
+<div class="menuTitle profileEdit" class="<%=@edit_current%>">プロフィール編集</div>
+<ul class="level1">
+  <li><%= link_to "プロフ写真", sns_profile_photos_path, :class => cls.call(:photo) %></li>
+  <%if is_menu_enabled("base_info") %><li><%= link_to "基本情報", sns_profile_configs_path({:cl=>"base"}), :class => cls.call(:base) %></li><%end%>
+  <%if is_menu_enabled("office") %><li><%= link_to "勤務先", sns_offices_path, :class => cls.call(:office) %></li><%end%>
+  <%if is_menu_enabled("addr") %><li><%= link_to "連絡先", sns_profile_configs_path({:cl=>"addr"}), :class => cls.call(:addr) %></li><%end%>
+  <%if is_menu_enabled("skill") %><li><%= link_to "特技", sns_profile_configs_path({:cl=>"skill"}), :class => cls.call(:skill) %></li><%end%>
+  <%if is_menu_enabled("interest") %><li><%= link_to "趣味、関心", sns_profile_configs_path({:cl=>"interest"}), :class => cls.call(:interest) %></li><%end%>
+  <%if is_menu_enabled("pr") %><li><%= link_to "PR", sns_profile_configs_path({:cl=>"pr"}), :class => cls.call(:pr) %></li><%end%>
+</ul>
+<hr />
+<div class="menuTitle preview">プレビュー</div>
+<ul class="level1">
+  <li><%= link_to "プライバシー設定", sns_privacies_path, :class => cls.call(:privacy)%></li>
+  <li><%= link_to "カスタムグループ設定", sns_custom_groups_path, :class => cls.call(:group) %></li>
+  <li><%= link_to "公開プロフィール", sns_profile_configs_path({:cl=>"public"}), :class => cls.call(:public)%></li>
+  <li><%= link_to "友達プロフィール", sns_profile_configs_path({:cl=>"closed"}), :class => cls.call(:closed) %></li>
+</ul>
+<hr />
+<!--
+<div class="menuTitle mail"><%#= link_to "メール転送設定", sns_notices_path , :class => cls.call(:mail_notice)%></div>
+-->
+<ul class="level1">
+  <li><%= link_to "ニュースフィード表示設定", sns_activity_configs_path, :class => cls.call(:activity)%></li>
+</ul>
+

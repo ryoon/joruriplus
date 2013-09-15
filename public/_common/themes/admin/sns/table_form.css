@@ -1,0 +1,144 @@
+@charset "UTF-8";
+
+/* =========================================================
+   table Form
+========================================================= */
+
+.tableFormMenu {
+  height: 30px;
+}
+.tableSubmitters {
+}
+.tableSubmitters .submitters {
+  text-align: left;
+  margin: 0px;
+}
+.tableSubmitters .submitters input {
+  width: auto;
+  margin: 0px 5px 0px 0px;
+}
+
+/* form table
+--------------------------------------------------------- */
+div#tableFormContainer {
+  text-align: center;
+}
+div#tableFormContainer #snsContainer {
+  width: 100%;
+  margin: 0px auto;
+}
+div.tableForm {
+  clear: both;
+  margin: 10px 0px;
+  padding: 10px 10px 10px 15px;
+  border: 1px solid #8bd;
+  background-color: #e0f0ff;
+}
+div.tableForm table.tableAttributes th {
+  width: 100px;
+  padding: 2px 5px 0px 0px;
+  _padding: 4px 5px 0px 0px;
+  font-weight: bold;
+  font-family: Verdana;
+  text-align: right;
+  vertical-align: top;
+}
+div.tableForm table.tableAttributes td {
+  padding-bottom: 4px;
+}
+
+/* form input, etc
+--------------------------------------------------------- */
+/* * html #tableContent input.file, */
+#tableContent input.text,
+#tableContent textarea {
+  padding: 2px 2px;
+  border: 1px solid #bbb;
+  line-height: 1.2;
+}
+
+
+/* fields frorm table
+--------------------------------------------------------- */
+div#fieldsFormContainer {
+  text-align: center;
+}
+div#fieldsFormContainer #snsContainer {
+  width: 100%;
+  margin: 0px auto;
+}
+div.fieldsForm {
+  clear: both;
+  margin: 10px 0px;
+  padding: 10px 10px 10px 15px;
+  border: 1px solid #8bd;
+  background-color: #e0f0ff;
+}
+div.fieldsForm table.fieldsAttributes th {
+  width: 150px;
+  padding: 2px 5px 0px 0px;
+  _padding: 4px 5px 0px 0px;
+  font-weight: bold;
+  font-family: Verdana;
+  text-align: left;
+  vertical-align: top;
+}
+
+div.fieldsForm table.tableAttributes td {
+  padding-bottom: 4px;
+}
+/* fields form input, etc
+--------------------------------------------------------- */
+/* * html #tableContent input.file, */
+#fieldsContent input.text,
+#fieldsContent textarea {
+  padding: 2px 2px;
+  border: 1px solid #bbb;
+  line-height: 1.2;
+}
+
+
+/* data frorm table
+--------------------------------------------------------- */
+div#dataFormContainer {
+  text-align: center;
+}
+div#dataFormContainer #snsContainer {
+  width: 100%;
+  margin: 0px auto;
+}
+div.dataForm {
+  clear: both;
+  margin: 10px 0px;
+  padding: 10px 10px 10px 15px;
+  border: 1px solid #8bd;
+  background-color: #e0f0ff;
+}
+div.dataForm table.dataAttributes th {
+  width: 150px;
+  padding: 2px 5px 0px 0px;
+  _padding: 4px 5px 0px 0px;
+  font-weight: bold;
+  font-family: Verdana;
+  text-align: right;
+  vertical-align: top;
+}
+
+div.dataForm table.tableAttributes td {
+  padding-bottom: 4px;
+}
+/* data form input, etc
+--------------------------------------------------------- */
+/* * html #tableContent input.file, */
+#dataContent input.text,
+#dataContent textarea {
+  padding: 2px 2px;
+  border: 1px solid #bbb;
+  line-height: 1.2;
+}
+
+
+
+
+
+

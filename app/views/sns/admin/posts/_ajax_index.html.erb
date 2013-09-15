@@ -1,0 +1,30 @@
+<%
+unless @feeds.blank?
+  is_admin = false
+  is_join = false
+  unless @project.blank?
+    is_admin = true if @project.is_admin?
+    is_join = true if @project.is_join?
+  end
+  for item in @feeds
+%>
+<%feed_user = item.created_user%>
+<%@date_str = item.sequence%>
+<%if params[:project_id].blank?%>
+<%if item.is_activity?%>
+<%= render :partial => "activity_item", :locals=>{:item => item, :feed_user=>feed_user}%>
+<%else%>
+<%  @feed_body_ids << "#form#{item.id} #comment_body"%>
+<%= render :partial => "post_item", :locals=>{:item => item, :feed_user=>feed_user}%>
+<%end%>
+<%else%>
+<%  @feed_body_ids << "#form#{item.id} #comment_body"%>
+<%if item.is_project_report?%>
+<%= render :partial => "project_report", :locals=>{:item => item, :feed_user=>feed_user, :is_admin=>is_admin,:is_join=>is_join}%>
+<%else%>
+ <%= render :partial => "project_item", :locals=>{:item => item, :feed_user=>feed_user, :is_admin=>is_admin,:is_join=>is_join}%>
+<%end%>
+<%end%>
+<%end%>
+
+<%end%>

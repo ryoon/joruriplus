@@ -1,0 +1,15 @@
+<%if @fav=="0"
+  favLink = "off"
+  request_uri = favorite_lnk
+  request_str = "スターで絞り込む"
+else
+  favLink = "on"
+  request_uri = no_favorite_lnk
+  request_str = "全て表示"
+end
+image_str = image_tag("/_common/themes/admin/sns/images/bt/ic_star_#{favLink}.gif")
+%>
+<div class="myFavoriteFunction">
+<%=link_to request_str,request_uri ,:class=>"button"%>
+</div>
+<br />

@@ -1,0 +1,17 @@
+jQuery.noConflict();
+jQuery(document).ready(function($){
+<%if (@feeds.blank? && @cl=="feed") || (@activities.blank? && @cl=="activity")%>
+$('#backLog').empty();
+<%else%>
+<%
+request_lnk = sns_searches_path({:date=>@date_str, :word=>@word,:cl=>@cl})
+%>
+var addList = "<%= escape_javascript(render :partial=>'ajax_index') %>";
+$("#updateField").append(addList);
+var remoteLink = '<%= escape_javascript(render :partial=>'sns/admin/posts/request_link', :locals=>{:link_str=>"過去の投稿",:request_uri=>request_lnk} ) %>';
+$('#backLog').html(remoteLink);
+/*var refreshLink = '<%#= escape_javascript(render :partial=>'request_link', :locals=>{:link_str=>"更新", :request_uri=>refresh_sns_posts_path({:date=>@date_str,:cat=>@cat})} ) %>';
+$("#refreshLog").html(refreshLink);*/
+<%end%>
+
+});

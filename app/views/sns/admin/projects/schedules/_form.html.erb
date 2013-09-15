@@ -1,0 +1,32 @@
+<%= calendar_date_select_includes 'default', :locale => 'ja' %>
+<table class="show">
+  <tr>
+    <th>開催日</th>
+    <td><%= calendar_date_select_tag "c_date", @st_date, {:popup => "force",:year_range=>5} %></td>
+  </tr>
+  <tr>
+    <th>開始時間</th>
+    <td><%= f.time_select :st_at%></td>
+  </tr>
+  <tr>
+    <th>終了時間</th>
+    <td><%= f.time_select :ed_at %></td>
+  </tr>
+  <tr>
+    <th>件名</th>
+    <td>
+      <%=f.select :title_category_id, options_for_select(@item.title_category_select, @item.title_category_id), :include_blank=>true%><br />
+      <%= f.text_field :title, {:size=>60} %></td>
+  </tr>
+  <tr>
+    <th>場所</th>
+    <td><%= f.text_field :place, {:size=>60} %></td>
+  </tr>
+    <tr>
+      <th>メモ</th>
+      <td><%=f.text_area :memo, {:cols=>60 ,:rows=>5}%></td>
+    </tr>
+</table>
+<%= f.hidden_field :created_user_id %>
+<%= f.hidden_field :creator_group_id %>
+<%= f.hidden_field :project_id %>

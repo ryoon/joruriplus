@@ -1,0 +1,46 @@
+<td id="snsContent" colspan="3">
+<div class="menu">
+<div class="leftMenu">
+
+<table id="siteinfoShow" class="index">
+<tr>
+<th>接続先サーバ名</th>
+<td><%= @host || request.server_name %></td>
+</tr>
+<tr>
+<th>端末IPアドレス</th>
+<td><%= request.env['HTTP_X_FORWARDED_FOR'] || request.remote_ip %></td>
+</tr>
+<tr>
+<th>リマインダー連携</th>
+<td><%=@user_reminder%></td>
+</tr>
+</table>
+<script type="text/javascript">
+<!--
+jQuery.noConflict();
+jQuery(document).ready(function($){
+});
+var props = [
+  ["ブラウザコード名", navigator.appCodeName],
+  ["ブラウザ名", navigator.appName],
+  ["バージョン", navigator.appVersion],
+  ["プラットフォーム", navigator.platform],
+  ["ユーザーエージェント", navigator.userAgent]
+];
+
+for (var i = 0;i < props.length;i++) {
+  var tr = document.createElement("tr");
+  var th = document.createElement("th");
+  var td = document.createElement("td");
+  th.innerHTML = props[i][0];
+  td.innerHTML = props[i][1];
+  tr.appendChild(th);
+  tr.appendChild(td);
+  $("siteinfoShow").appendChild(tr);
+}
+// -->
+</script>
+</div>
+</div>
+</td>

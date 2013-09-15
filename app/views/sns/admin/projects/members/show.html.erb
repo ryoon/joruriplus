@@ -1,0 +1,43 @@
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</div>
+</td>
+
+<td id="snsContent">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+  <h2 class="project"><%=@project.title%></h2>
+  <h3 class="titleLine">メンバー</h3>
+  <%=@item.title%>
+  <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+    <%if @u_role%>
+     <div class="delete">
+       <%= link_to "編集",edit_sns_project_path(@item),:class => :edit %>
+       <%=link_to "削除",sns_project_path(@item),:method=>:delete,
+  :class => :delete, :title => "削除", :confirm=>"この投稿を削除します。よろしいですか？"%>
+  <br>
+  <%=link_to "ユーザーを追加する", sns_members_path(@item.code)%>
+     </div>
+     <%end%>
+  <table class="show">
+    <tr>
+      <th>公開範囲</th>
+      <td><%= @item.range_show %></td>
+    </tr>
+    <tr>
+      <th>概要</th>
+      <td><%= @item.caption %></td>
+    </tr>
+  </table>
+  </div>
+</div>
+</td>
+<%= render :partial => "side_link"%>

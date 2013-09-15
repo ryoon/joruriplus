@@ -1,0 +1,64 @@
+<%= hidden_field_tag :profile_id, Core.profile.id %>
+<%= f.hidden_field :created_user_id%>
+<%= f.hidden_field :project_id%>
+<%= f.hidden_field :project_sequence%>
+<table class="show">
+  <tr>
+    <td>タイトル</td>
+  </tr>
+  <tr>
+    <td><%= f.text_field :title, :size=>80%></td>
+  </tr>
+  <tr>
+    <td>本文</td>
+  </tr>
+  <tr>
+    <td>
+      <%= f.text_area :body, :style=>"height: 80px" %>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <div class="typeSelect">
+      <span class="photo"><a href="#" onclick="return form_change('photo');">フォト</a></span>
+      <span class="video"><a href="#" onclick="return form_change('video');">動画</a></span>
+      <span class="file"><a href="#" onclick="return form_change('file');">ファイル</a></span>
+      </div>
+      <div class="contribution">
+      <%= f.submit(submit_str, :class=>"button", :onclick=>"return my_submit()") %>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td>
+        <div id="swfupButtons" style="display: none;">
+          <div id="swfBox1">
+            <span>フォト<a href="#" onclick="return form_close('photo');" class="close">×</a></span><br />
+            <span id="spanButtonPlaceHolder1"></span>
+            <input id="btnCancel1" type="button" value="キャンセル" onclick="swfu1.cancelQueue();" disabled="disabled" />
+            <br />
+          </div>
+          <div id="swfBox2">
+            <span>ファイル<a href="#" onclick="return form_close('file');" class="close">×</a></span><br />
+            <span id="spanButtonPlaceHolder2"></span>
+            <input id="btnCancel2" type="button" value="キャンセル" onclick="swfu2.cancelQueue();" disabled="disabled" />
+          </div>
+        </div>
+        <div id="uploadedFiles" style="<%=upload_style%>" class="uploadedFilesShow">
+          <%= render :partial => "sns/admin/projects/conferences/files_show", :locals=>{:photos=>@photos, :files=>@files}%>
+        </div>
+        <div id="divStatus"></div>
+        <div id="fsUploadProgress"></div>
+        <div id="fsUploadProgress2"></div>
+        <%= render :partial => "sns/admin/projects/conferences/files_id", :locals=>{:photos=>@photos, :files=>@files}%>
+      <br />
+      <div id="video_form" style="display: none;">
+      <div id="videoNotice"></div>
+      <span>動画<a href="#" onclick="return form_close('video');" class="close">×</a></span><br />
+      <span>埋め込みURL：</spam><%= text_field_tag :video_url , @video_url,{:id=>"video_url", :size=>80}%><br />
+        <div>JoruriVideoで動画投稿が終わっていない場合は、先に<%=link_to "こちら", "/_admin/sso?to=video", :target=>"_blank"%>で投稿後、「埋め込みURL」を貼り付けてください。</div><br />
+      </div>
+      </td>
+  </tr>
+  </table>
+

@@ -1,0 +1,6 @@
+<%= form_for :prof_message, :url=>update_message_sns_message_board_path(p_item), :html => {:method => :post, :remote=>true} do |f| %>
+<div class="messageFrame1">
+  <div class="messageFrame2"><%=f.text_area :message, {:cols=>18 ,:rows=>3}%></div>
+</div>
+<%= f.submit('保存する', :class=>"button") %>
+<% end %>

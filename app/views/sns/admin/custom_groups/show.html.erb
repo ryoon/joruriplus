@@ -1,0 +1,48 @@
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="leftMenu">
+    <%= render :partial => "sns/admin/profile_configs/editing_menu", :locals => {:current => @edit_current }%>
+</div>
+</div>
+</td>
+
+<td id="snsContent" colspan="2">
+
+<div class="bread_crumbs">
+</div>
+<div class="menu">
+  <div class="leftMenu configs" class="<%=@edit_current%>">
+  <h2 class="preview">プレビュー</h2>
+  <h3 class="titleLine"><span>カスタムグループ設定</span></h3>
+  <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+    <table class="show">
+      <tr>
+        <th>グループ名称</th>
+        <td><%=@item.name%></td>
+      </tr>
+    </table>
+  <%if @users.blank?%>
+カスタムグループにユーザーが存在しません。
+  <%else%>
+    <div class="memberList">
+      <%for user in @users%>
+      <div class="member">
+        <div class="thumbnail">
+        <%=link_to(image_tag(user.profile_photo_path(true), :alt => user.name, :align => 'center', :border => 0, :width=>48), user.profile_uri)%><br />
+        </div>
+        <div class="name">
+        <%=link_to(user.name, user.profile_uri, :class=>"name") unless user.blank?%><br><span>（<%=user.group_name%>）</span><br />
+        </div>
+      </div>
+      <%end%>
+    </div>
+  <%end%>
+  <div class="myFunction">
+  <%=link_to("編集する",edit_sns_custom_group_path(@item),:class=>"button")%>
+  <%=link_to "削除する",sns_custom_group_path(@item),:method=>:delete,
+  :class => :delete, :title => "削除する", :confirm=>"このカスタムグループを削除します。この公開範囲で作成された投稿は削除されますがよろしいですか？" %>
+  </div>
+  </div>
+</div>
+</td>

@@ -1,0 +1,45 @@
+<table class="show">
+  <tr>
+    <th>ニュースフィード表示件数</th>
+    <td><%=f.select :update_limit , update_limit_select%>件</td>
+  </tr>
+  <tr>
+    <th>プロジェクトアクティビティへの投稿</th>
+    <td><%=f.select :project_activity , activity_select_list%></td>
+  </tr>
+  <tr>
+    <th>プロジェクトアクティビティへのコメント</th>
+    <td><%=f.select :project_activity_comment , activity_select_list%></td>
+  </tr>
+  <tr>
+    <th>プロジェクト電子会議室への投稿</th>
+    <td><%=f.select :project_thread , activity_select_list%></td>
+  </tr>
+  <tr>
+    <th>プロジェクト電子会議室へのコメント</th>
+    <td><%=f.select :project_comment , activity_select_list%></td>
+  </tr>
+  <tr>
+    <th>プロジェクトメンバーへの招待</th>
+    <td><%=f.select :project_member , activity_select_list%></td>
+  </tr>
+  <tr>
+    <th>プロジェクトメンバーの更新</th>
+    <td><%=f.select :project , activity_select_list%></td>
+  </tr>
+  <tr>
+    <th>プロジェクトのスケジュールへの招待</th>
+    <td><%=f.select :schedule , activity_select_list%></td>
+  </tr>
+  <tr>
+    <th>プロジェクトのスケジュールが更新</th>
+    <td><%=f.select :project_schedule , activity_select_list%></td>
+  </tr>
+  <tr>
+    <th>友達申請があった／承認された</th>
+    <td><%=f.select :proposal , activity_select_list%></td>
+  </tr>
+  <tr>
+    <td></td><td><%= f.submit('保存する', :class=>"button") %></td>
+  </tr>
+</table>

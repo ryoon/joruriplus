@@ -1,0 +1,114 @@
+
+/* file upload / swfupload
+--------------------------- */
+.uploadedFilesShow {
+  width: 90%;
+  margin: 3px 0px 3px 0px;
+  padding: 3px 4px;
+  border: 1px solid #bbb;
+  background-color: #fff;
+  line-height: 1.5;
+}
+.uploadedFilesShow .uploadedFile {
+  display: block;
+  margin: 0px 8px 0px 0px;
+  white-space: nowrap;
+}
+.uploadedFilesShow .uploadedFile * {
+  display: inline-block;
+  vertical-align: middle;
+}
+.uploadedFilesShow .uploadedFileName {
+  padding-left: 27px;
+  padding-right: 0px !important;
+  color: #000;
+  text-decoration: none;
+}
+.uploadedFilesShow .uploadedFileSeparator {
+}
+.uploadedFilesShow a.deleteUploadedFile {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin: 0px 0px 0px 3px;
+  background-image: url(images/bt/bt_cancelbutton.gif);
+  background-repeat: no-repeat;
+  background-position: -14px 0px;
+  font-size: 0;
+}
+.uploadedFilesShow a.deleteUploadedFile:hover {
+  background-position: 0px 0px;
+}
+
+#swfupButtons {
+  margin-top: 1px;
+}
+#swfupButtons * {
+  margin-right: 5px;
+  vertical-align: bottom;
+}
+#btnCancel {
+  display: inline-block;
+  width: 80px;
+  border: 1px solid #aaa;
+  background-color: #fff;
+  background-image: url(images/bt/bg-link_check.jpg);
+  background-repeat: no-repeat;
+  font-size: 12px;
+  text-align: center;
+  line-height: 22px;
+  height: 24px;
+}
+#divStatus {
+  display: none;
+  padding: 4px 0px 0px 6px;
+  color: #080;
+}
+#fsUploadProgress {
+}
+.progressContainer {
+  width: 400px;
+  margin: 4px 0px 2px 0px;
+  padding: 3px 6px;
+  border: 1px solid #bbb;
+  background-color: #eee;
+}
+.progressContainer .progressName {
+  color: #000;
+}
+.progressContainer .progressBarStatus {
+  color: #922;
+  white-space: nowrap;
+}
+.progressContainer .progressBarInProgress,
+.progressContainer .progressBarComplete,
+.progressContainer .progressBarError {
+  font-size: 0;
+  width: 0%;
+  height: 3px;
+  background-color: #48d;
+  margin-top: 2px;
+}
+.progressContainer .progressBarComplete {
+  width: 100%;
+  background-color: green;
+  display: none;
+}
+.progressContainer .progressBarError {
+  width: 100%;
+  background-color: red;
+  display: none;
+}
+.progressContainer a.progressCancel {
+  font-size: 0;
+  display: block;
+  height: 14px;
+  width: 14px;
+  background-image: url(images/bt/bt_cancelbutton.gif);
+  background-repeat: no-repeat;
+  background-position: -14px 0px;
+  float: right;
+}
+.progressContainer a.progressCancel:hover {
+  background-position: 0px 0px;
+}

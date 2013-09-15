@@ -1,0 +1,110 @@
+<%
+def error?(col)
+  @item.errors.invalid?(col) ? 'class="fieldWithErrors"' : ''
+end
+
+groups_for_selector = Sys::Group.find(:all, :conditions => {:level_no => 1}, :order => :sort_no)
+groups              = Sys::Group.find(:all, :conditions => {:level_no => 2}, :order => :sort_no)
+groups_objects      = Sys::Group.find(:all, :order => :sort_no)
+
+%>
+<%= calendar_date_select_includes 'default', :locale => 'ja' %>
+<p class="form">操作</p>
+<table class="show">
+  <tr>
+    <th><%= @item.locale(:change_division) %></th>
+    <td><%= f.radio_buttons :change_division, @item.kind_select, :class => 'status' %></td>
+  </tr>
+  <tr>
+    <th><%= @item.locale(:start_date) %></th>
+    <td><%= calendar_date_select_tag "item[start_date]", @item.start_date, {:popup => "force",:year_range=>5} %></td>
+  </tr>
+</table>
+<br />
+
+<p class="form">基本情報</p>
+<script type="text/javascript">
+//<![CDATA[
+
+function setParent() {
+  var s = document.getElementById('item_selector');
+  var codeMapKey ='group_code_' + s.options[s.selectedIndex].value;
+  var nameMapKey ='group_name_' + s.options[s.selectedIndex].value;
+  document.getElementById('item_parent_code').value = document.getElementById(codeMapKey).value
+  document.getElementById('item_parent_name').value = document.getElementById(nameMapKey).value
+}
+
+function setTarget() {
+  var s = document.getElementById('item_selector');
+  var value = s.options[s.selectedIndex].value;
+  var codeMapKey  ='group_code_' + value;
+  var nameMapKey   ='group_name_' + value;
+  var ldapMapKey  ='group_ldap_' + value;
+
+  document.getElementById('item_code').value      = document.getElementById(codeMapKey).value;
+  document.getElementById('item_name').value      = document.getElementById(nameMapKey).value;
+  if (document.getElementById(ldapMapKey).value == '1') {
+    document.getElementById('item_ldap_1').checked = true;
+  } else {
+    document.getElementById('item_ldap_0').checked = true;
+  }
+}
+
+//]]>
+</script>
+<table class="show">
+   <tr>
+    <td>引用情報：<%= f.select_with_tree :selector, groups_for_selector %>
+<% groups_objects.each do |g| %>
+<%= hidden_field_tag "group_code_#{g.id}", h(g.code) %>
+<%= hidden_field_tag "group_name_#{g.id}", h(g.name) %>
+<%= hidden_field_tag "group_ldap_#{g.id}", h(g.ldap) %>
+<% end %>
+    </td>
+  </tr>
+</table>
+<br />
+
+
+<table class="show">
+  <tr>
+    <th><%= @item.locale(:parent_code) %></th>
+    <td><%= f.text_field :parent_code, :style => 'id' %>&nbsp;<a href="#" onclick="setParent(); return false;">≪引用情報から設定する</a></td>
+  </tr><tr>
+    <th><%= @item.locale(:parent_name) %></th>
+    <td><%= f.text_field :parent_name, :class => 'name' %></td>
+  </tr>
+</table>
+<br />
+
+<table class="show">
+  <tr>
+    <th><%= @item.locale(:code) %></th>
+    <td><%= f.text_field :code, :style => 'id' %>&nbsp;<a href="#" onclick="setTarget(); return false;">≪引用情報から設定する</a></td>
+  </tr><tr>
+    <th><%= @item.locale(:name) %></th>
+    <td><%= f.text_field :name, :class => 'name' %></td>
+  </tr>
+  <tr>
+    <th><%= @item.locale(:ldap) %></th>
+    <td><%= f.radio_buttons :ldap, @item.ldap_states, :class => 'status' %></td>
+  </tr>
+</table>
+<br />
+
+<p class="form">引継元情報</p>
+<table class="show">
+  <tr>
+    <th><%= @item.locale(:old_id) %></th>
+    <td><span <%= error?(:old_id) %>><%= f.select_with_tree :old_id, groups, :include_blank => true %></span></td>
+  </tr>
+</table>
+
+<br />
+<p class="form">コンテンツオプション</p>
+<table class="show">
+  <tr>
+    <th><%= @item.locale(:commutation_code) %></th>
+    <td><%= f.text_field :commutation_code, :style => 'id' %></td>
+  </tr>
+</table>

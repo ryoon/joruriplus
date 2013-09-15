@@ -1,0 +1,4 @@
+<%= f.text_area :body, :value=>"コメントする", :class=>"commentFormBody", :style=>"color: #999; height: 60px;" %>
+<%= f.hidden_field :created_user_id, :value=>Core.profile._id %>
+<%= hidden_field_tag :fold, fold%>
+

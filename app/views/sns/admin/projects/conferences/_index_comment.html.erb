@@ -1,0 +1,86 @@
+<%
+statement = 2
+is_join = false
+is_join = true if @project.is_join?
+%>
+<%for comment in comments%>
+<%
+is_owner = ""
+is_owner = " owner" if item.created_user_id == comment.created_user_id
+%>
+<div id="comment<%=comment.id%>">
+<table class="statement2<%=is_owner%>">
+<tbody>
+<tr>
+<td class="thumbnail">
+<%comment_user = comment.created_user%>
+<%unless comment_user.blank?%>
+<%
+link_str =image_tag(creator_photo(comment_user,comment),  :alt => comment.created_user_name, :align => 'center', :border => 0, :width=>48)
+%>
+<%=link_to(link_str , "/_admin/profile/#{comment_user.account}") %><br />
+<%end%>
+
+</td>
+<td class="data">
+
+<div class="name">
+   <%if comment_user%>
+    <%=link_to(comment.creator_name, user_profile_page(comment_user)) %>
+  <%end%>
+</div>
+<div class="talk">
+  <%= post_show(comment.body) %><br />
+  <ul>
+       <%
+        video_content = []
+        video_item = nil
+        comment.contents.each do |c|
+        link_str = ""
+        link_uri = ""
+        link_class = ""
+        if c[0]=="photo"
+          file = Sns::Photo.find(:first, :conditions=>{:_id=>c[1]})
+          next if file.blank?
+          link_str = image_tag(file.thumb_public_uri, :width=>200)
+          link_uri = sns_project_photo_path(@project_code, file)
+        elsif c[0]=="file"
+          file = Sns::File.find(:first, :conditions=>{:_id=>c[1]})
+          next if file.blank?
+          link_str = file.display_file_name
+          link_uri = file.public_uri
+          link_class = file_icon_class(file.original_file_name)
+        elsif c[0]=="video"
+          video_content = c
+          next
+        end
+
+        %>
+          <li><%=link_to link_str, link_uri, :class=>link_class, :target=>"_blank"%></li>
+       <%end if comment.contents%>
+     </ul>
+    <%
+    video_item = Sns::Video.where(:_id=>video_content[1]).first unless video_content.blank?
+    unless video_item.blank?%>
+      <iframe src="<%=video_item.url%>" width="320" height="240"></iframe>
+    <%end%>
+
+</div>
+<div class="date"><span><%=safe{comment.last_updated_at.strftime("%Y-%m-%d %H:%M")}%></span></div>
+<%= render :partial => "sns/admin/likes/like_field", :locals => {:post => comment, :kind=>"thread"} %>
+<div class="delete" id="function<%=comment.id%>">
+  <%if comment.is_editable? || @project.is_admin?%>
+  <span><%=link_to "削除する",'javascript: void(0);',:method=>:delete, :title => "削除",
+      :class => :delete, :id=>"cdelete#{comment.id}_#{item.id}" %></span>
+  <span>
+    <%=link_to "編集する",edit_res_sns_conference_path(@project_code, comment,{:p_id=>item.id}), :title => "編集",:class => "button" %>
+  </span>
+  <%end%>
+</div>
+
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<% end %>

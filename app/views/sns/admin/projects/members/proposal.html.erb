@@ -1,0 +1,36 @@
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</div>
+</td>
+
+<td id="snsContent">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+  <h2 class="project"><%=@project.title%></h2>
+  <h3 class="titleLine"><%=@title%></h3>
+  <%if @kind=="manager"%><span style="color:#FF0000;">管理者は自動的にメンバー権限も付与されます。</span></span><%end%>
+    <%= form_for :item, :html => { :multipart => true }, :url => {:action => :invite} do |f| %>
+    <%= f.error_messages %>
+    <%= render :partial => "sns/admin/base/tools/form_participant", :locals => {:f => f }%>
+    <%= render :partial => "sns/admin/base/tools/form_script", :locals => {:f => f }%>
+    <%= render :partial => "form", :locals => {:f => f }%>
+    <%=hidden_field_tag 'kind', @kind %>
+    <table class="show">
+      <tr>
+        <th></th>
+        <td><%= f.submit("招待する", :class=>"button") %></td>
+      </tr>
+    </table>
+    <% end %>
+  </div>
+</div>
+</td>
+<%= render :partial => "side_link"%>

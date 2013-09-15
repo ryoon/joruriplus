@@ -1,0 +1,22 @@
+<%if @items.blank?%>
+表示する申請はありません。
+<%else%>
+<table class="index">
+<tr>
+  <th></th>
+  <th>状態</th>
+  <th>受信者</th>
+  <th>申請日時</th>
+</tr>
+<%for item in @items%>
+<tr>
+  <td><%=link_to("詳細",sns_friend_proposal_path(item))%></td>
+  <td>
+    <%=safe{image_tag(item.to_user.profile_photo_path,{:title=>item.to_user.name, :width=>32,:alt=>item.to_user.name})}%>
+    <%=safe{item.to_user.name}%>（<%=safe{item.to_user.group_name({:s_name=>false})}%>）</td>
+  <td><%=item.index_body%></td>
+  <td><%=safe{item.created_at.strftime('%Y-%m-%d %H:%M')}%></td>
+</tr>
+<%end%>
+</table>
+<%end%>

@@ -1,0 +1,20 @@
+<td  id="snsMenu">
+<div id="snsMenuContainer">
+<div class="leftMenu">
+    <%= render :partial => "sns/admin/profile_configs/editing_menu", :locals => {:current => @edit_current }%>
+</div>
+</div>
+</td>
+<td  id="snsContent" colspan="2" class="configs">
+<div class="menu">
+  <div class="leftMenu">
+    <%= render :partial => "header" %>
+  <%= form_for :item, :url => {:action => :update}, :html => {:method => :put} do |f| %>
+  <%= f.error_messages %>
+  <%= render :partial => "form", :locals => {:f => f, :current=>@edit_current} %>
+
+
+<% end %>
+  </div>
+</div>
+</td >

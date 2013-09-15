@@ -1,0 +1,63 @@
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="leftMenu">
+    <%= render :partial => "sns/admin/profile_configs/editing_menu", :locals => {:current => @edit_current }%>
+</div>
+
+</div>
+</td>
+
+<td id="snsContent" colspan="2" class="privacies">
+
+<div class="bread_crumbs">
+
+</div>
+<div class="menu">
+  <div class="leftMenu configs" class="<%=@edit_current%>">
+  <h2 class="preview">プレビュー</h2>
+  <h3 class="titleLine">プライバシー設定</h3>
+  <%manager_config = display_items_config%>
+  <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+  <table class="show">
+    <%if manager_config[:base_info]=="enabled"%>
+    <tr>
+      <th>基本情報</th>
+      <td><%=Core.profile.privacy_state(:base_info)%></td>
+    </tr>
+    <%end%>
+    <%if manager_config[:history]=="enabled"%>
+    <tr>
+      <th>勤務先</th>
+      <td><%=Core.profile.privacy_state(:history)%></td>
+    </tr>
+    <%end%>
+    <%if manager_config[:address]=="enabled"%>
+     <tr>
+      <th>連絡先</th>
+      <td><%=Core.profile.privacy_state(:address)%></td>
+    </tr>
+    <%end%>
+    <%if manager_config[:skill]=="enabled"%>
+    <tr>
+      <th>特技</th>
+      <td><%=Core.profile.privacy_state(:skill)%></td>
+    </tr>
+    <%end%>
+    <%if manager_config[:interest]=="enabled"%>
+    <tr>
+      <th>趣味、関心</th>
+      <td><%=Core.profile.privacy_state(:interest)%></td>
+    </tr>
+    <%end%>
+    <%if manager_config[:pr]=="enabled"%>
+    <tr>
+      <th>PR</th>
+      <td><%=Core.profile.privacy_state(:pr)%></td>
+    </tr>
+    <%end%>
+  </table>
+<%=link_to("編集する",edit_sns_privacy_path(@item), :class=>"button")%>
+  </div>
+</div>
+</td>

@@ -1,0 +1,21 @@
+<p class="form">基本情報</p>
+
+<table class="show">
+  <tr>
+    <th>引継分類</th>
+    <td><%=@item.kind_show%></td>
+  </tr>
+  <tr>
+    <th>部局</th>
+    <td><%=@item.parent_code%><%=@item.parent_name%></td>
+  </tr>
+  <tr>
+    <th>新所属</th>
+    <td><%=@item.code%><%=@item.name%></td>
+    </tr>
+  <tr>
+    <th>引継元</th>
+    <td><%=@item.old_code%><%=@item.old_name%></td>
+  </tr>
+</table>
+

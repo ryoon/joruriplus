@@ -1,0 +1,173 @@
+<%
+image_str =image_tag(creator_photo(feed_user,item), :alt => item.created_user_name, :align => 'center', :border => 0, :width=>42)
+custom_group_members = item.custom_group_members
+%>
+<tr class="top" id="feedTop<%=item.id%>">
+<td class="left">
+<%=link_to(image_str , user_profile_page(feed_user)) %>
+</td>
+<td class="right">
+<div class="name" id="creatorName<%=item.id%>"><%=link_to(item.creator_name(item.privacy) , user_profile_page(feed_user))%></a></div>
+<div class="commentInfo">
+  <div class="date"><%=item.created_at.strftime("%m月%d日 %H:%M")%></div>
+  <span title="<%=custom_group_members%>" class="range <%=item.privacy_class%>" id="rangeShow<%=item.id%>">
+  <%=selected_users_show(item)%>
+  </span>
+<%if item.is_creator? && item.comments.size <= 0%>
+  <span class="dropButton"><%=link_to "▼", "javascript:void(0);", :class=>"rangeButton", :id=>"rbutton#{item.id}"%></span>
+  <div id="rangeList<%=item.id%>" style="display: none; position: relative;" class="rangeList">
+  <%= render :partial => "sns/admin/posts/publish_select", :locals=>{:item=>item}%>
+  </div>
+<%end%>
+</div>
+<%if item.kind[0]=="tweet"%>
+<div class="tweet"><span><%=post_show(item.text)%></span></div>
+<%else%>
+<div class="tweet"><span><%=post_show(item.text)%></span></div>
+<%end unless item.kind.blank?%>
+<%unless item.photo_ids.blank?%>
+<%= render :partial=>'/sns/admin/photos/show_photos', :locals=>{:item=>item,:feed_user=>feed_user}%>
+<%end%>
+<%unless item.file_ids.blank?%>
+<div class="file">
+<ul>
+<%
+file_items = []
+file_items = Sns::File.any_in("_id"=>item.file_ids)
+file_items.each do |c|%>
+
+<%
+link_str = ""
+link_str = c.display_file_name
+link_uri = c.public_uri
+link_class = file_icon_class(c.original_file_name)
+%>
+  <li><%=link_to link_str, link_uri, :target=>"_blank", :class=>link_class%></li>
+<%end if file_items%>
+<br />
+</ul>
+</div>
+<%end%>
+
+<%unless item.video_ids.blank?%>
+<div class="video">
+<%
+video_item = nil
+video_item = Sns::Video.find(:first, :conditions=>{:_id=>item.video_ids[0]}) if item.video_ids[0]
+    unless video_item.blank?%>
+      <iframe src="<%=video_item.url%>" width="400" height="300"></iframe>
+    <%end%>
+</div>
+<%end%>
+
+<%unless item.enquete_id.blank?%>
+<%= render :partial=>'/sns/admin/enquetes/ajax_create', :locals=>{:item=>item}%>
+<%end%>
+<%= render :partial => "sns/admin/likes/like_field", :locals => {:post => item, :kind=>"post"} %>
+<%= render :partial => "sns/admin/favorites/fav_field", :locals => {:post => item, :kind=>"post"} %>
+</td>
+</tr>
+<tr class="bottom" id="feedBottom<%=item.id%>">
+  <td colspan="2">
+    <div id="comment<%="#{item.id}"%>">
+    <%unless item.comments.blank?%>
+    <%
+      comments_size = item.comments.size
+      is_fold = false
+      hide_limit = 0
+      if comments_size >= 4
+        is_fold = true
+        hide_limit = comments_size - 3
+      end
+      num = 1
+      %>
+     <%for comment in item.comments%>
+     <% if is_fold==true && num==1%>
+       <div class="showComment">
+         <span class="newComment" id="newCommentMark<%=item.id%>">最新のコメントのみ表示しています。</span>
+         <span class="open">
+           <span id="commentMark<%=item.id%>">▼</span><%=link_to "コメントをすべて見る", "javascript:void(0);", :id=>"foldMessage#{item.id}", :class=>"showFoldComment"%>
+          </span>
+      </div>
+       <div id="foldComment<%=item.id%>" style="display: none;">
+     <%end%>
+      <div class="comment">
+        <div class="commentBody"  id="comment<%=comment.id%>">
+          <table>
+            <%comment_user = comment.created_user
+              is_same_group = false
+              if item.privacy=="all"
+                is_same_group = true if comment.created_group_id == Core.user_group.id
+              end
+              link_str = %Q(<span class="user">#{comment.created_user_name}</span>)
+              link_str += %Q(<span class="department">（#{comment.created_group_name}）</span>)
+            %>
+            <%unless comment_user.blank?%>
+            <%
+            image_str =image_tag(creator_photo(comment_user,comment), :alt => comment.created_user_name, :align => 'center', :border => 0, :width=>32)
+            if comment.created_user_name.blank?
+              link_str = %Q(<span class="user">#{comment_user.name}</span>)
+              link_str += %Q(<span class="department">（#{comment_user.group_name({:s_name=>false})}）</span>)
+            end
+            %>
+            <tr>
+            <td class="left"><%=link_to(image_str , user_profile_page(comment_user)) %></a></td>
+            <td class="right">
+            <div class="name"><%=link_to(raw(link_str) , user_profile_page(comment_user)) %></div>
+            <div class="commentInfo">
+            <div class="date"><%=comment.created_at.strftime("%m月%d日 %H:%M") unless comment.created_at.blank?%></div>
+            </div>
+            <div class="talk">
+            <%= raw post_show(comment.body) %>
+            </div>
+              <%= render :partial => "sns/admin/likes/comment_like_field", :locals => {:item=>comment,:post => item, :kind=>"post"} %>
+              <%if comment_user.id == Core.profile.id || Core.user.has_auth?(:manager) || is_same_group==true%>
+               <div class="delete">
+                   <span>
+                   <%=link_to "削除する", 'javascript: void(0);',  :title => "削除",:class => :delete, :id=>"cdelete#{comment.id}_#{item.id}"%>
+                  </span>
+               </div>
+               <%end%>
+            </td>
+            </tr>
+            <%end%>
+          </table>
+        </div>
+      </div>
+      <%= raw %Q(</div>) if is_fold==true && num==hide_limit%>
+      <%
+      num+=1
+      end
+        %>
+    <%end%>
+    </div>
+
+    <%if item.is_deletable?%>
+    <div class="delete">
+         <span><%=link_to "削除する", 'javascript: void(0);',  :title => "削除",:class => :delete, :id=>"delete#{item.id}"%></span>
+    </div>
+    <%end%>
+
+    <%if item.comments.size < comment_limit
+      cbutton_style=""
+      cwarning_style="display:none;"
+    else
+      cbutton_style="display:none;"
+      cwarning_style=""
+    end%>
+    <span class="makeComment">
+      <%=link_to "コメントする","javascript:void(0);", :onclick=>"return false;",:id=>"cbutton#{item.id}", :class=>"commentLink button", :style=>cbutton_style%>
+    </span>
+    <span class="warning" id="commentWarning<%=item.id%>" style="<%=cwarning_style%>"><%=comment_limit_message%></span>
+    <div class="comment">
+    <%= form_for :comment, :url => sns_comments_path(item),
+      :html => { :multipart => true , :method => :post, :id=>"form#{item.id}",:name=>"frname#{item.id}", :style=>"display: none;", :remote=>true} do |f| %>
+    <%= f.error_messages %>
+    <%= hidden_field_tag :parent_privacy, item.privacy, :id=>"parent_privacy_#{item.id}"%>
+    <%= render :partial => "sns/admin/comments/form", :locals => {:f => f, :current=>@edit_current, :fold=>true} %>
+    <span id="customUserShow<%=item.id%>" title="<%=custom_group_members%>"><%=custom_users_show_link(feed_publiched_members(item), item)%></span>
+    <%= f.submit('投稿する', :class=>"button commentSubmitBotton", :id=>"csubmit#{item.id}") %>
+    <% end %>
+    </div>
+  </td>
+</tr>

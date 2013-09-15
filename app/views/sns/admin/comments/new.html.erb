@@ -1,0 +1,81 @@
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <%= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+
+</div>
+</td>
+
+<td id="snsContent">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+    <table class="show">
+      <tr><td>
+    <%feed_user = @post.created_user %>
+    <%unless feed_user.blank?%>
+      <%
+      link_str =image_tag(feed_user.profile_photo_path(true), :alt => feed_user.name, :align => 'center', :border => 0)
+      link_str += feed_user.name
+      %>
+      <%=link_to(link_str , "/_admin/profile/#{feed_user.account}") %><br />
+    <%end%>
+    <%if @post.kind=="note"%>
+      <%=link_to raw(@post.body), "/_admin/sns/#{feed_user.account}/#{@post.kind}s/#{@post.content_id[0]}"%><br />
+    <%else%>
+      <%= raw @post.body%><br />
+    <%end%>
+    <%if feed_user.user_id == Core.user.id%>
+     <div class="delete">
+
+     <%end unless feed_user.blank?%>
+    <%for comment in @comments%>
+      <div class="comment">
+        <div class="commentBody">
+      <%comment_user = comment.created_user%>
+      <%unless comment_user.blank?%>
+      <%
+      link_str =image_tag(comment_user.profile_photo_path(true), :alt => comment_user.name, :align => 'center', :border => 0)
+      link_str += comment_user.name
+      %>
+      <%=link_to(link_str , "/_admin/profile/#{comment_user.account}") %><br />
+        <%=hbr comment.body %><br />
+        <%if comment_user.user_id == Core.user.id%>
+         <div class="delete" onMouseOver="displayOn(this);" onMouseOut="displayOff(this);">
+           <%=link_to "削除",sns_comment_path(@post, comment),:method=>:delete,:style=>"visibility: hidden;",
+      :class => :delete, :title => "削除", :confirm=>"このコメントを削除します。よろしいですか？"%>
+         </div>
+         <%end unless comment_user.blank?%>
+      <%end%>
+       </div>
+      </div>
+    <%end%>
+    <%= form_for :item, :html => { :multipart => true }, :url => {:action => :create} do |f| %>
+
+    <%= f.error_messages %>
+    <%= render :partial => "form", :locals => {:f => f, :current=>@edit_current} %>
+    <%= raw submit(:register) %>
+    <% end %>
+    </td></tr>
+    </table>
+  </div>
+</div>
+</td>
+
+<script type="text/javascript">
+//<![CDATA[
+function displayOn(target){
+  target.getElementsByTagName('a')[0].setStyle('visibility: visible;');
+}
+
+function displayOff(target){
+  target.getElementsByTagName('a')[0].setStyle('visibility: hidden;');
+}
+//]]>
+</script>

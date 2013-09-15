@@ -1,0 +1,12 @@
+<%= render :partial => "sns/admin/managers/menu"%>
+<td id="snsContent" colspan="2">
+<div class="menu">
+  <div class="leftMenu">
+
+  <%= form_for :item, :url => sns_display_item_path(@item), :html => {:method => :put} do |f| %>
+  <%= f.error_messages %>
+  <%= render :partial => "form", :locals => {:f => f} %>
+  <%end%>
+  </div>
+</div>
+</td>

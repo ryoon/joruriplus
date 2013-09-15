@@ -1,0 +1,61 @@
+<%
+  is_answered = false
+  answered=''
+  item.enquete.select_options.each do |opt|
+    if opt.user_ids.include?(Core.profile.id)
+      is_answered = true
+      answered = opt.name
+      break
+    end
+  end
+%>
+
+<div id="answer<%=item._id%>">
+<div class="answer_form">
+<%= form_for :enquete, :url => sns_enquetes_path(item),
+      :html => { :multipart => true , :id=>"answerForm#{item._id}",:style=>'border:none;background-color:white;', :method => :post, :remote=>true} do |f| %>
+    <%= f.error_messages %>
+<table style="margin-bottom:10px;">
+<%item.enquete.select_options.each.with_index do |opt,idx|%>
+<%
+ scale=3; max_scale=100*scale;
+ percent = opt.count>0 && item.enquete.total>0 ? ((opt.count.to_f/item.enquete.total.to_f)*100).round*scale : 0
+ checked =  false
+%>
+<tr>
+<td style="border:none;"><%= radio_button_tag :answer, opt._id, checked unless is_answered%></td>
+<td style="width:<%=max_scale%>px;border:none;">
+    <div class="scaleFrame"style="width:<%=max_scale%>px;height:3px;border:solid 1px lightgrey;">
+    <div class="optName"><label for="answer_<%=opt._id%>"><%=opt.name%></label></div>
+    <div class="percent"style="width:<%=percent%>px;height:100%;background-color:lightblue;">&nbsp;</div>
+  </div>
+</td>
+<td style="border:none;"><%=opt.count%></td>
+</tr>
+<%end%>
+<tr>
+<td style="border:none;"></td>
+<td style="border:none;text-align:right;">合計投票数</td>
+<td style="border:none;"><%=item.enquete.total%></td>
+</tr>
+</table>
+<%if is_answered%>
+<%= "あなたは「#{answered}」を選択しました。" %>
+<%else%>
+<%= f.submit('投票する', :class=>"button answerSubmitBotton", :id=>"asubmit#{item._id}")%>
+<span style="color:#FF0000;">※あなたの投票内容は公開されません</span>
+
+<%end%>
+
+<%end%>
+</div>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+
+});
+//]]>
+</script>

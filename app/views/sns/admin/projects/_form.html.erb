@@ -1,0 +1,373 @@
+<%
+upload_style =  "" if !@photos.blank? || !@files.blank?
+%>
+<script type="text/javascript" src="/_common/js/swfupload/swfupload.js"></script>
+<script type="text/javascript" src="/_common/js/swfupload/plugins/swfupload.queue.js"></script>
+<script type="text/javascript" src="/_common/js/swfupload/plugins/fileprogress.js"></script>
+<script type="text/javascript" src="/_common/js/swfupload/plugins/handlers.js"></script>
+<script type="text/javascript" src="/_common/js/dump.js"></script>
+<%= javascript_include_tag("/_common/js/tiny_mce/tiny_mce_src.js") %>
+<%= javascript_include_tag("/_common/js/tiny_mce/init_html_sns.js") %>
+<%= f.hidden_field :created_user_id %>
+<%= f.hidden_field :state unless Core.user.has_auth?(:manager)%>
+  <table class="show">
+    <%if Core.user.has_auth?(:manager)%>
+    <tr>
+      <td>状態</td>
+    </tr>
+    <tr>
+      <td>
+        <%= f.radio_buttons :state, @item.state_select %>
+      </td>
+    </tr>
+    <%end%>
+    <tr>
+      <td>名称</td>
+    </tr>
+    <tr>
+      <td><%= f.text_field :title, :size=>80%></td>
+    </tr>
+    <tr>
+      <td>公開範囲</td>
+    </tr>
+    <tr>
+      <td><%= f.select :publish, @item.publich_select %><%=help_link(3)%></td>
+    </tr>
+    <tr>
+      <td>目的と概要</td>
+    </tr>
+    <tr>
+      <td><%= f.text_area :caption, :class => 'string body mceEditor' %></td>
+    </tr>
+    <tr>
+      <td>プロジェクト全体のファイル容量</td>
+    </tr>
+    <tr>
+    <td><%=f.text_field :project_file_limit, :class=>"number", :style=>"ime-mode: disabled;"%>MB</td>
+    </tr>
+    <tr>
+      <td>1投稿あたりのファイル容量</td>
+    </tr>
+    <tr>
+      <td><%=f.text_field :post_file_limit, :class=>"number", :style=>"ime-mode: disabled;"%>MB</td>
+    </tr>
+    <tr>
+      <td>ファイル</td>
+    </tr>
+    <tr>
+      <td>
+      <div id="swfupButtons">
+        <div id="swfBox">
+          <span id="spanButtonPlaceHolder"></span>
+          <input id="btnCancel" type="button" value="キャンセル" onclick="swfu1.cancelQueue();" disabled="disabled" />
+        </div>
+      </div>
+    <div id="uploadedFiles" style="<%=upload_style%>" class="uploadedFilesShow">
+      <%for photo in @photos%>
+        <span id="uploadedFile<%=photo.id%>" class="uploadedFile">
+        <span id="uploadedShow<%=photo.id%>">
+        <a href="<%=photo.download_uri%>" class="uploadedFileName <%=file_icon_class(photo.file_name)%>" target="_blank"><%=photo.display_file_name%></a>
+        </span>
+        <a href="#" onclick="return insertUploadedFile('<%=photo.id%>', '1', '0', '<%=photo.download_uri%>')" title="添付">添付</a>
+        <a href="#" onclick="return insertUploadedFile('<%=photo.id%>', '1', '1', '<%=photo.public_uri%>')" title="貼付">貼付</a>
+        <a href="#" onclick="return deleteUploadedFile('<%=photo.id%>', '1')" title="削除">x</a>
+        </span>
+      <%end if @photos%>
+      <%for file in @files%>
+        <span id="uploadedFile<%=file.id%>" class="uploadedFile">
+        <span id="uploadedShow<%=file.id%>">
+        <a href="<%=file.public_uri%>" class="uploadedFileName <%=file_icon_class(file.file_name)%>" onclick="return downloadUploadedFile(this.href);"><%=file.display_file_name%></a>
+        </span>
+        <a href="#" onclick="return insertUploadedFile('<%=file.id%>', '0', '0', '<%=file.public_uri%>')" title="添付">添付</a>
+        <a href="#" onclick="return deleteUploadedFile('<%=file.id%>', '0')" title="削除">x</a>
+        </span>
+      <%end if @files%>
+    </div>
+      <div id="divStatus"></div>
+      <div id="fsUploadProgress"></div>
+    <div id="photoID">
+      <%for photo in @photos%>
+      <input id="ids_" name="photoids[]" value="<%=photo.id%>" type="hidden"></div>
+      <%end if @photos%>
+    </div>
+    <div id="fileID">
+      <%for file in @files%>
+      <input id="ids_" name="fileids[]" value="<%=file.id%>" type="hidden"></div>
+      <%end if @files%>
+    </div>
+      </td>
+    </tr>
+    <%if enable_reminder%>
+    <tr>
+      <td>Gwリマインダーへの更新情報表示</td>
+    </tr>
+    <tr>
+      <td><%= f.select :reminder_show, @item.reminder_config_select %></td>
+    </tr>
+    <%end%>
+    <tr>
+      <td>
+        <%= f.submit("保存する", :class=>"button") %>
+      </td>
+    </tr>
+  </table>
+
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  // ここでは、$はjQueryとして使えます。
+});
+
+var swfu1 = null;
+var swfu2 = null;
+var form_kind = "conference";
+
+function my_submit(kind){
+  var targetField = [];
+  var targetMessage = [];
+  targetField.push($('thread_title').value);
+  targetField.push($('thread_body').value);
+  targetMessage.push("タイトルが入力されていません。");
+  targetMessage.push("本文が入力されていません。");
+  var validate = true;
+  var alertArr = [];
+  for (var i = 0; i < targetField.length; i++) {
+    if(targetField[i]==""){
+      validate = false;
+      alertArr.push(targetMessage[i]);
+    }
+  }
+  if (validate){
+    return true;
+  }else{
+    var alertMessage= "";
+    for(var n =0; n < alertArr.length; n++){
+      alertMessage +=  alertArr[n];
+      if(n != alertArr.length - 1){
+        alertMessage += "\n"
+      }
+    }
+    alert(alertMessage);
+    return false;
+  }
+}
+
+function numCheck(field){
+  if(field.value==""){
+    return true;
+  }
+  if(field.value.match(/[0-9]+/)){
+    return true;
+  }else{
+    alert("数値以外が入力されています！");
+    return true;
+  }
+}
+var my_load = function() {
+ //form_change(0);
+}
+my_load();window.onload = function(){
+  initSwfupload(swfu1,swfu2);
+  initTinyMCE();
+}
+
+// file uploader
+function initSwfupload(swfu1) {
+  swfu1 = new SWFUpload({
+    upload_url : "<%= sns_uploads_path %>",
+    post_params: {
+      authenticity_token : "<%= form_authenticity_token %>",
+      core_profile_id : "<%= Core.profile.id%>",
+      album_kind : "feed",
+      form_kind : "conference",
+      total_size_limit : "10 MB",
+      group_id : "<%=Core.user_group.id%>",
+    },
+    flash_url : "/_common/js/swfupload/swfupload.swf",
+    file_post_name : "upload",
+    file_size_limit : "10 MB",
+    file_types : "*.*",
+    file_types_description : "All Files",
+    file_upload_limit : 0,
+    file_queue_limit : 0,
+    custom_settings : {
+      progressTarget : "fsUploadProgress",
+      cancelButtonId : "btnCancel"
+    },
+    debug: false,
+    prevent_swf_caching : false,
+    button_image_url: "/_common/themes/admin/sns/images/bt/bt_f_newfile.png",
+    button_width: "99",
+    button_height: "24",
+    button_placeholder_id: "spanButtonPlaceHolder",//"uploadHtml",
+    //file_dialog_complete_handler : function(numFilesSelected, numFilesQueued) { this.startUpload(); },
+    //upload_error_handler : function(file, errorCode, message){ alert('読み込みに失敗しました。'); },
+    //upload_success_handler : function(file, data, response) { tinyMCE.activeEditor.setContent(data); }
+    file_queued_handler : fileQueued,
+    file_queue_error_handler : fileQueueError,
+    file_dialog_complete_handler : fileDialogComplete,
+    upload_start_handler : uploadStart,
+    upload_progress_handler : uploadProgress,
+    upload_error_handler : uploadError,
+    //upload_success_handler : uploadSuccess,
+    upload_success_handler : function(file, data) {
+      var progress = new FileProgress(file, this.customSettings.progressTarget);
+      progress.setComplete();
+      progress.setStatus("Complete.");
+      progress.toggleCancel(false);
+      if (data.match(/^Error/i) != null) {
+        alert(data);
+      } else {
+        var id = '', name = '', size = '', image_is = '', filename = '';
+        if (data.match(/^OK:(.+):(.+):(.+?):(.?):(.+?)$/)) {
+          id = RegExp.$1;
+          name = RegExp.$2;
+          size = RegExp.$3;
+          image_is = RegExp.$4;
+          filename = RegExp.$5;
+        }
+        addUploadedFile(id, name, size, image_is, filename);
+      }
+    },
+    upload_complete_handler : uploadComplete,
+    queue_complete_handler : queueComplete  // Queue plugin event
+  });
+}
+
+// load uploaded files
+function loadUploadedFiles() {
+  var uri = "<%= sns_uploads_path(:format => 'xml') %>";
+  var myAjax = new Ajax.Request(uri, {
+    method: 'get',
+    onSuccess: showUploadedFiles,
+    onFailure: function(request) { alert('送信に失敗しました。'); }
+  });
+}
+function showUploadedFiles(request) {
+  var html  = "";
+  var items = request.responseXML.getElementsByTagName("item");
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    var id   = getNodeValue(item, 'id');
+    var name = getNodeValue(item, 'name');
+    var size = getNodeValue(item, 'eng_unit');
+    var image_is = getNodeValue(item, 'image_is');
+    addUploadedFile(id, name, size, image_is);
+  }
+}
+function getNodeValue(node, name) {
+  var elem = node.getElementsByTagName(name);
+  if (elem && elem[0] && elem[0].firstChild) {
+    return elem[0].firstChild.nodeValue;
+  }
+  return "";
+}
+function addUploadedFile(id, name, size, image_is, filename) {
+  var field = $('uploadedFiles');
+  if (field.visible() == false) { field.show(); }
+  var sepa = ""; //(field.innerHTML == "") ? '' : '<span class="uploadedFileSeparator"></span>';
+  var icon = "iconFile icon" + name.replace(/.*\./, '').capitalize();
+  var sequence = filename.replace(/\..+/, '');
+  var html = '<span id="uploadedFile' + id + '" class="uploadedFile">' + sepa;
+  var uri = '';
+  var linkUri = '';
+  if (image_is == '1'){
+    uri =  '/_admin/_photos/' + filename;
+    linkUri = '/_admin/_photos/' + filename + '?mode=download';
+  }else{
+    uri =  '/_admin/_files/' + filename;
+    linkUri = uri;
+  }
+  var opt = '';
+  if (image_is == '1') {
+    opt = 'target="_blank"';
+  } else {
+    opt = 'onclick="return downloadUploadedFile(this.href);"';
+  }
+  html += '<span id="uploadedShow'+ id +'"><a href="' + linkUri +'" class="uploadedFileName '+ icon + '" ' + opt + ' >' + name.escapeHTML() + "(" + size + ")" + '</a></span>';
+  html += '<a href="#" onclick="return insertUploadedFile(\'' + id + '\', \'' + image_is + '\', \'' + '0' + '\', \'' + linkUri+ '\')" title="添付">添付</a>';
+  if(image_is=='1'){
+    html += '<a href="#" onclick="return insertUploadedFile(\'' + id + '\', \'' + image_is + '\', \'' + '1' + '\', \'' + uri+ '\')" title="貼付">貼付</a>';
+  }
+  html += '<a href="#" onclick="return deleteUploadedFile(\'' + id + '\', \'' + image_is + '\')" title="削除" class="deleteUploadedFile">x</a>';
+  html += '</span> ';
+  field.innerHTML += html;
+  if (image_is == '1') {
+    var photoField = $('photoID');
+    photo_html = '<input type="hidden" id="ids_" name="photoids[]" value="' + id + '">'
+    photoField.innerHTML += photo_html;
+  }else{
+    var fileField = $('fileID');
+    file_html = '<input type="hidden" id="ids_" name="fileids[]" value="' + id + '">'
+    fileField.innerHTML += file_html;
+  }
+}
+function downloadUploadedFile(uri) {
+  var beforeUnloadFunc = window.onbeforeunload;
+  window.onbeforeunload = function() {
+    window.onbeforeunload = beforeUnloadFunc;
+  };
+  window.location.href = uri;
+  return false;
+}
+
+function insertUploadedFile(id,image_is,paste,uri) {
+  var elm = $('uploadedShow' + id);
+  var insertHtml = '';
+  if (paste=='1'){
+    insertHtml = '<img src=\'' + uri + '\' />'
+  }else{
+    insertHtml = elm.innerHTML;
+  }
+  mceInsertContent(insertHtml);
+  return false;
+}
+
+function mceInsertContent(value) {
+  parent.tinyMCE.execInstanceCommand('item_caption','mceInsertContent',true, value);
+}
+
+function deleteUploadedFile(id,image_is) {
+  var elm = $('uploadedFile' + id);
+  var uri = "<%= sns_uploads_path %>/" + id + '.xml?kind=' + form_kind + '&image_is=' + image_is ;
+  var myAjax = new Ajax.Request(uri, {
+    method: 'post',
+    parameters: "_method=delete&authenticity_token=<%= form_authenticity_token %>",
+    onComplete: deletedUploadedFile,
+    onFailure: function(request) { alert('送信に失敗しました。'); }
+  });
+  removeIdField(id,image_is);
+  return false;
+}
+
+
+function deletedUploadedFile(request) {
+  var id  = request.responseText.replace(/^OK /, '');
+  var elm = $('uploadedFile' + id);
+  if (elm) { elm.remove(); }
+  var field = $('uploadedFiles');
+  field.innerHTML = field.innerHTML.replace(/> +</, '> <');
+  if (field.innerHTML.match(/^ *$/) != null) {
+    field.innerHTML = "";
+    field.hide();
+  }
+}
+
+function removeIdField(id){
+  if (image_is=='1'){
+    var parent = document.getElementById("photoID");
+  }else{
+    var parent = document.getElementById("fileID");
+  }
+  var targetField = parent.getElementsByTagName('input');
+  for (var i=0; i < targetField.length; i++) {
+   option = targetField [i];
+   if(option.value==id){
+     option.remove();
+   }
+  }
+}
+
+</script>

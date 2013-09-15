@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<link rel="shortcut icon" href="/_common/themes/admin/sns/images/favicon.ico"/>
+<title><%=h Core.title %></title>
+</head>
+<body>
+<div id="feedForms">
+<% form_for :item, :html => { :multipart => true  , :remote=>true, :name=>"selectForm", :id=>"postSelect"},
+  :url =>"#{set_user_sns_post_path(@item)}.js" do |f| %>
+<%
+if params[:user_id]
+  @members = Sns::Profile.any_in("_id"=>params[:user_id])
+end
+p_id = params[:p_id] || Core.user_group.parent_id
+g_id = params[:g_id] || Core.user_group.id
+parent_groups = Sys::Group.find(:all ,
+    :conditions=>["state = ? AND level_no = ?","enabled",2],:order=>:code)
+parent_groups = parent_groups.collect{|x| ["(#{x.code})#{x.name}", x.id]}
+parent_groups = [["友達から選択",0]] + parent_groups if @use_friend_list
+groups = Sys::Group.find(:all ,
+  :conditions=>["parent_id =? AND state = ? AND level_no = ?",g_id,"enabled",3],:order=>:code)
+unless groups.blank?
+  groups = groups.collect{|x| ["(#{x.code})#{x.name}", x.id]}
+end
+if @use_friend_list
+@users = Core.profile.friends_select
+else
+  if g_id.blank?
+   @users = Sns::Profile.get_user_select(p_id,nil,{:select=>true})
+  else
+   @users = Sns::Profile.get_user_select(g_id,nil,{:select=>true})
+  end
+end
+
+
+selected_members = []
+@members.each do |m|
+  selected_members << [m.name, m.id]
+end unless @members.blank?
+
+%>
+
+<table class="show">
+
+<tr>
+  <th>所属選択</th>
+  <td>
+    <%= select_tag('select_p_id', options_for_select(parent_groups, 0),:onchange => 'select_get_child_group()') %><br />
+    <%= select_tag('select_g_id', options_for_select(groups, g_id) ,:onchange=>"select_get_users()", :include_blank =>true) %>
+  </td>
+</tr>
+<tr>
+  <th>
+    <span id="select_participant_title">ユーザー</span><br /><span style="color:#FF0000;">※最低1名</span><br /><span style="color:#FF0000;">※最大100名</span>
+
+  </th>
+  <td>
+    <table style="border: 0px">
+      <tr>
+        <td>
+          <%=select_tag("select_user_list", options_for_select(@users, nil), :size=>10, :style => 'width:150px;', :multiple => true, :ondblclick => 'select_add_participant()')%>
+        </td>
+        <td>
+          <%= button_to_function '追加 →', 'select_add_participant()' %><br /><br />
+          <%= button_to_function '← 削除', 'select_del_participant()' %>
+        </td>
+        <td>
+          <%= select_tag 'select_participant_id',options_for_select(selected_members, nil) , :size=>10, :style => 'width:150px;', :ondblclick => 'select_del_participant()', :multiple => true %>
+          <div id="select_participantID">
+            <%for member in selected_members%>
+              <%=hidden_field_tag "user_id[]", member[1]%>
+            <%end if selected_members%>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+
+</table>
+<%= f.submit('編集する', :class=>"button", :onclick=>"return select_my_submit()") %>
+<input id="closeSelectList" name="closeSelect" type="button" value="キャンセル" class="button" />
+
+<%end%>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+
+$("#closeSelectList").live('click' ,function(){
+   $('#selectDialog').html('Loading...');
+   $('#selectDialog').dialog('close');
+});
+
+});
+
+
+var select_add_participant = function() {
+  select_add_list('select_user_list', 'select_participant_id')
+}
+var select_del_participant= function() {
+  select_del_list('select_participant_id')
+}
+
+var select_add_list = function(fr_id, to_id) {
+  var fr = $(fr_id);
+  var to = $(to_id);
+  var n = to.options.length;
+  var participantsField = $('select_participantID');
+  var user_html = "";
+  for (var i=0; i < fr.options.length; i++) {
+    var option = fr.options[i];
+    if (option.selected==true){
+      to.options[n] = new Option(option.text,option.value);
+      user_html = '<input type="hidden" id="ids_" name="user_id[]" value="' + option.value + '">'
+      participantsField.innerHTML += user_html;
+      n++;
+    }
+  }
+
+
+
+};
+var select_del_list = function(fr_id) {
+  var fr = $(fr_id);
+  for (var i=0; i < fr.options.length; i++) {
+    var option = fr.options[i];
+    if (option.selected == true) {
+      fr.options[i] = null;
+      select_removeIdField(option.value)
+    }
+  }
+};
+
+function select_removeIdField(id){
+  var parent = document.getElementById('select_participantID');
+  var targetField = parent.getElementsByTagName('input');
+  for (var i=0; i < targetField.length; i++) {
+   option = targetField [i];
+   if(option.value==id){
+     option.remove();
+   }
+  }
+}
+
+  var end_cnt = -1;
+  var ed_str = '';
+  function select_get_child_group() {
+    p_id = $("select_p_id").value;
+    if(p_id=="0"){
+    $('select_g_id').update("");
+    select_get_users();
+    }else{
+    document.body.style.cursor = 'wait';
+    end_cnt = 0;
+    new Ajax.Request("/_admin/sns/posts/group_field?p_id="+ p_id , {method:'get', onComplete: function(x){
+      $('select_g_id').update(x.responseText);
+      end_cnt = end_cnt + 1;
+      if (end_cnt == 1) {
+        document.body.style.cursor = 'default';
+      }
+      get_users();
+    }})
+
+
+    }
+
+  }
+  function select_get_users() {
+    p_id = $("select_p_id").value;
+    g_id = $("select_g_id").value;
+    document.body.style.cursor = 'wait';
+    end_cnt = 0;
+    new Ajax.Request("/_admin/sns/posts/users_field?p_id="+ p_id  + "&g_id=" + g_id, {method:'get', onComplete: function(x){
+      $('select_user_list').update(x.responseText);
+      end_cnt = end_cnt + 1;
+      if (end_cnt == 1) {
+        document.body.style.cursor = 'default';
+      }
+    }})
+  }
+
+
+
+function select_my_submit(){
+  var validate = true;
+  var alertArr = [];
+  var select_userSelectNode = $('select_participantID');
+  var select_userFields = select_userSelectNode.getElementsByTagName('input');
+  if (select_userFields.length==0){
+    validate = false;
+    alertArr.push("公開先のユーザーが選択されていません。");
+  }
+  if (select_userFields.length > 100) {
+      validate = false;
+      alertArr.push("公開先のユーザーは100人までしか選択できません。");
+   }
+  if (validate){
+    return true;
+  }else{
+    var alertMessage= "";
+    for(var n =0; n < alertArr.length; n++){
+      alertMessage +=  alertArr[n];
+      if(n != alertArr.length - 1){
+        alertMessage += "\n"
+      }
+    }
+    alert(alertMessage);
+    return false;
+  }
+}
+</script>
+</body>
+</html>

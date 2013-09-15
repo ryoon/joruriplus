@@ -1,0 +1,38 @@
+document.body.style.cursor = 'default';
+<%unless @item.blank?%>
+jQuery.noConflict();
+jQuery(document).ready(function($){
+$('#form<%=@parent.id%>').each(function(){
+        this.reset();
+});
+<%
+@form_ids = ["set"]
+comment_index = %Q(#{render :partial => "sns/admin/projects/conferences/index_comment", :locals => {:item=>@parent, :comments=>[@item], :statement=>params[:statement].to_i}})
+%>
+
+var addList = "<%= raw escape_javascript(comment_index) %>";
+$("#comment<%=@parent.id%>").append(addList);
+$("#uploadedFiles<%=@parent.id%>").attr("style","display: none;");
+$("#uploadedFiles<%=@parent.id%>").empty();
+$("#fileID<%=@parent.id%>").empty();
+$("#photoID<%=@parent.id%>").empty();
+$('#comment_body_<%=@parent.id%>').css('color', '#999');
+$('#cbutton<%=@parent.id%>').html("コメントする");
+$('#bottomCbutton<%=@parent.id%>').html("コメントする");
+$('#fileFrame<%=@parent.id%>').attr("src","");
+$('#form<%=@parent.id%>').toggle();
+$('#function<%=@parent.id%>').show();
+$("#comment_body_<%=@parent.id%>").css('max-height', '80px');
+$("#comment_body_<%=@parent.id%>").css('min-height', '80px');
+<%if @parent.comment_size_show >= comment_limit%>
+$("#commentWarning<%=@parent.id%>").html("<%=comment_limit_message%>");
+$("#bottomCbutton<%=@parent.id%>").hide();
+$("#commentWarning<%=@parent.id%>").show();
+<%else%>
+$("#commentWarning<%=@parent.id%>").empty();
+$("#commentWarning<%=@parent.id%>").hide();
+$("#bottomCbutton<%=@parent.id%>").show();
+<%end%>
+
+});
+<%end%>

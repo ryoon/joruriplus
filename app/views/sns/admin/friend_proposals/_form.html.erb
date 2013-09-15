@@ -1,0 +1,17 @@
+<%=f.hidden_field :fr_user_id%>
+<%=f.hidden_field :to_user_id%>
+<table class="show">
+  <tr>
+    <th>申請先ユーザー</th>
+    <td>
+      <%=image_tag(@to_user.profile_photo_path(true), :alt => @to_user.name, :align => 'center', :border => 0, :width=>48)%>
+      <%=@to_user.name%>（<%=@to_user.group_name({:s_name=>false})%>）
+    </td>
+  </tr>
+  <tr>
+    <th>メッセージ</th>
+    <td><%=f.text_area :body, :rows=>5%></td>
+  </tr>
+</table>
+<%= f.submit('申請する', :class=>"button") %>
+

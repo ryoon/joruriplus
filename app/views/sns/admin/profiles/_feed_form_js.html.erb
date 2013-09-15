@@ -1,0 +1,625 @@
+<script type="text/javascript" src="/_common/js/swfupload/swfupload.js"></script>
+<script type="text/javascript" src="/_common/js/swfupload/plugins/swfupload.queue.js"></script>
+<script type="text/javascript" src="/_common/js/swfupload/plugins/fileprogress.js"></script>
+<script type="text/javascript" src="/_common/js/swfupload/plugins/handlers.js"></script>
+<script type="text/javascript" src="/_common/js/dump.js"></script>
+
+<script type="text/javascript">
+//<![CDATA[
+jQuery.noConflict();
+jQuery(document).ready(function($){
+
+  var areaLimit = 1000;
+  var areaDefault = areaLimit - 4;
+
+ $(document).ready(function(){
+    $("#userSelect").hide();
+    $("#leftCount").html(areaDefault);
+    $('#tweet_body').autosize();
+    $('.commentFormBody').autosize();
+    });
+
+    $("#tweet_privacy").change(function(){
+      var t_privacy = $("#tweet_privacy").val();
+      if(t_privacy=="select"){
+        $("#userSelect").show();
+      }else{
+        $("#userSelect").hide();
+      }
+    });
+
+    $("#tweet_body").keyup(function(){
+        var str = $(this).val();
+        var left = areaLimit - str.replace(/[\n\r]/g,"").length;
+        if(left < 0){
+          $("#leftCount").attr('style','color:red;')
+        }else{
+          $("#leftCount").removeAttr('style');
+        }
+        $("#leftCount").html(left);
+    });
+    $("#tweet_body").bind('paste', function(e){
+        var str = $(this).val();
+        var left = areaLimit - str.replace(/[\n\r]/g,"").length;
+        if(left < 0){
+          $("#leftCount").attr('style','color:red;')
+        }else{
+          $("#leftCount").removeAttr('style');
+        }
+        $("#leftCount").html(left);
+    });
+    $("#tweet_body").live('focus' ,function(){
+        if($(this).val() == "何か書く"){
+          $("#leftCount").html(areaDefault);
+          $(this).css('color', '#000').val('');
+        }
+    }).blur(function() {
+        if(jQuery.trim($(this).val()) == "") {
+          $("#leftCount").html(areaDefault);
+          $(this).css('color', '#999').val("何か書く");
+        }
+    });
+});
+
+
+
+var swfu1 = null;
+var swfu2 = null;
+var form_kind = "tweet";
+var browser = navigator.appName;
+
+var fileSizeLimit = '5';
+var limit = parseInt(fileSizeLimit);
+
+function my_submit(){
+  document.body.style.cursor = 'wait';
+  var validate = true;
+  var alertArr = [];
+  var targetField = [];
+  var targetMessage = [];
+  var privacy = $("tweet_privacy").value;
+  targetField.push($('tweet_body').value);
+  targetMessage.push("投稿文が入力されていません。");
+  switch (form_kind){
+    case 'file':
+      targetField.push($('fileID').innerHTML);
+      targetMessage.push("ファイルが登録されていません。");
+    break;
+    case 'photo':
+      targetField.push($('photoID').innerHTML);
+      targetMessage.push("フォトが登録されていません。");
+    break;
+    case 'video':
+      targetField.push($('tweet_url').value);
+      targetMessage.push("動画のURLが入力されていません。");
+    break;
+    case 'enquete':
+      var vals=''; var cnt=0;
+      var enq_opts = Form.getInputs('postTweet','','enq_opts[]');
+      for(var i=0; i<enq_opts.length; i++ ){
+        if(enq_opts[i].value.replace(/[\n\r]/g,"").length>0){
+          cnt++;
+          vals += enq_opts[i].value;
+        }
+      }
+      if(cnt>=2) {
+        targetField.push(vals);
+        targetMessage.push("回答選択肢が入力されていません。");
+      }else{
+        targetField.push('');
+        targetMessage.push("回答選択肢が２項目以上入力されていません。");
+      }
+    break;
+  }
+
+  var str = $("tweet_body").value;
+  var inputText = str.replace(/[\n\r]/g,"").length;
+  if(inputText > 1000){
+    validate = false;
+    alertArr.push("1000文字以上の投稿はできません。");
+  }
+  for (var i = 0; i < targetField.length; i++) {
+    if(isBlanckCheck(targetField[i])==true){
+      validate = false;
+      alertArr.push(targetMessage[i]);
+    }
+    if(targetField[i]=="何か書く"){
+      validate = false;
+      alertArr.push(targetMessage[i]);
+    }
+  }
+  if (privacy == "none") {
+    validate = false;
+    alertArr.push("公開範囲が選択されていません");
+  }
+  if (privacy=="select"){
+    var userSelectNode = $('participantID');
+    var userFields = userSelectNode.getElementsByTagName('input');
+    if (userFields.length==0){
+      validate = false;
+      alertArr.push("公開先のユーザーが選択されていません。");
+    }
+    if (userFields.length > 100) {
+      validate = false;
+      alertArr.push("公開先のユーザーは100人までしか選択できません。");
+   }
+  }
+  var p_parentNode = $('photoID');
+  var photoIdFields = p_parentNode.getElementsByTagName('input');
+  if(photoIdFields.length > <%=photo_limit%> ){
+    validate = false;
+    alertArr.push("フォトは最大<%=photo_limit%>件までしか登録できません。");
+  }
+  var f_parentNode = $('fileID');
+  var photoIdFields = f_parentNode.getElementsByTagName('input');
+  if(photoIdFields.length > 5 ){
+    validate = false;
+    alertArr.push("ファイルは最大5件までしか登録できません。");
+  }
+  var fileCheck = fileSizeSum('uploadedFiles');
+  if (fileCheck == false){
+    validate = false;
+    alertArr.push("ファイル容量制限をオーバーしています。一投稿あたり" + fileSizeLimit + "MB以内としてください。");
+  }
+  var enqueteChecks=[];
+  var enq_opts = Form.getInputs('postTweet','','enq_opts[]');
+  for(var i=0; i<enq_opts.length; i++ ){
+    var val = enq_opts[i].value.replace(/[\n\r]/g,"").length;
+    if(val>20){enqueteChecks.push(i+1)}
+  }
+  if(enqueteChecks.length>0){
+    validate = false;
+    for(var i=0; i<enqueteChecks.length; i++ ){
+      alertArr.push("選択肢（" + enqueteChecks[i] + "）が、20文字を超えています。");
+    }
+  }
+
+  if (validate){
+    if(privacy=="all"){
+      if(window.confirm('投稿は全てのユーザーの「ニュースフィード」に表示されます。よろしいですか？')){
+        return true;
+      }else{
+        document.body.style.cursor = 'auto';
+        return false;
+      }
+    }else if(privacy=="public"){
+      if(window.confirm('投稿は全てのユーザーの「その他フィード」に表示されます。よろしいですか？')){
+        return true;
+      }else{
+        document.body.style.cursor = 'auto';
+        return false;
+      }
+    }else{
+      return true;
+    }
+  }else{
+    var alertMessage= "";
+    for(var n =0; n < alertArr.length; n++){
+      alertMessage +=  alertArr[n];
+      if(n != alertArr.length - 1){
+        alertMessage += "\n"
+      }
+    }
+    document.body.style.cursor = 'auto';
+    alert(alertMessage);
+    return false;
+  }
+}
+
+
+function fileSizeSum(fieldId){
+  var parent = $(fieldId);
+  if (parent.innerHTML==""){
+    return true;
+  }
+  var fileSize = 0;
+  var getSize = 0;
+  var option;
+  var targetField = parent.getElementsByTagName('a');
+  for (var i=0; i < targetField.length; i++) {
+   option = targetField[i].innerHTML;
+    if(option.match(/\(([0-9]+([\.]{1}[0-9]+)?)KBytes\)/)){
+      getSize = parseFloat(RegExp.$1);
+      fileSize +=  getSize * 1024;
+    }else if(option.match(/\(([0-9]+([\.]{1}[0-9]+)?)MBytes\)/)){
+      getSize = parseFloat(RegExp.$1);
+      fileSize +=  getSize * 1024 * 1024;
+    }else if(option.match(/\(([0-9]+([\.]{1}[0-9]+)?)Bytes\)/)){
+      getSize = parseFloat(RegExp.$1);
+      fileSize +=  getSize;
+    }
+  }
+  if (fileSize >= limit * 1024 * 1024){
+    return false;
+  }else{
+    return true;
+  }
+
+}
+
+function isBlanckCheck(str){
+  if (!str.match(/\S/g)){
+    return true;
+  }else if(str.match(/^[\n\r]/)){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+
+function numCheck(field){
+  if(field.value==""){
+    return true;
+  }
+  if(field.value.match(/[0-9]+/)){
+    return true;
+  }else{
+    alert("数値以外が入力されています！");
+    return true;
+  }
+}
+
+var index_change = function(value){
+  iframeClear();
+  switch (value) {
+    case 0:
+      new Ajax.Request('<%=cat_ind_sns_posts_path({:subfeed=>@subfeed})%>', {'method': 'get'});
+      $("postTweet").setStyle("display: inline");
+      break;
+    case 1:
+      new Ajax.Request('<%=cat_ind_sns_posts_path({:cat=>"photo",:subfeed=>@subfeed})%>', {'method': 'get'});
+      $("postTweet").setStyle("display: none");
+      break;
+    case 2:
+      new Ajax.Request('<%=cat_ind_sns_posts_path({:cat=>"video",:subfeed=>@subfeed})%>', {'method': 'get'});
+      $("postTweet").setStyle("display: none");
+      break;
+    case 3:
+      new Ajax.Request('<%=cat_ind_sns_posts_path({:cat=>"file",:subfeed=>@subfeed})%>', {'method': 'get'});
+      $("postTweet").setStyle("display: none");
+      break;
+    case 4:
+      new Ajax.Request('<%=cat_ind_sns_posts_path({:cat=>"enquete",:subfeed=>@subfeed})%>', {'method': 'get'});
+      $("postTweet").setStyle("display: none");
+      break;
+  }
+  var tabs = document.getElementById('tab').getElementsByTagName('span');
+  var now_className;
+  var selectedTab;
+  for (var i = 0; i < tabs.length; i++) {
+    now_className = tabs[i].className;
+    selectedTab = value;
+    if (i== selectedTab){
+      tabs[i].className = now_className + ' current';
+    }else{
+      tabs[i].className = now_className.replace(/ current/,'');
+    }
+  }
+  $("prependNumber").innerHTML="";
+  var targetTable = document.getElementById("prependField");
+  var allCount = targetTable.rows.length;
+  var headerCount = 0;
+  var footerCount = 0;
+  if (targetTable.tHead) {
+      headerCount = targetTable.tHead.rows.length;
+  }
+  if (targetTable.tFoot) {
+      footerCount = targetTable.tFoot.rows.length;
+  }
+  var bodyLast = allCount - footerCount;
+  for (var i = headerCount; i < bodyLast; i ++) {
+      targetTable.deleteRow(headerCount);
+  }
+  return false;
+}
+
+function iframeClear(){
+  if(browser == "Microsoft Internet Explorer"){
+    var parent = $("updateField");
+    var iframes = parent.getElementsByTagName('iframe');
+    for (var i = 0; i < iframes.length; i++) {
+      iframes[i].src = "";
+    }
+  }
+}
+
+var form_change = function(value) {
+  if(value=='tweet'){
+    form_kind = 'tweet';
+    document.tweetForm.kind.value = 'tweet';
+    $('video_form').setStyle('display: none;');
+    $('swfupButtons').setStyle('display: none;');
+    $('swfBox1').setStyle('display: none;');
+    $('swfBox2').setStyle('display: none;');
+    $('enquete_form').setStyle('display: none;');
+  }else if (value=='photo'){
+    form_kind = 'photo';
+    document.tweetForm.kind.value = 'photo';
+    $('video_form').setStyle('display: none;');
+    $('swfupButtons').setStyle('display: inline;');
+    $('swfBox1').setStyle('display: inline;');
+    $('swfBox2').setStyle('display: none;');
+    $('enquete_form').setStyle('display: none;');
+  }else if (value=='video'){
+    form_kind = 'video';
+    document.tweetForm.kind.value = 'video';
+    $('video_form').setStyle('display: inline;');
+    $('swfupButtons').setStyle('display: none;');
+    $('swfBox1').setStyle('display: none;');
+    $('swfBox2').setStyle('display: none;');
+    $('enquete_form').setStyle('display: none;');
+  }else if (value=='file'){
+    form_kind = 'file';
+    document.tweetForm.kind.value = 'file';
+    $('video_form').setStyle('display: none;');
+    $('swfupButtons').setStyle('display: inline;');
+    $('swfBox1').setStyle('display: none;');
+    $('swfBox2').setStyle('display: inline;');
+    $('enquete_form').setStyle('display: none;');
+  }else if (value=='enquete'){
+    form_kind = 'enquete';
+    document.tweetForm.kind.value = 'enquete';
+    $('video_form').setStyle('display: none;');
+    $('swfupButtons').setStyle('display: none;');
+    $('swfBox1').setStyle('display: none;');
+    $('swfBox2').setStyle('display: none;');
+    $('enquete_form').setStyle('display: inline;');
+  }
+  return false;
+}
+
+
+window.onload = function(){
+  form_kind = 'tweet';
+  initSwfupload(swfu1,swfu2);
+}
+
+//var my_load = function() {
+ //form_change(4);
+//}
+//my_load();window.onload = function(){
+//  initSwfupload(swfu1,swfu2);
+//}
+
+// file uploader
+function initSwfupload(swfu1,swfu2) {
+  swfu1 = new SWFUpload({
+    upload_url : "<%= sns_uploads_path %>",
+    post_params: {
+      authenticity_token : "<%= form_authenticity_token %>",
+      core_profile_id : "<%= Core.profile.id%>",
+      album_kind : "feed",
+      form_kind :  "photo",
+      total_size_limit : "5 MB",
+      group_id : "<%=Core.user_group.id%>",
+    },
+    flash_url : "/_common/js/swfupload/swfupload.swf",
+    file_post_name : "upload",
+    file_size_limit : "5 MB",
+    file_types : "*.*",
+    file_types_description : "All Files",
+    file_upload_limit : 0,
+    file_queue_limit : 0,
+    custom_settings : {
+      progressTarget : "fsUploadProgress",
+      cancelButtonId : "btnCancel1"
+    },
+    debug: false,
+    prevent_swf_caching : false,
+    button_image_url: "/_common/themes/admin/sns/images/bt/bt_f_newphoto.png",
+    button_width: "99",
+    button_height: "24",
+    button_placeholder_id: "spanButtonPlaceHolder1",//"uploadHtml",
+    button_window_mode : SWFUpload.WINDOW_MODE.OPAQUE,
+    //file_dialog_complete_handler : function(numFilesSelected, numFilesQueued) { this.startUpload(); },
+    //upload_error_handler : function(file, errorCode, message){ alert('読み込みに失敗しました。'); },
+    //upload_success_handler : function(file, data, response) { tinyMCE.activeEditor.setContent(data); }
+    file_queued_handler : fileQueued,
+    file_queue_error_handler : fileQueueError,
+    file_dialog_complete_handler : fileDialogComplete,
+    upload_start_handler : uploadStart,
+    upload_progress_handler : uploadProgress,
+    upload_error_handler : uploadError,
+    //upload_success_handler : uploadSuccess,
+    upload_success_handler : function(file, data) {
+      var progress = new FileProgress(file, this.customSettings.progressTarget);
+      progress.setComplete();
+      progress.setStatus("Complete.");
+      progress.toggleCancel(false);
+      if (data.match(/^Error/i) != null) {
+        alert(data);
+      } else {
+        var id = '', name = '', size = '', image_is = '', filename = '';
+        if (data.match(/^OK:(.+):(.+):(.+?):(.?):(.+?)$/)) {
+          id = RegExp.$1;
+          name = RegExp.$2;
+          size = RegExp.$3;
+          image_is = RegExp.$4;
+          filename = RegExp.$5;
+        }
+        addUploadedFile(id, name, size, image_is, filename);
+      }
+    },
+    upload_complete_handler : uploadComplete,
+    queue_complete_handler : queueComplete  // Queue plugin event
+  });
+
+  swfu2 = new SWFUpload({
+    upload_url : "<%= sns_uploads_path %>",
+    post_params: {
+      authenticity_token : "<%= form_authenticity_token %>",
+      core_profile_id : "<%= Core.profile.id%>",
+      album_kind : "feed",
+      form_kind : "file",
+      total_size_limit : "5 MB",
+      group_id : "<%=Core.user_group.id%>",
+    },
+    flash_url : "/_common/js/swfupload/swfupload.swf",
+    file_post_name : "upload",
+    file_size_limit : "5 MB",
+    file_types : "*.*",
+    file_types_description : "All Files",
+    file_upload_limit : 0,
+    file_queue_limit : 0,
+    custom_settings : {
+      progressTarget : "fsUploadProgress2",
+      cancelButtonId : "btnCancel2"
+    },
+    debug: false,
+    prevent_swf_caching : false,
+    button_image_url: "/_common/themes/admin/sns/images/bt/bt_f_newfile.png",
+    button_width: "99",
+    button_height: "24",
+    button_placeholder_id: "spanButtonPlaceHolder2",//"uploadHtml",
+    button_window_mode : SWFUpload.WINDOW_MODE.OPAQUE,
+    //file_dialog_complete_handler : function(numFilesSelected, numFilesQueued) { this.startUpload(); },
+    //upload_error_handler : function(file, errorCode, message){ alert('読み込みに失敗しました。'); },
+    //upload_success_handler : function(file, data, response) { tinyMCE.activeEditor.setContent(data); }
+    file_queued_handler : fileQueued,
+    file_queue_error_handler : fileQueueError,
+    file_dialog_complete_handler : fileDialogComplete,
+    upload_start_handler : uploadStart,
+    upload_progress_handler : uploadProgress,
+    upload_error_handler : uploadError,
+    //upload_success_handler : uploadSuccess,
+    upload_success_handler : function(file, data) {
+      var progress = new FileProgress(file, this.customSettings.progressTarget);
+      progress.setComplete();
+      progress.setStatus("Complete.");
+      progress.toggleCancel(false);
+      if (data.match(/^Error/i) != null) {
+        alert(data);
+      } else {
+        var id = '', name = '', size = '', image_is = '', filename = '';
+        if (data.match(/^OK:(.+):(.+):(.+?):(.?):(.+?)$/)) {
+          id = RegExp.$1;
+          name = RegExp.$2;
+          size = RegExp.$3;
+          image_is = RegExp.$4;
+          filename = RegExp.$5;
+        }
+        addUploadedFile(id, name, size, image_is, filename);
+      }
+    },
+    upload_complete_handler : uploadComplete,
+    queue_complete_handler : queueComplete  // Queue plugin event
+  });
+
+}
+
+// load uploaded files
+function loadUploadedFiles() {
+  var uri = "<%= sns_uploads_path(:format => 'xml') %>";
+  var myAjax = new Ajax.Request(uri, {
+    method: 'get',
+    onSuccess: showUploadedFiles,
+    onFailure: function(request) { alert('送信に失敗しました。'); }
+  });
+}
+function showUploadedFiles(request) {
+  var html  = "";
+  var items = request.responseXML.getElementsByTagName("item");
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    var id   = getNodeValue(item, 'id');
+    var name = getNodeValue(item, 'name');
+    var size = getNodeValue(item, 'eng_unit');
+    var image_is = getNodeValue(item, 'image_is');
+    addUploadedFile(id, name, size, image_is);
+  }
+}
+function getNodeValue(node, name) {
+  var elem = node.getElementsByTagName(name);
+  if (elem && elem[0] && elem[0].firstChild) {
+    return elem[0].firstChild.nodeValue;
+  }
+  return "";
+}
+function addUploadedFile(id, name, size, image_is, filename) {
+  var field = $('uploadedFiles');
+  if (field.visible() == false) { field.show(); }
+  var sepa = ""; //(field.innerHTML == "") ? '' : '<span class="uploadedFileSeparator"></span>';
+  var icon = "iconFile icon" + name.replace(/.*\./, '').capitalize();
+  var sequence = filename.replace(/\..+/, '');
+  var html = '<span id="uploadedFile' + id + '" class="uploadedFile">' + sepa;
+  var uri = '';
+  if (image_is == '1'){
+    uri =  '/_admin/_photos/' + filename;
+    linkUri = '/_admin/_photos/' + filename + '?mode=download';
+  }else{
+    uri =  '/_admin/_files/' + filename;
+    linkUri = uri;
+  }
+  var opt = '';
+  if (image_is == '1') {
+    opt = 'target="_blank"';
+  } else {
+    opt = 'onclick="return downloadUploadedFile(this.href);"';
+  }
+  html += '<a href="' + linkUri +'" class="uploadedFileName '+ icon + '" ' + opt + ' >' + name.escapeHTML() + "(" + size + ")" + '</a>';
+  html += '<a href="#" onclick="return deleteUploadedFile(\'' + id + '\',\'' + image_is +'\' )" title="削除" class="deleteUploadedFile">x</a>';
+  html += '</span> ';
+  field.innerHTML += html;
+  if (image_is == '1') {
+    var photoField = $('photoID');
+    photo_html = '<input type="hidden" id="photo_ids_" name="photo_ids[]" value="' + id + '">'
+    photoField.innerHTML += photo_html;
+  }else{
+    var fileField = $('fileID');
+    file_html = '<input type="hidden" id="file_ids_" name="file_ids[]" value="' + id + '">'
+    fileField.innerHTML += file_html;
+  }
+}
+function downloadUploadedFile(uri) {
+  var beforeUnloadFunc = window.onbeforeunload;
+  window.onbeforeunload = function() {
+    window.onbeforeunload = beforeUnloadFunc;
+  };
+  window.location.href = uri;
+  return false;
+}
+function deleteUploadedFile(id, image_is) {
+  var elm = $('uploadedFile' + id);
+  if(image_is=='1'){
+    var uri = "<%= sns_uploads_path %>/" + id + '.xml?kind=photo';
+  }else{
+    var uri = "<%= sns_uploads_path %>/" + id + '.xml?kind=file';
+  }
+  var myAjax = new Ajax.Request(uri, {
+    method: 'post',
+    parameters: "_method=delete&authenticity_token=<%= form_authenticity_token %>",
+    onComplete: deletedUploadedFile,
+    onFailure: function(request) { alert('送信に失敗しました。'); }
+  });
+  removeIdField(id, image_is);
+  return false;
+}
+function deletedUploadedFile(request) {
+  var id  = request.responseText.replace(/^OK /, '');
+  var elm = $('uploadedFile' + id);
+  if (elm) { elm.remove(); }
+  var field = $('uploadedFiles');
+  field.innerHTML = field.innerHTML.replace(/> +</, '> <');
+  if (field.innerHTML.match(/^ *$/) != null) {
+    field.innerHTML = "";
+    field.hide();
+  }
+}
+
+function removeIdField(id,image_is){
+  if (image_is=='1'){
+    var parent = document.getElementById("photoID");
+  }else{
+    var parent = document.getElementById("fileID");
+  }
+
+  var targetField = parent.getElementsByTagName('input');
+  for (var i=0; i < targetField.length; i++) {
+   option = targetField [i];
+   if(option.value==id){
+     option.remove();
+   }
+  }
+}
+</script>

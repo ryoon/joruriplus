@@ -1,0 +1,60 @@
+<%
+p_id = params[:p_id] || Core.user_group.parent_id
+g_id = params[:g_id] || Core.user_group.id
+parent_groups = Sys::Group.find(:all ,
+    :conditions=>["state = ? AND level_no = ?","enabled",2],:order=>:sort_no)
+parent_groups = parent_groups.collect{|x| ["(#{x.code})#{x.name}", x.id]}
+if params[:p_id].blank?
+  groups = Sys::Group.find(:all ,
+    :conditions=>["parent_id =? AND state = ? AND level_no = ?",Core.user_group.parent_id,"enabled",3],:order=>:sort_no)
+  unless groups.blank?
+    groups = groups.collect{|x| ["(#{x.code})#{x.name}", x.id]}
+  end
+else
+  groups = Sys::Group.find(:all , :conditions=>["parent_id =? AND state = ? AND level_no = ?",params[:p_id],"enabled",3],:order=>:sort_no)
+  unless groups.blank?
+    groups = groups.collect{|x| ["(#{x.code})#{x.name}", x.id]}
+  end
+end
+%>
+<table class="show">
+  <tr>
+    <th>ユーザー選択</th>
+    <td>
+      <%= select_tag('p_id', options_for_select(parent_groups, p_id),:onchange => 'get_child_group()') %>
+      <%= select_tag('g_id', options_for_select(groups, g_id) , :include_blank =>true) %><br />
+      <%=select_tag("user_id", options_for_select(@users, nil), :multiple => true)%>
+    </td>
+  </tr>
+</table>
+<script language = "JavaScript" type="text/javascript">
+//<![CDATA[
+  var end_cnt = -1;
+  var ed_str = '';
+  function get_child_group() {
+    p_id = $("p_id").value;
+    document.body.style.cursor = 'wait';
+    end_cnt = 0;
+    new Ajax.Request("/_admin/sns/searches/group_field?p_id="+ p_id , {method:'get', onComplete: function(x){
+      $('g_id').update(x.responseText);
+      end_cnt = end_cnt + 1;
+      if (end_cnt == 1) {
+        document.body.style.cursor = 'default';
+      }
+    }})
+  }
+  function get_users() {
+    p_id = $("p_id").value;
+    document.body.style.cursor = 'wait';
+    end_cnt = 0;
+    new Ajax.Request("/_admin/sns/<%=@project.code%>/users_field?p_id="+ p_id  + "&g_id=" + g_id, {method:'get', onComplete: function(x){
+      $('user_id').update(x.responseText);
+      end_cnt = end_cnt + 1;
+      if (end_cnt == 1) {
+        document.body.style.cursor = 'default';
+      }
+    }})
+  }
+
+  //]]>
+</script>

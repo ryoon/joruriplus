@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<link rel="shortcut icon" href="/_common/themes/admin/sns/images/favicon.ico"/>
+<title><%=h Core.title %></title>
+<%= javascript_include_tag :defaults %>
+<%= javascript_include_tag '/_common/js/cookiemanager.js' %>
+<%= javascript_include_tag '/_common/js/navigation.js' %>
+<%= csrf_meta_tag %>
+<%#= javascript_include_tag '/_common/js/prototype' %>
+<%#= stylesheet_link_tag '/_common/themes/admin/style', :media => 'all' %>
+<%= stylesheet_link_tag '/_common/themes/admin/sns/style', :media => 'all' %>
+<%= stylesheet_link_tag '/_common/themes/admin/sns/print', :media => 'print' %>
+<%= stylesheet_link_tag '/_common/themes/admin/sns/form' %>
+</head>
+<body>
+<div class="memberList">
+<%if @items.blank?%>
+ユーザーが存在しません。
+<%else%>
+<%for item in @items%>
+  <div class="member">
+  <div class="thumbnail">
+  <%=link_to(image_tag(item.profile_photo_path(true), :alt => item.name, :align => 'center', :border => 0, :width=>48), item.profile_uri,:target=>"_blank")%><br />
+  </div>
+  <div class="name">
+  <%=link_to(item.name, item.profile_uri, :class=>"name",:target=>"_blank") unless item.blank?%><br><span>（<%=item.group_name%>）</span><br />
+  </div>
+  </div>
+<%end%>
+<%end%>
+</div>
+</body>
+</html>

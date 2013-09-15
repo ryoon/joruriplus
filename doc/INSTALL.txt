@@ -1,0 +1,360 @@
+## Joruri Plus+ 1.0.0 インストールマニュアル                2012.11.08
+
+**********************************************************************
+ 1 想定環境
+**********************************************************************
+
+[システム]
+OS         : CentOS 6.3
+Webサーバ  : Apache 2.2
+DBシステム : MySQL 5, MongoDB 1.6.5
+Ruby       : 1.9.2
+Rails      : 3.0.0
+Mailサーバ : SMTP
+
+[設定]
+IPアドレス : 192.168.0.2
+
+**********************************************************************
+ 2 CentOS のインストール
+**********************************************************************
+
+CentOSをインストールします。
+
+rootユーザに変更します。
+
+  $ su -
+
+======================================================================
+ 2.1 SELinux の無効化
+======================================================================
+
+SELinuxを無効にします。
+
+  # /usr/sbin/setenforce 0
+
+自動起動を無効にします。
+
+  # vi /etc/sysconfig/selinux
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  SELINUX=disabled    #変更
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  ※セキュリティ設定は環境に応じて適切に設定してください。
+
+======================================================================
+ 2.2 Firewall の無効化
+======================================================================
+
+iptablesを停止し、自動起動を無効にします。
+
+  # /sbin/service iptables stop
+  # /sbin/chkconfig iptables off
+
+**********************************************************************
+ 3 事前準備
+**********************************************************************
+
+必要なパッケージをインストールします。
+
+  # yum -y install \
+  #   wget make gcc-c++ \
+  #   libxslt libxslt-devel libxml2-devel \
+  #   libjpeg-devel libpng-devel \
+  #   librsvg2-devel ghostscript-devel \
+  #   ImageMagick ImageMagick-devel \
+  #   curl-devel \
+  #   shared-mime-info \
+  #   httpd httpd-devel \
+  #   mysql-server mysql-devel
+
+必要なパッケージをダウンロードします。
+
+  # cd /usr/local/src
+  # wget http://joruri.org/download/joruriplus/joruriplus-1.0.0.tar.gz
+  # wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.2-p290.tar.gz
+  # wget http://rubyforge.org/frs/download.php/74445/rubygems-1.6.2.tgz
+
+Joruriユーザを作成します。
+
+  # useradd joruri
+  # passwd joruri
+
+Joruriソースコードを設置します。
+
+  # mkdir /var/share
+  # tar xvzf joruriplus-1.0.0.tar.gz -C /var/share
+  # chown -R joruri:joruri /var/share/joruriplus
+
+MongoDBのインストール ---------------------------------------
+ゲストOSへパッケージの取得・管理リポジトリを追加します。
+  # vi /etc/yum.repos.d/CentOS-Base.repo
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    [10gen]
+    name=10gen Repository
+    baseurl=http://downloads.mongodb.org/distros/centos/5.4/os/$basearch/
+    gpgcheck=0
+    enabled=0
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+MongoDBをインストールします。
+  # yum -y --enablerepo=10gen install mongo-stable*
+
+起動、自動起動を設定します。
+  # /sbin/service mongod start
+  # /sbin/chkconfig mongod on
+
+※MongoDBが起動しなくなった場合の対応
+  異常終了などによりMongoDBにロックが掛かり起動できないことがあります。
+  その場合は次のコマンドを実行してください。
+
+  # rm /var/lib/mongo/mongod.lock
+  # /sbin/service mongod --dbpath=/var/lib/mongo/ --repair
+  # /sbin/service mongod start
+
+**********************************************************************
+ 4 Apache の設定
+**********************************************************************
+
+設定ファイルを編集します。
+
+  # vi /etc/httpd/conf/httpd.conf
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ServerName 192.168.0.2    #変更
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+設定ファイルにエラーがないことを確認し、Apacheを起動します。
+
+  # /sbin/service httpd configtest
+  # /sbin/service httpd start
+
+自動起動に設定します。
+
+  # /sbin/chkconfig httpd on
+
+**********************************************************************
+ 5 MySQL の設定
+**********************************************************************
+
+文字エンコーディングの標準を UTF-8 に設定します。
+
+  # vi /etc/my.cnf
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [mysqld]
+  default-character-set=utf8    #追加
+
+  [client]                      #追加（末尾に追加）
+  default-character-set=utf8    #追加
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+MySQLを起動します。
+
+  # /usr/bin/mysql_install_db --user=mysql
+  # /sbin/service mysqld start
+
+自動起動に設定します。
+
+  # /sbin/chkconfig mysqld on
+
+rootユーザのパスワードを設定します。
+  # /usr/bin/mysqladmin -u root password "pass"
+
+joruriユーザを作成します。
+  # /usr/bin/mysql -u root -ppass \
+  #   -e "grant all on *.* to joruri@localhost IDENTIFIED BY 'pass'"
+
+**********************************************************************
+ 6 Ruby on Rails のインストール
+**********************************************************************
+======================================================================
+ 6.1 Ruby, RubyGems のインストール
+======================================================================
+
+Rubyをインストールします。
+
+  # cd /usr/local/src
+  # tar xvzf ruby-1.9.2-p290.tar.gz
+  # cd ruby-1.9.2-p290
+  # ./configure
+  # make && make install
+
+RubyGemsをインストールします。
+
+  # cd /usr/local/src
+  # tar xvzf rubygems-1.6.2.tgz
+  # cd rubygems-1.6.2
+  # ruby setup.rb
+
+======================================================================
+ 6.2 gemライブラリ のインストール
+======================================================================
+
+Ruby on Rails をインストールします。
+
+  # gem install rails -v 3.0.0
+
+必要なライブラリをインストールします。
+
+  # cd /var/share/joruriplus
+  # bundle install
+
+======================================================================
+ 6.3 Phusion Passenger のインストール
+======================================================================
+
+Phusion Passengerをインストールします。
+
+  # gem install passenger -v 3.0.9
+  # passenger-install-apache2-module
+
+  ( 画面の内容を確認して Enterキーを押してください。 )
+
+Apacheに設定を追加します。
+
+  # cp /var/share/joruriplus/config/samples/passenger.conf \
+  #   /etc/httpd/conf.d/
+
+**********************************************************************
+  7 Joruri のインストール
+**********************************************************************
+
+Joruriユーザに変更します。
+
+  # su - joruri
+  $ cd /var/share/joruriplus
+
+======================================================================
+ 8.1 設定ファイル
+======================================================================
+
+環境に応じて設定ファイルを編集します。
+
+Joruri Plus 基本設定
+
+  $ vi config/core.yml
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  title  : Joruri Plus
+  uri    : http://192.168.0.2/
+  proxy  : ※プロキシ
+  reminder : ※JoruriGwとのリマインダー連携
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  ※プロキシ
+  プロキシサーバが導入されている場合は
+  http://example:8080/ の様に記述してください。
+
+  ※JoruriGw とのリマインダー連携
+  JoruriGw v2.0.1以降は、JoruriPlus+とのリマインダー連携機能を備えています。
+  プロジェクトの更新情報をJoruriGwのリマインダーに表示する場合はon
+  連携を利用しない場合はoffを指定してください。
+  また、連携を利用する際はDB接続情報の「jorurigw」の項目にJoruriGwのDB接続情報を記述してください。
+
+DB接続情報
+
+  $ vi config/database.yml
+  $ vi config/mongoid.yml
+
+各プロダクトへのSSO設定
+
+  $ vi config/environments/development.rb
+
+VirtualHost設定
+
+  $ vi config/virtual-hosts/joruriplus.conf
+
+======================================================================
+ 8.2 データベースの作成
+======================================================================
+
+データベースを作成します。
+
+  $ /usr/bin/mysql -u root -p -e "create database joruri_plus"
+
+初期データを登録します。
+
+  $ /usr/bin/mysql -u root -p joruri_plus < ./db/joruri_plus.sql
+
+  $ /usr/bin/mongoimport --db joruri_plus --collection sns_profiles --file ./db/profiles.json
+
+  $ /usr/bin/mongoimport --db joruri_plus --collection sns_managements --file ./db/managements.json
+
+======================================================================
+ 8.3 VirtualHost の反映
+======================================================================
+
+Apacheに設定を追加します。
+  $ su -
+  # cp /var/share/joruriplus/config/samples/joruriplus.conf \
+  #   /etc/httpd/conf.d/
+
+Apache を再起動します。
+  # /sbin/service httpd configtest
+  # /sbin/service httpd restart
+
+ここまでの手順で Joruri Plus にアクセスすることができます。
+
+  ポータル画面 : http://192.168.0.2/
+
+次のユーザが登録されています。
+
+    管理者（システム管理者）
+      ユーザID   : admin
+      パスワード : admin
+
+    一般ユーザ（徳島　太郎）
+      ユーザID   : user1
+      パスワード : user1
+
+    一般ユーザ（阿波　花子）
+      ユーザID   : user2
+      パスワード : user2
+
+    一般ユーザ（吉野　三郎）
+      ユーザID   : user3
+      パスワード : user3
+
+    一般ユーザ（佐藤　直一）
+      ユーザID   : user4
+      パスワード : user4
+
+    一般ユーザ（鈴木　裕介）
+      ユーザID   : user5
+      パスワード : user5
+
+
+    一般ユーザ（高橋　和寿）
+      ユーザID   : user6
+      パスワード : user6
+
+
+    一般ユーザ（田中　彩子）
+      ユーザID   : user7
+      パスワード : user7
+
+
+    一般ユーザ（渡辺　真由子）
+      ユーザID   : user8
+      パスワード : user8
+
+
+    一般ユーザ（伊藤　勝）
+      ユーザID   : user9
+      パスワード : user9
+
+**********************************************************************
+ 9 定期実行設定
+**********************************************************************
+削除期間が過ぎた情報を削除します。
+以下の例は毎日3時にユーザーの一行メッセージをリセットします。
+動作環境が development 以外の場合は -e development の箇所をご利用の環境に書き換えてください。
+例）
+rails runner -e development 'Scriptname' → rails runner -e production 'Scriptname'
+
+  # su - joruri
+  $ crontab -e
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  00 3 * * * /usr/local/bin/ruby /var/share/joruriplus/script/rails runner \
+    -e development 'Sns::Script::Tool.message_reset'
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+**********************************************************************

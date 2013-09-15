@@ -1,0 +1,91 @@
+document.body.style.cursor = 'default';
+jQuery.noConflict();
+jQuery(document).ready(function($){
+$('#postTweet').each(function(){
+      this.reset();
+});
+$("#userSelect").hide();
+$("#enquete_form").hide();
+<%unless @feed.blank?%>
+<%
+is_admin = false
+is_join = false
+%>
+<%if @feeds.blank?
+    if @feed.is_activity?
+      feed_layout = "activity_item"
+    else
+      feed_layout = "post_item"
+    end
+
+   unless @project.blank?
+    is_admin = true if @project.is_admin?
+    is_join = true if @project.is_join?
+   end
+   feed_layout = "project_item" unless params[:project_id].blank?
+   locales = {:item => @feed, :feed_user=>@feed.created_user,:cat=>@cat, :is_admin=>is_admin, :is_join=>is_join}
+   date_link = @feed.sequence
+%>
+    $("#dateTweet").val("<%=date_link%>");
+    $("#dateStr").text("<%=date_link%>");
+<%else
+  date_link = max_sequence(@feeds,@is_project)
+%>
+  $("#dateTweet").val("<%=date_link%>");
+  $("#dateStr").text("<%=date_link%>");
+<%feed_layout = "ajax_index"
+  locales = nil
+end
+%>
+var preIds = "<%= escape_javascript(render :partial=>'pre_ids') %>";
+var preIdsArr = preIds.split(',');
+var topFeed = $("#updateField tr.top");
+var btmFeed = $("#updateField tr.bottom");
+var id = "";
+for (var i = 0; i < topFeed.length; i++){
+  id = topFeed[i].id.replace("feedTop","");
+  if($.inArray(id, preIdsArr)!= -1){
+    topFeed[i].remove();
+  }
+  id = ""
+}
+var btmId = "";
+for (var n = 0; n < btmFeed.length; n++){
+  btmId = btmFeed[n].id.replace("feedBottom","");
+  if($.inArray(btmId, preIdsArr)!= -1){
+    btmFeed[n].remove();
+  }
+  btmId = "";
+}
+var addList = '<%= escape_javascript(render :partial => feed_layout, :locals=>locales) %>';
+$("#updateField tbody:first").prepend(addList);
+$("#updateField tr.fieldBase").remove();
+var fieldBase = '<tr class="fieldBase"><td class="left"></td><td class="right"></td></tr>';
+$("#updateField tbody:first").prepend(fieldBase);
+$("#leftCount").html("996");
+$("#tweet_body").val("何か書く");
+$("#tweet_body").css('color', '#999');
+$("#tweet_body").css('max-height', '60px');
+$("#tweet_body").css('min-height', '60px');
+$("#tweet_body").css('height', '60px');
+$("#tweet_url").val();
+$("#tweet_submit").removeAttr("disabled");
+$("#uploadedFiles").empty();
+$("#uploadedFiles").attr("style","display: none;");
+$("#fileID").empty();
+$("#photoID").empty();
+$("#prependNumber").empty();
+$("#prependField").empty();
+$("#preIDs").empty();
+<%@feed_body_ids.each do |f|%>
+$("<%=f%>").autosize();
+<%end unless @feed_body_ids.blank?%>
+<%end%>
+<%if @errors%>
+var errorMessage = "<%=@errors%>";
+$("videoNotice").html('<div class="notice">' +errorMessage + '</div>');
+<%else%>
+$("#videoNotice").empty();
+<%end%>
+
+});

@@ -1,0 +1,13 @@
+<table class="show">
+  <tr>
+    <th>ファイル</th>
+    <td><%= f.file_field :upload, {:size=>10, :max_length=>15} %></td>
+  </tr>
+    <tr>
+      <th>備考</th>
+      <td><%=f.text_area :caption, {:cols=>60 ,:rows=>5}%></td>
+    </tr>
+</table>
+<%= f.hidden_field :created_user_id %>
+<%= f.submit('編集する', :class=>"button", :id=>"submitButton") %>
+

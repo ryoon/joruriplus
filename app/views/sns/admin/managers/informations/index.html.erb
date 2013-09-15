@@ -1,0 +1,91 @@
+<%= render :partial => "sns/admin/managers/menu"%>
+<td id="snsContent" colspan="2">
+<div class="menu">
+  <div class="leftMenu">
+    <h2 class="preview">プロフィール情報一覧</h2>
+<%
+p_id = params[:p_id] || 0
+g_id = params[:g_id] || 0
+parent_groups = Sys::Group.find(:all ,
+    :conditions=>["state = ? AND level_no = ?","enabled",2],:order=>:sort_no)
+parent_groups = parent_groups.collect{|x| ["(#{x.code})#{x.name}", x.id]}
+if params[:p_id].blank? || params[:p_id].to_i == 0
+  groups = []
+else
+  groups = Sys::Group.find(:all , :conditions=>["parent_id =? AND state = ? AND level_no = ?",params[:p_id],"enabled",3],:order=>:sort_no)
+  unless groups.blank?
+    groups = groups.collect{|x| ["(#{x.code})#{x.name}", x.id]}
+  end
+end
+target_group = Sys::Group.find_by_id(@group_id)
+%>
+<% form_tag('', :method => :get, :class => 'searcGgroup', :name=>'frmSearch') do %>
+<%= hidden_field_tag :cl,@search_current %>
+<table>
+<tr>
+  <td>表示件数</td>
+  <td>
+    <%= select_tag('limit', options_for_select(limit_params, @limit)) %>
+  </td>
+  <td>所属</td>
+  <td>
+    <%= select_tag('p_id', options_for_select(parent_groups, p_id), :include_blank =>true,:onchange => 'get_child_group()') %>
+    <%= select_tag('g_id', options_for_select(groups, g_id) , :include_blank =>true, :onchange=>"submit(frmSearch.form)") %>
+  </td>
+  <td>
+  <%= submit_tag '検索',     :name => :search %>
+  <%= submit_tag 'リセット', :name => :reset  %>
+  </td>
+</tr>
+</table>
+<script language = "JavaScript" type="text/javascript">
+//<![CDATA[
+  var end_cnt = -1;
+  var ed_str = '';
+  function get_child_group() {
+    p_id = $("p_id").value;
+    document.body.style.cursor = 'wait';
+    end_cnt = 0;
+    new Ajax.Request("/_admin/sns/profile_informations/group_field?p_id="+ p_id , {method:'get', onComplete: function(x){
+      $('g_id').update(x.responseText);
+      end_cnt = end_cnt + 1;
+      if (end_cnt == 1) {
+        document.body.style.cursor = 'default';
+      }
+    }})
+  }
+  //]]>
+</script>
+<%end%>
+<!-- end form -->
+<%if @items.blank?%>
+該当するユーザーが存在しません。
+<%else%>
+<table class="list">
+  <tr>
+    <th>氏名</th>
+    <%if @group_id.blank? || @group_id==0%><th>所属</th><%end%>
+    <th>住所</th>
+    <th>電話番号</th>
+    <th>携帯電話</th>
+    <th>メールアドレス（県）</th>
+    <th>メールアドレス（個人）</th>
+  </tr>
+
+<%for item in @items%>
+<tr>
+  <td><%=item.name%></td>
+  <%if @group_id.blank? || @group_id==0%><td><%=item.group_name({:s_name=>false})%></td><%end%>
+  <td><%=item.address%></td>
+  <td><%=item.phone_number%></td>
+  <td><%=item.mobile_number%></td>
+  <td><%=item.mail_addr%></td>
+  <td><%=item.ind_addr%></td>
+</tr>
+<%end%>
+</table>
+<%= paginate @items %>
+<%end%>
+  </div>
+</div>
+</td>

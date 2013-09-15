@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<items>
+  <count><%= @users.size %></count>
+  <% if params[:search] %>
+  <total><%= @users.size %></total>
+  <% end %>
+  <% @users.each do |u| %>
+  <item>
+    <id><%= u.id %></id>
+    <img><%=u.profile_photo_path%></img>
+    <account><%= u.account %></account>
+    <name><%= u.name %></name>
+    <group_name><%= u.group_name %></group_name>
+    <%common_friend = Core.profile.common_friend(u,@my_friend)
+    if common_friend.blank? or common_friend == 0
+      friend_str = "なし"
+    else
+      friend_str = "#{common_friend.to_s}人"
+    end%>
+    <friend_count><%=friend_str%></friend_count>
+    <is_friend><%= Core.profile.is_friend?(u) ? "true" : "false" %></is_friend>
+    <is_pending><%= u.is_pending? ? "true" : "false" %></is_pending>
+    <member_limit><%=Core.profile.member_limit? ? "true" : "false" %></member_limit>
+    <sort_no><%=u.sort_no%></sort_no>
+    <kana><%= u.kana %></kana>
+  </item>
+  <% end %>
+</items>

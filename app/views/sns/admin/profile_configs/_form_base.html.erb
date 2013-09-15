@@ -1,0 +1,25 @@
+<%= calendar_date_select_includes 'default', :locale => 'ja' %>
+<table class="show">
+   <%if manager_config[:sex]=="enabled"%>
+  <tr>
+  <th>性別</th>
+  <td><%=f.select :sex , @item.sex_select,{:include_blank=>true}%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:bloodtype]=="enabled"%>
+  <tr>
+  <th>生年月日</th>
+  <td><%= calendar_date_select_tag "item[birthday]", @item.birthday, {:popup => "force",:year_range=>70} %>
+  </td>
+  </tr>
+  <%end%>
+  <%if manager_config[:birthday]=="enabled"%>
+  <tr>
+  <th>血液型</th>
+  <td><%=f.select "bloodtype",@item.bloodtype_select,{:include_blank=>true}%></td>
+  </tr>
+  <%end%>
+    <tr>
+  <td></td><td><%= f.submit("登録する", :class=>"button") %></td>
+  </tr>
+</table>

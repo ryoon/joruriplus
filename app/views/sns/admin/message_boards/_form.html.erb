@@ -1,0 +1,13 @@
+<table class="show">
+  <tr>
+    <td>
+      <%=image_tag(@item.profile_photo_path(true), :alt => @item.name, :align => 'center', :border => 0, :width=>48)%>
+      <%=@item.name%>（<%=@item.group_name({:s_name=>false})%>）
+    </td>
+  </tr>
+  <tr>
+    <td><%=f.text_area :message, :rows=>5, :style=>"height: 200px; width: 300px;"%></td>
+  </tr>
+</table>
+<%= f.submit('編集する', :class=>"button") %>
+

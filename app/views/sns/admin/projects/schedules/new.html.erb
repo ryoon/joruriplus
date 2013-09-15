@@ -1,0 +1,30 @@
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</div>
+</td>
+
+<td id="snsContent">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+  <h2 class="project"><%=@project.title%></h2>
+  <h3 class="titleLine" class="schedule">スケジュール</h3>
+    <%= form_for :item, :html => { :multipart => true }, :url => {:action => :create, :parent=>@project_code} do |f| %>
+
+    <%= f.error_messages %>
+    <%= render :partial => "form", :locals => {:f => f }%>
+    <%= render :partial => "form_participant", :locals => {:f => f , :form_class=>"招待する"}%>
+    <%= render :partial => "form_script", :locals => {:f => f }%>
+
+    <% end %>
+  </div>
+</div>
+</td>
+<%= render :partial => "side_link"%>

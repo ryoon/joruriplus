@@ -1,0 +1,179 @@
+@charset "UTF-8";
+
+/* =========================================================
+   Mail List
+========================================================= */
+
+/* tables table
+--------------------------------------------------------- */
+#snsContent table.tables {
+  width: 100%;
+}
+#snsContent table.tables tr {
+}
+#snsContent table.tables th {
+  padding: 5px 4px;
+  border-left: 1px solid #fff;
+  background-color: #bdf;
+  text-align: left;
+}
+#snsContent table.tables th.check   { width: 30px; padding: 0px; border: none; text-align: center; }
+#snsContent table.tables th.star    { width: 20px; text-align: center; }
+#snsContent table.tables th.attach  { width: 20px; padding: 0px 2px; text-align: center; }
+#snsContent table.tables th.subject { }
+#snsContent table.tables th.from    { width: 30%; }
+#snsContent table.tables th.fromOmitAddress { width: 20%; }
+#snsContent table.tables th.date    { width: 9em; }
+#snsContent table.tables th.size    { width: 4.5em; text-align: right; }
+#snsContent table.tables th.attach {
+  background-image: url(../images/mailoption/clip.gif);
+  background-repeat: no-repeat;
+  background-position: center center;
+  text-indent: -9999px;
+}
+#snsContent table.tables th.from .caption ,
+#snsContent table.tables th.fromOmitAddress .caption {
+  float: left;
+}
+#snsContent table.tables th.from a.cancelFromSearch ,
+#snsContent table.tables th.fromOmitAddress a.cancelFromSearch {
+  float: right;
+  color: #00B;
+  text-decoration: none;
+}
+
+#snsContent table.tables td {
+  height: 1.6em;
+  padding: 0px 0px 0px 4px;
+  border-bottom: 1px solid #ddd;
+  background-color: #fff;
+  word-break: break-all;
+  line-height: 1.6;
+}
+#snsContent table.tables td.category {
+  height: 1.6em;
+  padding: 0px 0px 0px 4px;
+  border-bottom: 1px solid #ddd;
+  background-color: #cef;
+  word-break: break-all;
+  line-height: 1.6;
+}
+#snsContent table.tables td.autoWrap {
+  height: auto;
+}
+#snsContent table.tables td span.overflowHidden {
+  display: block;
+  overflow: hidden;
+  height: 1.6em;
+}
+#snsContent table.tables td span.autoWrap {
+  height: 100%;
+}
+#snsContent table.tables tr.unseen td {
+  background-color: #ffb;
+}
+#snsContent table.tables tr.unseen td.subject {
+  font-weight: bold;
+}
+#snsContent table.tables td.check   { padding: 0px; text-align: center; }
+#snsContent table.tables td.star    { color: #f70; text-align: center; }
+#snsContent table.tables td.attach {
+  color: #0b0;
+  text-align: center;
+}
+#snsContent table.tables td.attach {
+  padding: 0px 2px;
+}
+#snsContent table.tables td.attach span.attach {
+  display: inline-block;
+  width: 12px;
+  height: 0;
+  padding-top: 12px;
+  background-image: url(../images/mailoption/clip.gif);
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+#snsContent table.tables th.star,
+#snsContent table.tables td.star {
+  background-image: url(../images/mailoption/star_off.gif);
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+#snsContent table.tables th.star {
+  text-indent: -9999px;
+}
+#snsContent table.tables td.star span.start {
+  display: inline-block;
+  height: 0;
+  padding-top: 11px;
+  background-image: url(../images/mailoption/star_on.gif);
+  background-repeat: no-repeat;
+  background-position: center 0;
+  overflow: hidden;
+}
+#snsContent table.tables td.subject {
+  cursor: pointer;
+}
+#snsContent table.tables td.from {
+  padding-right: 5px;
+  cursor: pointer;
+}
+#snsContent table.tables td.date {
+  cursor: pointer;
+}
+#snsContent table.tables td.size {
+  padding-right: 3px;
+  text-align: right;
+  cursor: pointer;
+}
+#snsContent table.tables tr:hover td {
+  background-color: #ffb;
+}
+
+#snsContent table.tables td a {
+  display: inline-block;
+  background-position: 0 3px;
+  color: #000;
+  text-decoration: none;
+}
+#snsContent table.tables td a:hover {
+  color: #00f;
+}
+#snsContent table.tables tr td.subject a {
+  padding-left: 15px;
+  background-image: url(../images/mailoption/mail-open.gif);
+  background-repeat: no-repeat;
+  background-position: 0 0.35em;
+}
+#snsContent table.tables tr td.answered a {
+  background-image: url(../images/mailoption/finish_forward.gif);
+  background-repeat: no-repeat;
+}
+#snsContent table.tables tr td.forwarded a {
+  background-image: url(../images/mailoption/finish_reply.gif);
+  background-repeat: no-repeat;
+}
+#snsContent table.tables tr td.answeredforwarded a {
+  background-image: url(../images/mailoption/replytransmit.gif);
+  background-repeat: no-repeat;
+}
+#snsContent table.tables tr.unseen td.subject a {
+  background-image: url(../images/mailoption/mail-notopen.gif);
+  background-position: 0 0.5em;
+}
+#snsContent table.tables tr.unseen td.mdnRequest a {
+  background-image: url(../images/mailoption/mdn_request.gif);
+  background-position: 0 0.2em;
+}
+#snsContent .quota {
+  margin-top: 15px;
+  color: #070;
+  font-weight: bold;
+  text-align: center;
+}
+#snsContent .quotaAlert {
+  margin: 10px 0;
+  color: #f00;
+  font-weight: bold;
+  text-align: center;
+}

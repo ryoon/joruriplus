@@ -1,0 +1,29 @@
+jQuery.noConflict();
+jQuery(document).ready(function($){
+$('body').css("cursor","default");
+<%unless @item.blank?%>
+$("#rangeShow<%=@item.id%>").attr("class","range <%=@item.privacy_class%>");
+<%
+custom_group_members = @item.custom_group_members
+if custom_group_members.blank?%>
+$("#rangeShow<%=@item.id%>").attr("title", "");
+$("#customUserShow<%=@item.id%>").attr("title", "");
+<%else%>
+$("#customUserShow<%=@item.id%>").attr("title", "<%=custom_group_members%>");
+$("#rangeShow<%=@item.id%>").attr("title", "<%=custom_group_members%>");
+<%end%>
+$("#rangeShow<%=@item.id%>").html('<%= escape_javascript(selected_users_show(@item))%>');
+$("#rangeList<%=@item.id%>").html('<%= escape_javascript(render :partial => "sns/admin/posts/publish_select", :locals=>{:item=>@item})%>');
+$("#parent_privacy_<%=@item.id%>").val('<%=@item.privacy%>');
+<%
+if @item.privacy=="all"
+  feed_user = @item.created_user
+  unless feed_user.blank?%>
+    $("#creatorName<%=@item.id%>").html('<%=escape_javascript(link_to(@item.creator_name(@item.privacy) , "/_admin/profile/#{feed_user.account}"))%>');
+  <%end
+end
+%>
+$("#customUserShow<%=@item.id%>").html("<%=escape_javascript(custom_users_show_link(@publiched_members, @item))%>");
+<%end%>
+$("#rangeList<%=@item.id%>").hide();
+});

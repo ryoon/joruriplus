@@ -1,0 +1,45 @@
+<%
+select_list = Core.profile.publish_select
+manager_config = display_items_config
+%>
+<table class="show">
+  <%if manager_config[:base_info]=="enabled"%>
+  <tr>
+    <th>基本情報</th>
+    <td><%=f.select :base_info , select_list%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:history]=="enabled"%>
+  <tr>
+    <th>勤務先</th>
+    <td><%=f.select :history , select_list%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:address]=="enabled"%>
+  <tr>
+    <th>連絡先</th>
+    <td><%=f.select :address , select_list%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:skill]=="enabled"%>
+  <tr>
+    <th>特技</th>
+    <td><%=f.select :skill , select_list%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:interest]=="enabled"%>
+  <tr>
+    <th>趣味、関心</th>
+    <td><%=f.select :interest , select_list%></td>
+  </tr>
+  <%end%>
+  <%if manager_config[:pr]=="enabled"%>
+  <tr>
+    <th>PR</th>
+    <td><%=f.select :pr , select_list%></td>
+  </tr>
+  <%end%>
+  <tr>
+  <td></td><td><%= f.submit('登録する', :class=>"button") %></td>
+  </tr>
+</table>

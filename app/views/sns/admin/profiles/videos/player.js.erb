@@ -1,0 +1,11 @@
+<%unless @item.blank?%>
+
+<%if @item.created_user%>
+var videoShow = '<p><%=link_to image_tag(@item.thumb_path), sns_video_path(@item.created_user.account,@item), :alt=>"JoruriVideo" %></p>';
+<%else%>
+var videoShow = '<p><%=link_to image_tag(@item.thumb_path), "javascript:void(0);", :alt=>"JoruriVideo" , :onclick=>"return false;"%></p>';
+<%end%>
+var videoShow = '';
+var playerShow = '<div id="player<%=@item.id%>"><%= escape_javascript(render :partial => "player") %></div>';
+$('video<%=@item.id%>').innerHTML = videoShow + playerShow;
+<%end%>

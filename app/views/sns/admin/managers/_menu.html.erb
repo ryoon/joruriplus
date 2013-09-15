@@ -1,0 +1,23 @@
+<%
+from_class = ''
+cls = lambda do |name|
+  _cls  = [ name.to_s ]
+  _cls << 'current' if name.to_s == @current
+  _cls.join(' ')
+end
+
+%>
+
+
+<td id="snsMenu">
+
+<div id="snsMenuContainer">
+  <div class="leftMenu">
+  <ul class="level1">
+    <li><%=link_to "管理者設定" , sns_display_items_path, :class => cls.call(:items) %></li>
+    <li><%=link_to "プロフィール情報一覧" , sns_profile_informations_path, :class => cls.call(:list) %></li>
+    <li><%=link_to "サンプルフォト登録" , sns_sample_photos_path, :class => cls.call(:sample) %></li>
+  </ul>
+  </div>
+</div>
+</td>

@@ -1,0 +1,7 @@
+jQuery.noConflict();
+jQuery(document).ready(function($){
+<%unless @post.blank?%>
+$("#favBtn<%=@post.id%>").html('<%= escape_javascript(link_to "お気に入り", sns_favorites_path({:p_id=>@post.id,:kind=>@kind}),:remote => true) %>');
+$("#favBtn<%=@post.id%>").attr("class","doFavorite");
+<%end%>
+});

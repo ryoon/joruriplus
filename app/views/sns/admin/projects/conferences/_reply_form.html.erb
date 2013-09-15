@@ -1,0 +1,43 @@
+<%= f.text_area :body, :id=>"comment_body_#{parent_id}" , :value=>"コメントする", :class=>"commentFormBody", :style=>"color: #999; height: 80px"%>
+<%= f.hidden_field :created_user_id %>
+<%= f.hidden_field :p_kind, :value=> kind%>
+<%= f.hidden_field :parent_id, :value=> parent_id%>
+<%= hidden_field_tag :fold, fold%>
+<%= hidden_field_tag :statement, statement%>
+<div id="feedForms">
+<table class="show">
+  <tr>
+    <td>
+<div class="typeSelect">
+  <span class="photo"><a href="#" onclick="return comment_form_change('photo','<%=parent_id%>');">フォト</a></span>
+  <span class="video"><a href="#" onclick="return comment_form_change('video','<%=parent_id%>');">動画</a></span>
+  <span class="file"><a href="#" onclick="return comment_form_change('file','<%=parent_id%>');">ファイル</a></span>
+</div>
+<%= f.submit('投稿する', :class=>"button", :id=>"csubmit#{parent_id}", :onclick=>"return submitComment('#{parent_id}');") %>
+   </td>
+  </tr>
+  <tr>
+    <td>
+<div id="photoCommentForm<%=parent_id%>" style="display: none;">
+フォト<a href="#" onclick="return comment_form_close('photo','<%=parent_id%>');" class="close">×</a></span><br />
+<iframe src="" frameborder="1" style="margin: 10px 0px; height: 100px; width: 100%;" id="photoFrame<%=parent_id%>"></iframe>
+</div>
+<div id="fileCommentForm<%=parent_id%>" style="display: none;">
+ファイル<a href="#" onclick="return comment_form_close('file','<%=parent_id%>');" class="close">×</a></span><br />
+<iframe src="" frameborder="1" style="margin: 10px 0px; height: 100px; width: 100%;" id="fileFrame<%=parent_id%>"></iframe>
+</div>
+<div id="uploadedFiles<%=parent_id%>" style="display: none;" class="uploadedFilesShow"></div>
+<div id="photoID<%=parent_id%>"></div>
+<div id="fileID<%=parent_id%>"></div>
+<div id="videoCommentForm<%=parent_id%>" style="display: none;">
+<div id="videoNotice"></div>
+動画<a href="#" onclick="return comment_form_close('video','<%=parent_id%>');" class="close">×</a></span><br />
+<span>埋め込みURL：</span><%= text_field_tag :video_url , '',{:id=>"video_url", :size=>80}%><br />
+<div>JoruriVideoで動画投稿が終わっていない場合は、先に<%=link_to "こちら", "/_admin/sso?to=video", :target=>"_blank"%>で投稿後、「埋め込みURL」を貼り付けてください。</div><br />
+</div>
+
+    </td>
+  </tr>
+</table>
+</div>
+<%@form_ids << "comment_body_#{parent_id}" if @form_ids%>

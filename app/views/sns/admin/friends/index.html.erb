@@ -1,0 +1,61 @@
+<%
+c_groups = @custom_groups.collect{|x| [x.name, x.sequence]}
+c_groups.unshift(["カスタムグループで絞り込み",nil])
+%>
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <%= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+
+</div>
+</td>
+
+<td id="snsContent" class="friends">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+    <h2 class="companion">友達一覧</h2>
+    <%=link_to("カスタムグループ編集", sns_custom_groups_path, :class=>"buttonNew")%>
+    <%=link_to("友達を追加する", sns_sys_addresses_path, :class=>"buttonNew")%>
+<% form_tag('', :method => :get, :class => 'searchGgroup', :name=>'frmSearch') do %>
+<%= select_tag('cg_id', options_for_select(c_groups, @cg_id) , :onchange=>"submit(frmSearch.form)") %>
+<%end unless @custom_groups.blank?%>
+<div class="memberList">
+
+  <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+<%if @items.blank?%>
+友達が存在しません。
+<%else%>
+<%for item in @items%>
+    <div class="member">
+    <div class="thumbnail">
+    <%=link_to(image_tag(item.profile_photo_path(true), :alt => item.name, :align => 'center', :border => 0, :width=>48), item.profile_uri)%><br />
+    </div>
+    <div class="name">
+    <%=link_to(item.name, item.profile_uri, :class=>"name") unless item.blank?%><br><span>（<%=item.group_name%>）</span><br />
+    </div>
+    <%=link_to "解除",sns_friend_path(@my_friend,{:to_user=>item.id}),:method=>:delete,
+      :title => "友達から外す", :confirm=>"このユーザーを友達から外します。よろしいですか？" unless @my_friend.blank?%><br />
+    </div>
+<%end%>
+<%= paginate @items %>
+<%end%>
+</div>
+</div>
+</div>
+</td>
+<td id="snsLink">
+<div id="snsLinkContainer">
+<div class="menu">
+<%= render :partial => "sns/admin/profiles/project_field"%>
+<%= render :partial => "sns/admin/profiles/friends_field"%>
+
+</div>
+
+</div>
+</td>

@@ -1,0 +1,22 @@
+  <%= render :partial => "sns/admin/posts/prepend_field"%>
+  <%
+  is_admin = false
+  is_join = false
+  unless @project.blank?
+    is_admin = true if @project.is_admin?
+    is_join = true if @project.is_join?
+  end
+  %>
+  <table style="width: 100%;" class="show" id="updateField">
+    <tr class="fieldBase"><td class="left"></td><td class="right"></td></tr>
+  <%for item in @feeds%>
+  <%feed_user = item.created_user%>
+  <%if item.is_project_report?%>
+    <%= render :partial => "sns/admin/posts/project_report", :locals=>{:item => item, :feed_user=>feed_user, :is_admin=>is_admin,:is_join=>is_join}%>
+  <%else%>
+    <%= render :partial => "sns/admin/posts/project_item", :locals=>{:item => item, :feed_user=>feed_user, :is_admin=>is_admin,:is_join=>is_join}%>
+  <%end%>
+  <%end unless @feeds.blank?%>
+  </table>
+<%= render :partial => "sns/admin/profiles/feed_js"%>
+<%= render :partial => "sns/admin/likes/show_like_users", :locals=>{:kind=>"post"}%>

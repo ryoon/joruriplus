@@ -1,0 +1,90 @@
+<%
+cls = lambda do |name|
+  _cls  = [ name.to_s ]
+  if @subfeed
+    _cls << 'current' if name.to_s == @subfeed
+  else
+    _cls << 'current' if name.to_s == @class
+  end
+
+  _cls.join(' ')
+end
+is_msg = true
+if Core.profile.message.blank?
+ message_str = "クリックして本日の予定等を入力"
+ is_msg = false
+else
+ message_str = Core.profile.message
+end
+p_width = 48
+p_width = 160 if @cat=="news"
+
+%>
+<div class="profilePhoto">
+  <%=image_tag(Core.profile.profile_photo_path, :alt => Core.profile.name, :align => 'center', :border => 0, :width=>p_width)%>
+</div>
+<div class="profileInfo">
+<span class="user"><%=Core.profile.name%></span>
+<span class="department">（<%=Core.user_group.group_short_name%>）</span>
+</div>
+<div class="profileMessage<%=' empty' unless is_msg%>" id="messageField">
+  <div class="messageFrame1">
+    <div class="messageFrame2" id="messageStr"><%=hbr message_str%></div>
+  </div>
+</div>
+<div class="messageLink"><%= link_to "課員の状況", sns_message_boards_path, :class=>"button" %></div>
+<div class="profileEdit"><%= link_to "プロフィールを編集", sns_profile_photos_path %></div>
+<hr />
+<ul class="myMenu">
+  <li><%= link_to "マイニュース", sns_items_path({:cat=>"news"}),:class=>cls.call(:news) %></li>
+  <li><%= link_to "ニュースフィード", '/_admin', :class=>cls.call(:newsfeed) %>
+   <ul>
+     <li><%=link_to "└限定公開（友達）", "/_admin?subfeed=member", :class=>cls.call(:member)%>
+     <%custom_group_links = Core.profile.get_custom_group%>
+     <ul>
+       <%unless custom_group_links.blank?%>
+      <%Core.profile.get_custom_group.each do |cg|%>
+      <%custam_str ="cg_#{cg.sequence.to_i}" %>
+      <li><%=link_to "　└カスタム（#{cg.name}）", "/_admin?subfeed=#{custam_str}", :class=>cls.call(custam_str.to_sym)%></li>
+      <%end%>
+    </ul>
+    <%end%>
+    </li>
+    <li><%=link_to "└所属通知", "/_admin?subfeed=group", :class=>cls.call(:group)%></li>
+    <li><%=link_to "└全庁通知", "/_admin?subfeed=all", :class=>cls.call(:all)%></li>
+    <li><%=link_to "その他フィード", "/_admin?subfeed=public", :class=>cls.call(:public)%></li>
+    </ul>
+  </li>
+
+  <li><%= link_to "友達", sns_friends_path, :class=>cls.call(:companion) %></li>
+</ul>
+</div>
+
+<div class="projectMenu">
+  <ul>
+    <li><%= link_to "フォト", sns_items_path({:cat=>"photo"}), :class=>cls.call(:photo) %></li>
+    <li><%= link_to "動画", sns_items_path({:cat=>"video"}) , :class=>cls.call(:video) %></li>
+    <li><%= link_to "ファイル", sns_items_path({:cat=>"file"}), :class=>cls.call(:file) %></li>
+    <li><%= link_to "投票", sns_items_path({:cat=>"enquete"}), :class=>cls.call(:enquete) %></li>
+  </ul>
+</div>
+<hr />
+<script type="text/javascript">
+//<![CDATA[
+
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  $("#messageField").live('click' ,function(){
+    var editForm = "<%= escape_javascript(render :partial=>'sns/admin/profile_configs/edit_message' ) %>";
+    var currentMessage = $("#messageStr").html().replace(/(<br>\n<br>)/gi, "\n").replace(/(<br>)/gi, "\r");
+    $("#messageField").html(editForm);
+    if (currentMessage!="クリックして本日の予定等を入力"){
+      $("#prof_message_message").val(currentMessage);
+    }
+    $('#messageField').attr('id', 'messageForm');
+    $('#messageForm').removeClass('empty');
+    $('#prof_message_message').focus();
+  });
+ });
+//]]>
+</script>

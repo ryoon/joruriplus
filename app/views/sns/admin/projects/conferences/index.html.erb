@@ -1,0 +1,34 @@
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</div>
+</td>
+
+<td id="snsContent" class="project">
+
+<div class="bread_crumbs">
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+  <div class="contentTitleLine"><h2 class="project"><%=@project.title%></h2></div>
+  <%= render :partial => "sns/admin/favorites/fav_link",
+      :locals=>{:favorite_lnk  =>sns_conferences_path(@project_code,{:fav=>"1"}), :no_favorite_lnk => sns_conferences_path(@project_code,{:fav=>"0"})}%>
+  <h3 class="titleLine">電子会議室</h3>
+  <% if flash[:notice] %><div class="notice"><%= flash[:notice] %></div><% end %>
+  <%= render :partial => "sns/admin/likes/show_like_users", :locals=>{:kind=>"thread"}%>
+    <%= render :partial => "sns/admin/projects/conferences/index_title" %>
+  <% if @project.is_join?%>
+
+    <%=link_to "発言する","#", :onclick=>"return false;",:id=>"thredFormOpen",:class=>"commentLink  buttonNew" %>
+    <%= render :partial => "sns/admin/projects/conferences/form_thread"%>
+  <%end%>
+
+  <%= render :partial => "sns/admin/projects/conferences/index_thread" %>
+  </div>
+</div>
+</td>
+<%= render :partial => "sns/admin/projects/conferences/side_link"%>

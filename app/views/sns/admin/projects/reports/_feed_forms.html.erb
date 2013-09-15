@@ -1,0 +1,90 @@
+<%
+date_str=""
+date_str = max_sequence(@feeds,@is_project) unless @feeds.blank?
+%>
+<div id="javascript_tab">
+<% form_for :tweet, :html => { :multipart => true  , :remote=>true, :name=>"tweetForm", :id=>"postTweet"},
+  :url => {:controller=>"/sns/admin/posts", :action => :create} do |f| %>
+<%= f.error_messages %>
+<%=hidden_field_tag :kind, "tweet"%>
+<%#= f.hidden_field :kind, :value=>"tweet" %>
+<%= hidden_field_tag :in_action, params[:action] %>
+<%= hidden_field_tag :is_project, 1 %>
+<%= hidden_field_tag :subfeed, "project" %>
+<%= hidden_field_tag :project_id, @project.id %>
+<%= hidden_field_tag :profile_id, @item.blank? ? Core.profile.account : @item.account%>
+<%= hidden_field_tag :date, date_str, :id=>"dateTweet"%>
+<%= f.hidden_field :created_user_id, :value=>Core.profile._id %>
+<table class="show">
+  <tr>
+    <td><%= f.text_area :body , :value=>"何か書く", :style=>"color: #999; height: 60px;" %></td>
+  </tr>
+  <tr>
+    <td>
+
+
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <div class="typeSelect">
+      <span class="photo"><a href="#" onclick="return form_change('photo');">フォト</a></span>
+      <span class="video"><a href="#" onclick="return form_change('video');">動画</a></span>
+      <span class="file"><a href="#" onclick="return form_change('file');">ファイル</a></span>
+      <span class="enquete"><a href="#" onclick="return form_change('enquete');">投票</a></span>
+      </div>
+      <div class="contribution">
+      <span id="leftCount">496</span>
+      <%#publish_select_show(id="tweet_privacy", name="tweet[privacy]",{:pr_id=>@pr_id})%><%#=raw help_link%>
+      <%=f.hidden_field :privacy, :value=>"project_activity"%>
+      <%= f.submit('投稿する', :class=>"button", :onclick=>"return my_submit()") %>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td>
+        <div id="swfupButtons" style="display: none;">
+          <div id="swfBox1">
+            <span>フォト<a href="#" onclick="return form_change('tweet');" class="close">×</a></span><br />
+            <span id="spanButtonPlaceHolder1"></span>
+            <input id="btnCancel1" type="button" value="キャンセル" onclick="swfu1.cancelQueue();" disabled="disabled" />
+            <span>XGAサイズ（1024×768）以上の画像は縮小されます</span>
+          </div>
+          <div id="swfBox2">
+            <span>ファイル<a href="#" onclick="return form_change('tweet');" class="close">×</a></span><br />
+            <span id="spanButtonPlaceHolder2"></span>
+            <input id="btnCancel2" type="button" value="キャンセル" onclick="swfu2.cancelQueue();" disabled="disabled" />
+          </div>
+        </div>
+        <div class="uploadedFilesShow" id="uploadedFiles" style="display: none;"></div>
+        <div id="divStatus"></div>
+        <div id="fsUploadProgress"></div>
+        <div id="fsUploadProgress2"></div>
+        <div id="photoID"></div>
+        <div id="fileID"></div>
+      <div id="video_form" style="display: none;">
+      <div id="videoNotice"></div>
+      <span>動画<a href="#" onclick="return form_change('tweet');" class="close">×</a></span><br />
+        <span>埋め込みURL：</spam><%= f.text_field :url ,:size=>80%><br />
+        <!--<%#= f.text_field :width, :value=>"320" ,:size=>5, :style=>"ime-mode: disabled", :onchange=>"numCheck(this);"%>×
+        <%#= f.text_field :height, :value=>"240" ,:size=>5, :style=>"ime-mode: disabled", :onchange=>"numCheck(this);"%>-->
+        <div>JoruriVideoで動画投稿が終わっていない場合は、先に<%=link_to "こちら", "/_admin/sso?to=video", :target=>"_blank"%>で投稿後、「埋め込みURL」を貼り付けてください。</div><br />
+      </div>
+
+      <div id="enquete_form" style="display: none;">
+        <span>投票<a href="#" onclick="return form_change('tweet');" class="close">×</a></span><br />
+        <span>回答選択肢（最大：10個、文字数制限：20文字）</span><br />
+        <table style="margin-bottom:2px;">
+        <%10.times{|n|%>
+          <tr>
+          <td><%="#{n+1}:"%></td>
+          <td><%= text_field_tag 'enq_opts[]', '', :size=>80%></td>
+          </tr>
+        <%}%>
+        </table>
+      </div>
+      </td>
+  </tr>
+</table>
+<%end%>
+</div>

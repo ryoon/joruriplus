@@ -1,0 +1,63 @@
+
+<td  id="snsMenu">
+<div id="snsMenuContainer">
+<div class="leftMenu">
+    <%= render :partial => "sns/admin/profile_configs/editing_menu", :locals => {:current => @edit_current }%>
+</div>
+
+</div>
+</td>
+<td id="snsContent" colspan="2" class="configs">
+
+<div class="bread_crumbs">
+</div>
+<div class="menu">
+  <div class="leftMenu">
+    <%= render :partial => "header" %>
+<table class="show">
+  <tr>
+    <th>ニュースフィード表示件数</th>
+    <td><%=post_update_limit %>件</td>
+  </tr>
+  <tr>
+    <th>プロジェクトアクティビティへの投稿</th>
+    <td><%=notice_show(@item.project_activity) %></td>
+  </tr>
+  <tr>
+    <th>プロジェクトアクティビティへのコメント</th>
+    <td><%=notice_show(@item.project_activity_comment) %></td>
+  </tr>
+  <tr>
+    <th>プロジェクト電子会議室への投稿</th>
+    <td><%=notice_show(@item.project_thread) %></td>
+  </tr>
+  <tr>
+    <th>プロジェクト電子会議室へのコメント</th>
+    <td><%=notice_show(@item.project_comment) %></td>
+  </tr>
+  <tr>
+    <th>プロジェクトメンバーへの招待</th>
+    <td><%=notice_show(@item.project_member) %></td>
+  </tr>
+  <tr>
+    <th>プロジェクトメンバーの更新</th>
+    <td><%=notice_show(@item.project) %></td>
+  </tr>
+  <tr>
+    <th>プロジェクトのスケジュールが更新</th>
+    <td><%=notice_show(@item.schedule) %></td>
+  </tr>
+  <tr>
+    <th>友達申請／承認</th>
+    <td><%=notice_show(@item.proposal) %></td>
+  </tr>
+  <tr>
+    <th>友達がノートを更新した</th>
+    <td><%=notice_show(@item.note) %></td>
+  </tr>
+</table>
+
+<%=link_to("編集する",edit_sns_activity_config_path(@item), :class=>"button")%>
+  </div>
+</div>
+</td>

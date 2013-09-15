@@ -1,0 +1,11 @@
+<%
+photo_path = @item.public_uri
+if params[:size]=="thumb"
+  photo_path = @item.thumb_public_uri
+elsif params[:size]=="p_thumb"
+  photo_path = @item.prof_thumb_public_uri
+else params[:size]=="resize"
+  photo_path = @item.resized_public_uri
+end
+%>
+<%=image_tag photo_path, :alt=>@item.original_file_name %>

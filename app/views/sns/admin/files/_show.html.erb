@@ -1,0 +1,22 @@
+  <table style="width: 100%;" class="show">
+      <%if @item.is_project != 1%>
+      <tr>
+        <th>公開範囲</th>
+        <td><span title="<%=@item.custom_group_members%>"><%= @item.range_show%></span></td>
+      </tr>
+      <%else%>
+      <tr>
+        <th>作成者</th>
+        <td><%=safe{@item.created_user.name}%></td>
+      <tr>
+      <tr>
+        <th>作成日</th>
+        <td><%=safe{@item.created_at.strftime("%Y-%m-%d %H:%M")}%></td>
+      <tr>
+      <%end%>
+  <tr>
+    <th>ファイル名</th>
+    <td>
+      <%= link_to("#{@item.display_file_name}",@item.public_uri,:class => file_icon_class(@item.file_name) ,:target => '_blank') %>
+    </td>
+  </table>

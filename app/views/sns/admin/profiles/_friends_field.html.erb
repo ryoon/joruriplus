@@ -1,0 +1,30 @@
+<div class="resentMember">
+  <div class="pieceHeader">オンラインの友達</div>
+  <div class="pieceBody">
+<div  id="friendField">
+読み込み中…
+</div>
+<script type="text/javascript">
+//<![CDATA[
+
+jQuery.noConflict();
+jQuery(document).ready(function($){
+  function refresh(){
+    $.ajax({
+        type: 'GET',
+        url:  '<%=sns_presences_path%>',
+        contentType: 'application/json',
+        dataType: 'text',
+        success: function(request) {
+          $('#friendField').html(request);
+        }
+    });
+  }
+
+  refresh(); setInterval(refresh, 180000); // 1min
+  });
+//]]>
+</script>
+<div class="showAll"><%=link_to(">>すべての友達を見る", sns_friends_path)%></div>
+  </div>
+</div>

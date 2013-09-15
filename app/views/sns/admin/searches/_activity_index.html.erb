@@ -1,0 +1,18 @@
+<%unless @activities.blank?%>
+<h2 class="project">アクティビティの検索結果</h2>
+<table style="width: 100%;" class="show" id="updateField<%='project' if @cl!='ctivity'%>">
+<tr class="fieldBase"><td class="left"></td><td class="right"></td></tr>
+<%for item in @activities%>
+  <%feed_user = item.created_user%>
+  <%= render :partial => "sns/admin/posts/project_item", :locals=>{:item => item, :feed_user=>feed_user, :is_join=>true,:is_admin=>false}%>
+<%end unless @activities.blank?%>
+</table>
+
+<%if @cl=="activity"%>
+  <%= paginate @activities %>
+<%else%>
+<div class="pagination">
+   <%=link_to "アクティビティ内の検索結果を見る",sns_searches_path({:keyword=>@word,:cl=>"activity"})%>
+</div>
+<%end%>
+<%end%>

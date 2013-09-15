@@ -1,0 +1,44 @@
+<%
+today = Date.today
+%>
+<div class="resentMember">
+  <div class="pieceHeader">スケジュール</div>
+  <div class="pieceBody">
+
+<table class="scheduleCalender">
+<tbody>
+<tr class="head">
+<td colspan="7"><%=today.strftime("%Y年%m月")%></td>
+</tr>
+<tr class="wdays">
+<td class="sun">日</td>
+<td class="weekday">月</td>
+<td class="weekday">火</td>
+<td class="weekday">水</td>
+<td class="weekday">木</td>
+<td class="weekday">金</td>
+<td class="sat">土</td>
+</tr>
+
+<%@calendar.days.each_with_index{ |day, index|%>
+<%next if day[:wday_class]!="sun"%>
+<tr class="days">
+<%@calendar.week_days(index).each do |td|%>
+<td class="<%=td[:td_class]%>"><%=td[:day]%></td>
+<%end%>
+</tr>
+<%}%>
+
+<tr class="bottom">
+<td colspan="7">
+  <span class="last_month">←</span>
+  <%=link_to "前の月", sns_schedules_path(@project_code,{:year=>today.year, :month=>today.months_ago(1).month})%><span>|</span>
+  <%=link_to "一覧へ", sns_schedules_path(@project_code,{:year=>today.year, :month=>today.month})%><span>|</span>
+  <%=link_to "次の月", sns_schedules_path(@project_code,{:year=>today.year, :month=>today.months_since(1).month})%>
+  <span span="following_month">→</span>
+</td>
+</tr>
+</tbody>
+</table>
+  </div>
+</div>

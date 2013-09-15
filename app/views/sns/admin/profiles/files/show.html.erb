@@ -1,0 +1,34 @@
+<td id="snsMenu" class="<%='showPhoto' if @created_user.account != Core.profile.account%>">
+<%if @created_user.account == Core.profile.account%>
+<div id="snsMenuContainer">
+<div class="profileContainer">
+  <%= render :partial => "sns/admin/base/profile_menu"%>
+</div>
+</div>
+<%else%>
+  <%= render :partial => "sns/admin/base/user_menu"%>
+<%end%>
+</td>
+
+<td id="snsContent" colspan="2" class="detail">
+
+<div class="bread_crumbs">
+
+</div>
+
+<div class="menu">
+  <div class="leftMenu">
+    <h2 class="file">ファイル</h2>
+    <%feed_user = @item.created_user %>
+
+  <%= render :partial => "sns/admin/files/show", :locals => {:is_project=>0} %>
+  <div class="myFunction">
+    <%if feed_user.user_id == Core.user.id%>
+       <%= link_to "編集する",edit_sns_user_file_path(@created_user.account,@item),:class => :edit if @u_role%>
+       <%=link_to "削除する",sns_user_file_path(@created_user.account,@item),:method=>:delete,
+  :class => :delete, :title => "削除する", :confirm=>"この投稿を削除します。よろしいですか？"  if @u_role%>
+     <%end unless feed_user.blank?%>
+  </div>
+  </div>
+</div>
+</td>

@@ -1,0 +1,82 @@
+
+<td id="snsMenu">
+<div id="snsMenuContainer">
+<div class="profileContainer">
+<%= render :partial => "sns/admin/base/project_menu"%>
+</div>
+</td>
+<td  id="snsContent" colspan="2" class="project">
+<div class="menu">
+  <div class="leftMenu configs">
+    <h2 class="project"><%=@item.title%></h2>
+    <%=link_to "プロジェクト一覧へ戻る", sns_projects_path%>
+  <table class="show">
+    <tr>
+      <th>名称</th>
+      <td><%= @item.title%></td>
+    </tr>
+    <tr>
+      <th>公開範囲</th>
+      <td><%= @item.publish_show %></td>
+    </tr>
+    <tr>
+      <th>概要</th>
+      <td><%= raw @item.caption %></td>
+    </tr>
+    <tr>
+      <th>プロジェクト全体のファイル容量制限</th>
+      <td><%= @item.project_file_limit_show %>MB</td>
+    </tr>
+    <tr>
+      <th>1投稿あたりのファイル容量制限</th>
+      <td><%= @item.post_file_limit_show %>MB</td>
+    </tr>
+    <tr>
+      <th>現在のファイル容量</th>
+      <td><%= @item.file_size_show %></td>
+    </tr>
+     <%if enable_reminder%>
+    <tr>
+      <th>Gwリマインダーへの更新情報表示</th>
+      <td><%= @item.reminder_config_show %></td>
+    </tr>
+    <%end%>
+  </table>
+    <%if !@photos.blank? || !@files.blank?%>
+    <div id="uploadedFiles" class="uploadedFilesShow">
+      <%for photo in @photos%>
+        <span id="uploadedFile<%=photo.id%>" class="uploadedFile">
+        <span id="uploadedShow<%=photo.id%>">
+        <a href="<%=photo.download_uri%>" class="uploadedFileName <%=file_icon_class(photo.file_name)%>" target="_blank"><%=photo.display_file_name%></a>
+        </span>
+        </span>
+      <%end if @photos%>
+      <%for file in @files%>
+        <span id="uploadedFile<%=file.id%>" class="uploadedFile">
+        <span id="uploadedShow<%=file.id%>">
+        <a href="<%=file.public_uri%>" class="uploadedFileName <%=file_icon_class(file.file_name)%>" onclick="return downloadUploadedFile(this.href);"><%=file.display_file_name%></a>
+        </span>
+        </span>
+      <%end if @files%>
+    </div>
+    <%end%>
+
+     <div class="myFunction">
+       <%=link_to "アクティビティへ", sns_reports_path(@item.code),:class=>"button"%>
+       <%=link_to "電子会議室へ", sns_conferences_path(@item.code),:class=>"button"%>
+       <%if !@item.is_join? && @item.publish == "public"%>
+        <%if @already_submit == false%>
+          <%=link_to "プロジェクト参加希望申請を出す", motion_sns_proposals_path(@item.code,{:kind=>"join", :do=>"submit"}),:class=>"button"%>
+        <%else%>
+          <%=link_to "プロジェクト参加希望申請を取り消す", motion_sns_proposals_path(@item.code,{:kind=>"join", :do=>"cansel"}),:class=>"button"%>
+        <%end%>
+      <%end%>
+       <%= link_to "編集する",edit_sns_project_path(@item),:class => "button" if @item.is_admin?%>
+       <%=link_to "削除する",sns_project_path(@item),:method=>:delete,
+        :class => :delete, :title => "削除", :confirm=>"このプロジェクトを削除します。よろしいですか？" if Core.user.has_auth?(:manager)%>
+     </div>
+
+    <%= render :partial => "members_show"%>
+  </div>
+</div>
+</td>
