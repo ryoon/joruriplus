@@ -1,0 +1,5 @@
+<%if @list.blank?%>
+現在オンラインのメンバーはいません
+<%else%>
+<%= render :partial => "ajax_index" %>
+<%end%>

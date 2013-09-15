@@ -18,7 +18,8 @@ class Sns::Admin::Profiles::PresencesController < Sys::Controller::Admin::Base
       @list = Sns::Profile.where(:_id.in=>p_user_id).order_by([:sort_no, :asc]) unless p_user_id.blank?
     end
     respond_to do |format|
-      format.html {  }
+      format.text { }
+      format.html { redirect_to "/_admin" }
     end
   end
 
@@ -41,7 +42,8 @@ class Sns::Admin::Profiles::PresencesController < Sys::Controller::Admin::Base
       @list = Sns::Profile.where(:_id.in=>p_user_id).order_by([:sort_no, :asc]) unless p_user_id.blank?
     end
     respond_to do |format|
-      format.html {  }
+      format.text { }
+      format.html { redirect_to "/_admin" }
     end
   end
 
@@ -52,7 +54,10 @@ class Sns::Admin::Profiles::PresencesController < Sys::Controller::Admin::Base
     @item.user_id = Core.profile.id
     @item.presence_at = Time.now
     @item.save({:validate=>false})
-    render :text=>"OK"
+    respond_to do |format|
+      format.text { render :text => 'OK', :layout => false}
+      format.html { redirect_to "/_admin" }
+    end
   end
 
   def stack
@@ -63,7 +68,7 @@ class Sns::Admin::Profiles::PresencesController < Sys::Controller::Admin::Base
     p_ids = Core.profile.project_select
     @stacks = Sns::Post.stack_call(prof_friend[1], p_ids).where(:created_at.gt=>stack_time).desc(:created_at)
     respond_to do |format|
-      format.html { :layou }
+      format.html { :layout }
     end
   end
 

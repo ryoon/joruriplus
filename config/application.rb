@@ -8,7 +8,7 @@ Bundler.require(:default, Rails.env) if defined?(Bundler)
 
 module Joruri
   def self.version
-    "1.0.0"
+    "1.0.1"
   end
 
   def self.config
