@@ -36,15 +36,18 @@ class Sys::Admin::UsersController < Sys::Controller::Admin::Base
 
   def create
     @item = Sys::User.new(params[:item])
-    update_profile
-    _create(@item)
+
+    _create(@item) do
+      update_profile
+    end
   end
 
   def update
     @item = Sys::User.new.find(params[:id])
     @item.attributes = params[:item]
-    update_profile
-    _update(@item)
+    _update(@item) do
+      update_profile
+    end
   end
 
   def destroy

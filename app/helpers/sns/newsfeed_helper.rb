@@ -8,6 +8,7 @@ module Sns::NewsfeedHelper
     str = str.gsub(/\r\n|\r|\n/, '<br />')
     str = uri_to_link(str)
     str = mailaddr_to_link(str)
+    return nil if str.blank?
     return str.html_safe
   end
 

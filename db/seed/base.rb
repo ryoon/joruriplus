@@ -15,7 +15,7 @@ end
 ## ---------------------------------------------------------
 ## truncate
 
-dir = "#{Rails.root}/db/seed/base" 
+dir = "#{Rails.root}/db/seed/base"
 Dir::entries(dir).each do |file|
   next if file !~ /\.rb$/
   load_seed_file "base/#{file}"
@@ -45,7 +45,7 @@ Sys::Group.create({
 
 Sys::User.create({
   :state           => 'enabled',
-  :ldap            => 1,
+  :ldap            => 0,
   :auth_no         => 5,
   :name            => "システム管理者",
   :account         => "admin",
@@ -73,41 +73,5 @@ Sys::Language.create({
   :title   => '日本語'
 })
 
-site = Cms::Site.create({
-  :state    => 'public',
-  :name     => core_title,
-  :full_uri => core_uri,
-  :node_id  => 1,
-  :map_key  => map_key
-})
-
-#Cms::Concept.create({
-#  :site_id   => 1,
-#  :parent_id => 0,
-#  :state     => 'public',
-#  :level_no  => 1,
-#  :sort_no   => 1,
-#  :name      => core_title
-#})
-#
-#d = Cms::Node.create({
-#  :site_id      => 1,
-#  :concept_id   => 1,
-#  :parent_id    => 0,
-#  :route_id     => 0,
-#  :state        => 'public',
-#  :published_at => Time.now,
-#  :directory    => 1,
-#  :model        => 'Cms::Directory',
-#  :name         => '/',
-#  :title        => core_title
-#})
-#Cms::Node.create(d.attributes.merge({
-#  :parent_id    => 1,
-#  :route_id     => 1,
-#  :directory    => 0,
-#  :model        => 'Cms::Page',
-#  :name         => 'index.html'
-#}))
 
 puts "Imported base data."

@@ -6,7 +6,12 @@ class Sns::Admin::Projects::MembersController < Sys::Controller::Admin::Base
   def pre_dispatch
     @project = Sns::Project.find(:first, :conditions=>{:code=>params[:parent]})
     return redirect_to sns_projects_path if @project.blank?
-    return redirect_to sns_projects_path if @project.auth_check==false
+    if params[:action]=="approval"
+      #権限判定をスキップ
+    else
+      return redirect_to sns_projects_path if @project.auth_check==false
+    end
+
     @project_code = @project.code
     @u_role = @project.is_admin?
     @class = "join"

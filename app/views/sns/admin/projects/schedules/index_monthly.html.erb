@@ -47,7 +47,7 @@
     <tr class="days">
     <%@calendar.week_days(index).each do |header|%>
       <td class="<%=header[:td_class]%> day">
-        <%=link_to raw("<span>#{header[:day]}</span>"), daily_sns_schedules_path(@project.code, {:st_date=>"#{header[:year]}#{header[:month]}#{header[:day]}"})%>
+        <%=link_to raw("<span>#{header[:day]}</span>"), daily_sns_schedules_path(@project.code, {:st_date=>safe{header[:date].gsub(/-/,"")}})%>
         <!--<span><%#=header[:day]%><br /></span>-->
         <span class="add"><%=link_to "追加する",new_sns_schedule_path(@project_code,{:st_date=>header[:date]}) if @project.is_join?%></span>
       </td>

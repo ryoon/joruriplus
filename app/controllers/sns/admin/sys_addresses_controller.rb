@@ -24,7 +24,7 @@ class Sns::Admin::SysAddressesController < Sys::Controller::Admin::Base
 
     @users = []
     unless params[:word].blank?
-      target = /.*#{params[:word]}.*/
+      target = params[:word]
       @users = Sns::Profile.word_query(target).order_by([[:sort_no, :asc]])
       @show_id = "Search1"
     end

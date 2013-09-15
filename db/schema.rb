@@ -573,8 +573,8 @@ ActiveRecord::Schema.define(:version => 20101025002218) do
     t.string   "email"
     t.string   "kana"
     t.string   "sort_no"
-    t.string   "official_position"
-    t.string   "assigned_job"
+    t.string   "title"
+    t.string   "employee_type"
     t.string   "group_s_name"
   end
 

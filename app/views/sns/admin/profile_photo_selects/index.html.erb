@@ -12,8 +12,7 @@
 <div style="float: left; margin-right:10px;margin-bottom:10px;">
 <%=link_to image_tag(item.prof_thumb_public_uri, :alt=>item.display_file_name, :height=>"100px", :style=>"border: 1px solid #BAAAA9;"), "javascript:void(0);",
   :class=>"photoSelect", :id=>"bt#{item.id}" %><br />
-<%= link_to "削除する", sns_profile_photo_path(item),:method=>:delete, :style=>"float: right; font-size: 90%; color:#000; float: right;",
-  :class => :delete, :title => "削除", :confirm=>"この画像を削除します。よろしいですか？", :remote=>true%>
+<%= link_to '削除する', {:action => :destroy, :id => item.id}, :method => :delete, :confirm => 'この画像を削除します。よろしいですか？', :style=>"float: right; font-size: 90%; color:#000; float: right;" %>
 </div>
 <%end unless @photos.blank?%>
 <%for item in @samples%>

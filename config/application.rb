@@ -7,17 +7,10 @@ require 'rails/all'
 Bundler.require(:default, Rails.env) if defined?(Bundler)
 
 module Joruri
-  def self.version
-    "1.0.1"
-  end
-
-  def self.config
-    $joruri_config ||= {}
-    Joruri::Config
-  end
-
   class Application < Rails::Application
-    # Settings in config/environments/* take precedence over those specified here.
+    require "#{Rails.root}/lib/joruri"
+		
+		# Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
 
@@ -56,24 +49,6 @@ module Joruri
 
     # Configure sensitive parameters which will be filtered from the log file.
     config.filter_parameters += [:password]
-  end
-
-  class Joruri::Config
-
-    def self.session_settings
-      $joruri_config[:session_settings]
-    end
-
-    def self.session_settings=(config)
-      $joruri_config[:session_settings] = config
-    end
-    def self.sso_settings
-      $joruri_config[:sso_settings]
-    end
-
-    def self.sso_settings=(config)
-      $joruri_config[:sso_settings] = config
-    end
   end
 end
 

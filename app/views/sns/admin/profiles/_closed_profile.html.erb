@@ -14,10 +14,8 @@ is_auth = Core.user.has_auth?(:manager)
 is_photo_dl = p_photo && (is_mine_prof || is_auth) ? true : false
 %>
 
-<%if is_photo_dl%>
-<%#=image_tag(@item.profile_photo_path, :alt => @item.name, :align => 'center', :border => 0, :width=>160)%>
-<%=link_to "プロフィール写真をダウンロードする", p_photo.download_uri, :class=>"button"%>
-<%end%>
+<%=link_to "プロフィール写真をダウンロードする", p_photo.download_uri, :class=>"button" if is_photo_dl%>
+
 
 <%if is_menu_enabled("base_info")%>
 <div class="profileData<%="1" if data_column == 1 %>">

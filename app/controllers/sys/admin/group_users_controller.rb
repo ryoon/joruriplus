@@ -32,15 +32,17 @@ class Sys::Admin::GroupUsersController < Sys::Controller::Admin::Base
 
   def create
     @item = Sys::User.new(params[:item])
-    update_profile
-    _create(@item, :location => sys_groups_path(@parent))
+    _create(@item, :location => sys_groups_path(@parent)) do
+      update_profile
+    end
   end
 
   def update
     @item = Sys::User.new.find(params[:id])
     @item.attributes = params[:item]
-    update_profile
-    _update(@item, :location => sys_groups_path(@parent))
+    _update(@item, :location => sys_groups_path(@parent)) do
+      update_profile
+    end
   end
 
   def destroy

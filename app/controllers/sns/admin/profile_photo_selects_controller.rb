@@ -24,6 +24,17 @@ class Sns::Admin::ProfilePhotoSelectsController < Sys::Controller::Admin::Base
   end
 
 
+  def destroy
+    @item = Sns::Photo.find(params[:id])
+    if @item.destroy
+      @item.default_photo(Core.profile)
+      flash[:notice] = "指定の画像を削除しました。"
+    else
+      flash[:notice] = "指定の画像の削除に失敗しました。"
+    end
+    return redirect_to sns_profile_photo_selects_path
+  end
+
   def upload
     skip_layout
     @item = Sns::Photo.new

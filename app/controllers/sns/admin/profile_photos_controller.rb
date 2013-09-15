@@ -31,23 +31,23 @@ class Sns::Admin::ProfilePhotosController < Sys::Controller::Admin::Base
   end
 
   def destroy
-    @item = Sns::Photo.find(params[:id])
+    @item = Sns::Photo.where(:_id => params[:id]).first
     if @item.destroy
       @item.default_photo(Core.profile)
       flash[:notice] = "指定の画像を削除しました。"
     else
       flash[:notice] = "指定の画像の削除に失敗しました。"
-    end
+    end unless @item.blank?
     return redirect_to sns_profile_photo_selects_path
   end
 
   def select
-    item = Sns::Photo.find(params[:id])
-    if item.blank?
-      flash[:notice] = "プロフィール画像の変更に失敗しました。"
+    @item = Sns::Photo.where(:_id => params[:id]).first
+    if @item.blank?
+      flash[:notice] = "プロフィール画像はすでに削除されています。"
     else
-      Core.profile.photo_path = item.prof_thumb_public_uri
-      Core.profile.thumb_photo_path = item.prof_thumb_public_uri
+      Core.profile.photo_path = @item.prof_thumb_public_uri
+      Core.profile.thumb_photo_path = @item.prof_thumb_public_uri
       if Core.profile.save
         flash[:notice] = "プロフィール画像を変更しました。"
       else

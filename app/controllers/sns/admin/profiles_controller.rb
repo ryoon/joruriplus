@@ -44,8 +44,10 @@ class Sns::Admin::ProfilesController < Sys::Controller::Admin::Base
   def show
     class_params(params[:cl])
     @item  = Sns::Profile.find(:first, :conditions => {:account => params[:id]} )
+    return http_error(404) if @item.blank?
     @office = @item.office
-    return redirect_to sns_profiles_path if @item.blank?
+    @user_data = Sys::User.find(:first, :conditions=>["id = ?" , @item.user_id])
+    return http_error(404) if @user_data.blank?
     @friends = @item.show_friends
     prof_friend = @item.get_friend_info
 
